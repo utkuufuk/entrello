@@ -7,20 +7,19 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-type Params struct {
-	Name  string `yaml:"name"`
-	Value string `yaml:"value"`
+type TodoDock struct {
+	Email    string `yaml:"email"`
+	Password string `yaml:"password"`
 }
 
-type Source struct {
-	Name   string   `yaml:"name"`
-	Params []Params `yaml:"params"`
+type Sources struct {
+	TodoDock TodoDock `yaml:"tododock"`
 }
 
 type Config struct {
-	TrelloApiKey   string   `yaml:"trello_api_key"`
-	TrelloApiToken string   `yaml:"trello_api_token"`
-	Sources        []Source `yaml:"sources"`
+	TrelloApiKey   string  `yaml:"trello_api_key"`
+	TrelloApiToken string  `yaml:"trello_api_token"`
+	Sources        Sources `yaml:"sources"`
 }
 
 func ReadConfig(fileName string) (cfg Config, err error) {
