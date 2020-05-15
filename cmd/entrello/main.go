@@ -5,7 +5,13 @@ import (
 
 	"github.com/utkuufuk/entrello/internal/config"
 	"github.com/utkuufuk/entrello/internal/tododock"
+	"github.com/utkuufuk/entrello/internal/trello"
 )
+
+type Source interface {
+	GetCards() ([]trello.Card, error)
+	GetName() string
+}
 
 func main() {
 	cfg, err := config.ReadConfig("config.yml")
