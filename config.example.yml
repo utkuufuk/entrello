@@ -1,0 +1,11 @@
+api_key: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+api_token: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+sources:
+  - name: example
+    params:
+      - name: email
+        value: abc@def.com
+
+      - name: password
+        value: xxxxxxxxxxx
