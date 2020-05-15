@@ -57,10 +57,14 @@ func (t TodoDockSource) fetchTasks(id int, token string) (tasks []task, err erro
 
 func toCards(tasks []task) (c []trello.Card, err error) {
 	c = make([]trello.Card, 0, len(tasks))
+	soon := time.Now().AddDate(0, 0, 2)
 	for _, t := range tasks {
-		d, err := time.Parse("2006-01-06 15:04:05", t.NextResetDate)
-		if err != nil {
-			return c, fmt.Errorf("could not parse next reset date '%s': %w", t.NextResetDate, err)
+		d, ok, err := shouldCreateCard(t, soon)
+		if !ok {
+			if err != nil {
+				return c, err
+			}
+			continue
 		}
 
 		c = append(c, trello.Card{
@@ -71,4 +75,17 @@ func toCards(tasks []task) (c []trello.Card, err error) {
 		})
 	}
 	return c, nil
+}
+
+func shouldCreateCard(t task, ref time.Time) (d time.Time, ok bool, err error) {
+	d, err = time.Parse("2006-01-02 15:04:05", t.NextResetDate)
+	if err != nil {
+		return ref, false, fmt.Errorf("could not parse next reset date '%s': %w", t.NextResetDate, err)
+	}
+
+	// only create a card for active taks that are due soon
+	if t.State != "active" || d.After(ref) {
+		return ref, false, nil
+	}
+	return d, true, nil
 }
