@@ -11,14 +11,14 @@ import (
 )
 
 type task struct {
-	ID            int         `json:"id"`
-	Name          string      `json:"name"`
-	State         string      `json:"state"`
-	Color         string      `json:"color"`
-	Notes         interface{} `json:"notes"`
-	Period        int         `json:"period"`
-	NextResetDate string      `json:"next_reset_date"`
-	MuteEmails    int         `json:"mute_reminder_emails"`
+	ID            int    `json:"id"`
+	Name          string `json:"name"`
+	State         string `json:"state"`
+	Color         string `json:"color"`
+	Notes         string `json:"notes"`
+	Period        int    `json:"period"`
+	NextResetDate string `json:"next_reset_date"`
+	MuteEmails    int    `json:"mute_reminder_emails"`
 }
 
 type fetchTasksResponse struct {
@@ -68,10 +68,9 @@ func toCards(tasks []task) (c []trello.Card, err error) {
 		}
 
 		c = append(c, trello.Card{
-			Name:    t.Name,
-			Label:   "TodoDock",
-			List:    "To-Do",
-			DueDate: d,
+			Name:        t.Name,
+			Description: t.Notes,
+			DueDate:     d,
 		})
 	}
 	return c, nil

@@ -1,5 +1,8 @@
 api_key: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 api_token: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+list_id: xxxxxxxxxxxxxxxxxxxxxxxx
+board_id: xxxxxxxxxxxxxxxxxxxxxxxx
+label_id: xxxxxxxxxxxxxxxxxxxxxxxx
 
 sources:
   example:

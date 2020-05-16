@@ -24,6 +24,13 @@ func main() {
 		log.Fatalf("[-] could not collect trello card sources: %v", err)
 	}
 
+	client := trello.NewClient(cfg)
+	cardMap, err := client.FetchBoardCards()
+
+	if err != nil {
+		log.Fatalf("[-] could not fetch cards in Tasks board: %v", err)
+	}
+
 	for _, source := range sources {
 		cards, err := source.GetCards()
 		if err != nil {
@@ -31,7 +38,16 @@ func main() {
 		}
 
 		for _, card := range cards {
-			log.Printf("%v\n", card)
+			if _, ok := cardMap[card.Name]; ok {
+				log.Printf("[+] skipping '%s' as it already exists...\n", card.Name)
+				continue
+			}
+
+			err = client.AddCard(card)
+			if err != nil {
+				log.Printf("[-] could not create card '%s': %v", card.Name, err)
+			}
+			log.Printf("[+] created new card: '%s'\n", card.Name)
 		}
 	}
 }

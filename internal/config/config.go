@@ -19,6 +19,9 @@ type Sources struct {
 type Config struct {
 	TrelloApiKey   string  `yaml:"trello_api_key"`
 	TrelloApiToken string  `yaml:"trello_api_token"`
+	BoardId        string  `yaml:"board_id"`
+	ListId         string  `yaml:"list_id"`
+	LabelId        string  `yaml:"label_id"`
 	Sources        Sources `yaml:"sources"`
 }
 
