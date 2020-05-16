@@ -55,8 +55,9 @@ func main() {
 }
 
 // collectSources populates & returns an array of card sources to be iterated over
-func collectSources(cfg config.Sources) ([]Source, error) {
-	s := make([]Source, 0)
-	s = append(s, tododock.GetSource(cfg.TodoDock))
-	return s, nil
+func collectSources(cfg config.Sources) (s []Source) {
+	if cfg.TodoDock.Enabled {
+		s = append(s, tododock.GetSource(cfg.TodoDock))
+	}
+	return s
 }

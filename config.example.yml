@@ -5,6 +5,7 @@ board_id: xxxxxxxxxxxxxxxxxxxxxxxx
 label_id: xxxxxxxxxxxxxxxxxxxxxxxx
 
 sources:
-  example:
+  tododock:
+    enabled: true
     email: abc@def.com
     password: xxxxxxxx

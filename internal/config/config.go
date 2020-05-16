@@ -8,6 +8,7 @@ import (
 )
 
 type TodoDock struct {
+	Enabled  bool   `yaml:"enabled"`
 	Email    string `yaml:"email"`
 	Password string `yaml:"password"`
 }
