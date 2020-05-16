@@ -64,6 +64,7 @@ func (c Client) AddCard(card Card) error {
 	return c.client.CreateCard(&trello.Card{
 		Name:     card.Name,
 		Desc:     card.Description,
+		Due:      &card.DueDate,
 		IDList:   c.listId,
 		IDLabels: []string{c.labelId},
 	}, trello.Defaults())
