@@ -46,6 +46,7 @@ func (c Client) FetchBoardCards() (map[string]bool, error) {
 	}
 
 	// add card in the map only if it contains the TodoDock label
+	// FIXME: must return all cards & save existing labels, otherwise this won't allow multiple sources
 	m := map[string]bool{}
 	for _, card := range cards {
 		for _, label := range card.IDLabels {
@@ -63,6 +64,7 @@ func (c Client) AddCard(card Card) error {
 	return c.client.CreateCard(&trello.Card{
 		Name:     card.Name,
 		Desc:     card.Description,
+		Due:      &card.DueDate,
 		IDList:   c.listId,
 		IDLabels: []string{c.labelId},
 	}, trello.Defaults())

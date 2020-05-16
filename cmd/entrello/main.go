@@ -20,12 +20,14 @@ func main() {
 		log.Fatalf("[-] could not read config variables: %v", err)
 	}
 
-	sources, err := collectSources(cfg.Sources)
-	if err != nil {
-		log.Fatalf("[-] could not collect card sources: %v", err)
+	sources := collectSources(cfg.Sources)
+	if len(sources) == 0 {
+		log.Println("[+] no sources enabled, aborting...")
+		return
 	}
 
 	// fetch all existing cards in the board with the "TodoDock" label
+	// FIXME: this will break when another source is introduced, convert to map[string]string instead
 	client := trello.NewClient(cfg)
 	cardMap, err := client.FetchBoardCards()
 	if err != nil {
@@ -55,8 +57,9 @@ func main() {
 }
 
 // collectSources populates & returns an array of card sources to be iterated over
-func collectSources(cfg config.Sources) ([]Source, error) {
-	s := make([]Source, 0)
-	s = append(s, tododock.GetSource(cfg.TodoDock))
-	return s, nil
+func collectSources(cfg config.Sources) (s []Source) {
+	if cfg.TodoDock.Enabled {
+		s = append(s, tododock.GetSource(cfg.TodoDock))
+	}
+	return s
 }
