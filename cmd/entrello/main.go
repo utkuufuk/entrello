@@ -8,6 +8,7 @@ import (
 	"github.com/utkuufuk/entrello/internal/trello"
 )
 
+// Source represents a card source which exports a name and a getter for the cards to be created
 type Source interface {
 	GetCards() ([]trello.Card, error)
 	GetName() string
@@ -21,12 +22,12 @@ func main() {
 
 	sources, err := collectSources(cfg.Sources)
 	if err != nil {
-		log.Fatalf("[-] could not collect trello card sources: %v", err)
+		log.Fatalf("[-] could not collect card sources: %v", err)
 	}
 
+	// fetch all existing cards in the board with the "TodoDock" label
 	client := trello.NewClient(cfg)
 	cardMap, err := client.FetchBoardCards()
-
 	if err != nil {
 		log.Fatalf("[-] could not fetch cards in Tasks board: %v", err)
 	}
@@ -38,6 +39,7 @@ func main() {
 		}
 
 		for _, card := range cards {
+			// do not create cards with duplicate names if they both have the "TodoDock" label
 			if _, ok := cardMap[card.Name]; ok {
 				log.Printf("[+] skipping '%s' as it already exists...\n", card.Name)
 				continue
@@ -52,6 +54,7 @@ func main() {
 	}
 }
 
+// collectSources populates & returns an array of card sources to be iterated over
 func collectSources(cfg config.Sources) ([]Source, error) {
 	s := make([]Source, 0)
 	s = append(s, tododock.GetSource(cfg.TodoDock))

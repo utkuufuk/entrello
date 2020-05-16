@@ -10,6 +10,7 @@ import (
 	"github.com/utkuufuk/entrello/internal/trello"
 )
 
+// task represents the TodoDock task model
 type task struct {
 	ID            int    `json:"id"`
 	Name          string `json:"name"`
@@ -21,6 +22,8 @@ type task struct {
 	MuteEmails    int    `json:"mute_reminder_emails"`
 }
 
+// fetchTaskResponse represents the HTTP response body returned upon a successful
+// GET request to the TodoDock task-fetch API endpoint
 type fetchTasksResponse struct {
 	Data struct {
 		UserID int    `json:"user_id"`
@@ -28,6 +31,7 @@ type fetchTasksResponse struct {
 	} `json:"data"`
 }
 
+// fetchTasks retrieves all TodoDock tasks owned by the logged-in user with the given ID
 func (t TodoDockSource) fetchTasks(id int, token string) (tasks []task, err error) {
 	// build GET request with auth header
 	url := fmt.Sprintf("%s/tasks/%d", BASE_URL, id)
@@ -55,6 +59,8 @@ func (t TodoDockSource) fetchTasks(id int, token string) (tasks []task, err erro
 	return res.Data.Tasks, nil
 }
 
+// toCards cherry-picks the 'active' and 'due' tasks from a list of tasks,
+// then returns a list of cards containing those
 func toCards(tasks []task) (c []trello.Card, err error) {
 	c = make([]trello.Card, 0, len(tasks))
 	soon := time.Now().AddDate(0, 0, 2)
@@ -76,6 +82,8 @@ func toCards(tasks []task) (c []trello.Card, err error) {
 	return c, nil
 }
 
+// shouldCreateCard decides if a Trello card should be created from the given TodoDock task
+// by looking at the 'status' & 'next reset date' attributes of the task
 func shouldCreateCard(t task, ref time.Time) (d time.Time, ok bool, err error) {
 	d, err = time.Parse("2006-01-02 15:04:05", t.NextResetDate)
 	if err != nil {

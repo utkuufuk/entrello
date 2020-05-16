@@ -25,6 +25,7 @@ type Config struct {
 	Sources        Sources `yaml:"sources"`
 }
 
+// ReadConfig reads the YAML config file & decodes all parameters
 func ReadConfig(fileName string) (cfg Config, err error) {
 	// open config file
 	f, err := os.Open(fileName)

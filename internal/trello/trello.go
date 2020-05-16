@@ -8,6 +8,7 @@ import (
 	"github.com/utkuufuk/entrello/internal/config"
 )
 
+// Card represents a Trello card
 type Card struct {
 	// TODO: probably should include ID as well if we want to auto-reset on archive via webhooks
 	Name        string
@@ -31,6 +32,8 @@ func NewClient(cfg config.Config) Client {
 	}
 }
 
+// FetchBoardCards retrieves all cards within the configured board and returns the cards
+// with the "TodoDock" label as a string->bool map (so that it's trivial to look up card names)
 func (c Client) FetchBoardCards() (map[string]bool, error) {
 	board, err := c.client.GetBoard(c.boardId, trello.Defaults())
 	if err != nil {
@@ -55,6 +58,7 @@ func (c Client) FetchBoardCards() (map[string]bool, error) {
 	return m, nil
 }
 
+// AddCard adds the specified card to the configured Trello list
 func (c Client) AddCard(card Card) error {
 	return c.client.CreateCard(&trello.Card{
 		Name:     card.Name,

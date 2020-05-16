@@ -26,6 +26,7 @@ func (t TodoDockSource) GetName() string {
 	return "TodoDock"
 }
 
+// GetCards returns a list of Trello cards that needs to be inserted into the board
 func (t TodoDockSource) GetCards() (cards []trello.Card, err error) {
 	id, token, err := t.login()
 	if err != nil {
@@ -35,6 +36,8 @@ func (t TodoDockSource) GetCards() (cards []trello.Card, err error) {
 	return toCards(tasks)
 }
 
+// login logs-in to TodoDock with the configured user's credentials,
+// and returns the user ID and JWT obtained from the HTTP response
 func (t TodoDockSource) login() (id int, token string, err error) {
 	// build post request body
 	req, err := json.Marshal(map[string]string{
