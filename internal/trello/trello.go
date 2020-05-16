@@ -46,6 +46,7 @@ func (c Client) FetchBoardCards() (map[string]bool, error) {
 	}
 
 	// add card in the map only if it contains the TodoDock label
+	// FIXME: must return all cards & save existing labels, otherwise this won't allow multiple sources
 	m := map[string]bool{}
 	for _, card := range cards {
 		for _, label := range card.IDLabels {
