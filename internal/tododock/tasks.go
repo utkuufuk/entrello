@@ -75,7 +75,7 @@ func toCards(tasks []task) (c []trello.Card, err error) {
 
 		c = append(c, trello.Card{
 			Name:        t.Name,
-			Description: t.Notes,
+			Description: fmt.Sprintf("https://tododock.com/home/%d\n%s", t.ID, t.Notes),
 			DueDate:     d,
 		})
 	}

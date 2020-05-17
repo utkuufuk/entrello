@@ -43,7 +43,6 @@ func main() {
 		for _, card := range cards {
 			// do not create cards with duplicate names if they both have the "TodoDock" label
 			if _, ok := cardMap[card.Name]; ok {
-				log.Printf("[+] skipping '%s' as it already exists...\n", card.Name)
 				continue
 			}
 
