@@ -12,7 +12,7 @@ import (
 
 // task represents the TodoDock task model
 type task struct {
-	ID            int    `json:"id"`
+	Id            int    `json:"id"`
 	Name          string `json:"name"`
 	State         string `json:"state"`
 	Color         string `json:"color"`
@@ -26,7 +26,7 @@ type task struct {
 // GET request to the TodoDock task-fetch API endpoint
 type fetchTasksResponse struct {
 	Data struct {
-		UserID int    `json:"user_id"`
+		UserId int    `json:"user_id"`
 		Tasks  []task `json:"tasks"`
 	} `json:"data"`
 }
@@ -61,7 +61,7 @@ func (t TodoDockSource) fetchTasks(id int, token string) (tasks []task, err erro
 
 // toCards cherry-picks the 'active' and 'due' tasks from a list of tasks,
 // then returns a list of cards containing those
-func toCards(tasks []task) (c []trello.Card, err error) {
+func toCards(tasks []task, labelId string) (c []trello.Card, err error) {
 	c = make([]trello.Card, 0, len(tasks))
 	soon := time.Now().AddDate(0, 0, 2)
 	for _, t := range tasks {
@@ -75,8 +75,9 @@ func toCards(tasks []task) (c []trello.Card, err error) {
 
 		c = append(c, trello.Card{
 			Name:        t.Name,
-			Description: fmt.Sprintf("https://tododock.com/home/%d\n%s", t.ID, t.Notes),
-			DueDate:     d,
+			Description: fmt.Sprintf("https://tododock.com/home/%d\n%s", t.Id, t.Notes),
+			LabelId:     labelId,
+			DueDate:     &d,
 		})
 	}
 	return c, nil

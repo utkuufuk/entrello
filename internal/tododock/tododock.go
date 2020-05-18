@@ -22,10 +22,6 @@ func GetSource(cfg config.TodoDock) TodoDockSource {
 	return TodoDockSource{cfg}
 }
 
-func (t TodoDockSource) GetName() string {
-	return "TodoDock"
-}
-
 // GetCards returns a list of Trello cards that needs to be inserted into the board
 func (t TodoDockSource) GetCards() (cards []trello.Card, err error) {
 	id, token, err := t.login()
@@ -33,7 +29,7 @@ func (t TodoDockSource) GetCards() (cards []trello.Card, err error) {
 		return cards, nil
 	}
 	tasks, err := t.fetchTasks(id, token)
-	return toCards(tasks)
+	return toCards(tasks, t.params.LabelId)
 }
 
 // login logs-in to TodoDock with the configured user's credentials,

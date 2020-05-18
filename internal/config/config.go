@@ -7,14 +7,22 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+type GithubIssues struct {
+	Enabled bool `yaml:"enabled"`
+	Token   string
+	LabelId string `yaml:"label_id"`
+}
+
 type TodoDock struct {
 	Enabled  bool   `yaml:"enabled"`
 	Email    string `yaml:"email"`
 	Password string `yaml:"password"`
+	LabelId  string `yaml:"label_id"`
 }
 
 type Sources struct {
-	TodoDock TodoDock `yaml:"tododock"`
+	GithubIssues GithubIssues `yaml:"github_issues"`
+	TodoDock     TodoDock     `yaml:"tododock"`
 }
 
 type Config struct {
@@ -22,7 +30,6 @@ type Config struct {
 	TrelloApiToken string  `yaml:"trello_api_token"`
 	BoardId        string  `yaml:"board_id"`
 	ListId         string  `yaml:"list_id"`
-	LabelId        string  `yaml:"label_id"`
 	Sources        Sources `yaml:"sources"`
 }
 

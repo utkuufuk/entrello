@@ -2,10 +2,15 @@ api_key: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 api_token: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 list_id: xxxxxxxxxxxxxxxxxxxxxxxx
 board_id: xxxxxxxxxxxxxxxxxxxxxxxx
-label_id: xxxxxxxxxxxxxxxxxxxxxxxx
 
 sources:
+  github_issues:
+    enabled: true
+    token: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    label_id: xxxxxxxxxxxxxxxxxxxxxxxx
+
   tododock:
     enabled: true
     email: abc@def.com
     password: xxxxxxxx
+    label_id: xxxxxxxxxxxxxxxxxxxxxxxx

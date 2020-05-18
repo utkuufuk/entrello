@@ -17,6 +17,9 @@ jobs:
     - name: Check gofmt
       run: test -z "$(gofmt -s -d .)"
 
+    - name: Run go vet
+      run: go vet ./...
+
     - name: Make sure that go.mod has already been tidied
       run: go mod tidy && git diff --no-patch --exit-code
 
