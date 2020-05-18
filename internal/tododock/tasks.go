@@ -61,26 +61,30 @@ func (t TodoDockSource) fetchTasks(id int, token string) (tasks []task, err erro
 
 // toCards cherry-picks the 'active' and 'due' tasks from a list of tasks,
 // then returns a list of cards containing those
-func toCards(tasks []task, labelId string) (c []trello.Card, err error) {
-	c = make([]trello.Card, 0, len(tasks))
+func toCards(tasks []task, labelId string) (cards []trello.Card, err error) {
+	cards = make([]trello.Card, 0, len(tasks))
 	soon := time.Now().AddDate(0, 0, 2)
 	for _, t := range tasks {
 		d, ok, err := shouldCreateCard(t, soon)
 		if !ok {
 			if err != nil {
-				return c, err
+				return cards, err
 			}
 			continue
 		}
 
-		c = append(c, trello.Card{
-			Name:        t.Name,
-			Description: fmt.Sprintf("https://tododock.com/home/%d\n%s", t.Id, t.Notes),
-			LabelId:     labelId,
-			DueDate:     &d,
-		})
+		c, err := trello.CreateCard(
+			t.Name,
+			labelId,
+			fmt.Sprintf("https://tododock.com/home/%d\n%s", t.Id, t.Notes),
+			&d,
+		)
+		if err != nil {
+			return cards, fmt.Errorf("could not create card: %w", err)
+		}
+		cards = append(cards, c)
 	}
-	return c, nil
+	return cards, nil
 }
 
 // shouldCreateCard decides if a Trello card should be created from the given TodoDock task

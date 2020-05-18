@@ -10,10 +10,10 @@ import (
 
 // Card represents a Trello card
 type Card struct {
-	Name        string
-	Description string
-	LabelId     string
-	DueDate     *time.Time
+	name        string
+	labelId     string
+	description string
+	dueDate     *time.Time
 }
 
 type Client struct {
@@ -53,10 +53,29 @@ func (c Client) FetchBoardCards() (map[string][]string, error) {
 // AddCard adds the specified card to the configured Trello list
 func (c Client) AddCard(card Card) error {
 	return c.client.CreateCard(&trello.Card{
-		Name:     card.Name,
-		Desc:     card.Description,
-		Due:      card.DueDate,
+		Name:     card.name,
+		Desc:     card.description,
+		Due:      card.dueDate,
 		IDList:   c.listId,
-		IDLabels: []string{card.LabelId},
+		IDLabels: []string{card.labelId},
 	}, trello.Defaults())
+}
+
+func CreateCard(name, labelId, description string, dueDate *time.Time) (card Card, err error) {
+	if name == "" {
+		return card, fmt.Errorf("card name cannot be blank")
+	}
+
+	if labelId == "" {
+		return card, fmt.Errorf("label ID cannot be blank")
+	}
+	return Card{name, labelId, description, dueDate}, nil
+}
+
+func (c Card) GetName() string {
+	return c.name
+}
+
+func (c Card) GetLabelId() string {
+	return c.labelId
 }

@@ -43,17 +43,18 @@ func main() {
 
 		for _, card := range cards {
 			// if card name already exists with the same label, do not create a duplicate one
-			if labels, ok := cardMap[card.Name]; ok {
-				if contains(labels, card.LabelId) {
+			if labels, ok := cardMap[card.GetName()]; ok {
+				if contains(labels, card.GetLabelId()) {
 					continue
 				}
 			}
 
 			err = client.AddCard(card)
 			if err != nil {
-				log.Printf("[-] could not create card '%s': %v", card.Name, err)
+				log.Printf("[-] could not create card '%s': %v", card.GetName(), err)
+				continue
 			}
-			log.Printf("[+] created new card: '%s'\n", card.Name)
+			log.Printf("[+] created new card: '%s'\n", card.GetName())
 		}
 	}
 }

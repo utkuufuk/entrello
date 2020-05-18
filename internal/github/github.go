@@ -32,6 +32,7 @@ func (g GithubIssuesSource) GetCards() (cards []trello.Card, err error) {
 
 	cards = make([]trello.Card, 0, len(issues))
 	for _, issue := range issues {
+		// do not create cards for pull requests
 		if issue.IsPullRequest() {
 			continue
 		}
@@ -40,12 +41,16 @@ func (g GithubIssuesSource) GetCards() (cards []trello.Card, err error) {
 		url := strings.Replace(*issue.URL, "api.", "", 1)
 		url = strings.Replace(url, "/repos", "", 1)
 
-		cards = append(cards, trello.Card{
-			Name:        fmt.Sprintf("[%s] %s", *issue.Repository.Name, *issue.Title),
-			Description: url,
-			LabelId:     g.labelId,
-			DueDate:     nil,
-		})
+		c, err := trello.CreateCard(
+			fmt.Sprintf("[%s] %s", *issue.Repository.Name, *issue.Title),
+			g.labelId,
+			url,
+			nil, // github issues do not have a due date
+		)
+		if err != nil {
+			return cards, fmt.Errorf("could not create card: %w", err)
+		}
+		cards = append(cards, c)
 	}
 	return cards, nil
 }
