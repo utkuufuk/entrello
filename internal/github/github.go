@@ -32,6 +32,10 @@ func (g GithubIssuesSource) GetCards() (cards []trello.Card, err error) {
 
 	cards = make([]trello.Card, 0, len(issues))
 	for _, issue := range issues {
+		if issue.IsPullRequest() {
+			continue
+		}
+
 		// convert API url to web URL
 		url := strings.Replace(*issue.URL, "api.", "", 1)
 		url = strings.Replace(url, "/repos", "", 1)
