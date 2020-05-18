@@ -37,16 +37,12 @@ func (g GithubIssuesSource) GetCards() (cards []trello.Card, err error) {
 			continue
 		}
 
-		// convert API url to web URL
+		// convert API URL to web URL
 		url := strings.Replace(*issue.URL, "api.", "", 1)
 		url = strings.Replace(url, "/repos", "", 1)
 
-		c, err := trello.CreateCard(
-			fmt.Sprintf("[%s] %s", *issue.Repository.Name, *issue.Title),
-			g.labelId,
-			url,
-			nil, // github issues do not have a due date
-		)
+		name := fmt.Sprintf("[%s] %s", *issue.Repository.Name, *issue.Title)
+		c, err := trello.CreateCard(name, g.labelId, url, nil)
 		if err != nil {
 			return cards, fmt.Errorf("could not create card: %w", err)
 		}
