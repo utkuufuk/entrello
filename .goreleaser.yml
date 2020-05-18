@@ -4,7 +4,7 @@ before:
 
 builds:
 - id: entrello
-  main: ./cmd/
+  main: ./cmd/entrello
   binary: entrello
   env:
   - CGO_ENABLED=0
