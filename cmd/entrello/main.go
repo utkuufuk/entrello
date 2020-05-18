@@ -1,17 +1,19 @@
 package main
 
 import (
+	"context"
 	"log"
 
 	"github.com/utkuufuk/entrello/internal/config"
+	"github.com/utkuufuk/entrello/internal/github"
 	"github.com/utkuufuk/entrello/internal/tododock"
 	"github.com/utkuufuk/entrello/internal/trello"
 )
 
 // Source represents a card source which exports a name and a getter for the cards to be created
 type Source interface {
+	// GetCards returns a list of Trello cards to be inserted into the board from the source
 	GetCards() ([]trello.Card, error)
-	GetName() string
 }
 
 func main() {
@@ -26,39 +28,58 @@ func main() {
 		return
 	}
 
-	// fetch all existing cards in the board with the "TodoDock" label
-	// FIXME: this will break when another source is introduced, convert to map[string]string instead
+	// fetch all existing cards in the board with their corresponding labels
 	client := trello.NewClient(cfg)
 	cardMap, err := client.FetchBoardCards()
 	if err != nil {
 		log.Fatalf("[-] could not fetch cards in Tasks board: %v", err)
 	}
 
-	for _, source := range sources {
+	for name, source := range sources {
 		cards, err := source.GetCards()
 		if err != nil {
-			log.Printf("[-] could not get cards from source '%s': %v", source.GetName(), err)
+			log.Printf("[-] could not get cards from source '%s': %v", name, err)
 		}
 
 		for _, card := range cards {
-			// do not create cards with duplicate names if they both have the "TodoDock" label
-			if _, ok := cardMap[card.Name]; ok {
-				continue
+			// if card name already exists with the same label, do not create a duplicate one
+			if labels, ok := cardMap[card.GetName()]; ok {
+				if contains(labels, card.GetLabelId()) {
+					continue
+				}
 			}
 
 			err = client.AddCard(card)
 			if err != nil {
-				log.Printf("[-] could not create card '%s': %v", card.Name, err)
+				log.Printf("[-] could not create card '%s': %v", card.GetName(), err)
+				continue
 			}
-			log.Printf("[+] created new card: '%s'\n", card.Name)
+			log.Printf("[+] created new card: '%s'\n", card.GetName())
 		}
 	}
 }
 
-// collectSources populates & returns an array of card sources to be iterated over
-func collectSources(cfg config.Sources) (s []Source) {
+// collectSources populates & returns a map of card sources to be iterated over
+func collectSources(cfg config.Sources) (s map[string]Source) {
+	s = make(map[string]Source)
+
 	if cfg.TodoDock.Enabled {
-		s = append(s, tododock.GetSource(cfg.TodoDock))
+		s["TodoDock"] = tododock.GetSource(cfg.TodoDock)
 	}
+
+	if cfg.GithubIssues.Enabled {
+		s["Github Issues"] = github.GetSource(context.Background(), cfg.GithubIssues)
+	}
+
 	return s
+}
+
+// contains returns true if the list of label IDs contain the given label ID
+func contains(labels []string, label string) bool {
+	for _, l := range labels {
+		if l == label {
+			return true
+		}
+	}
+	return false
 }
