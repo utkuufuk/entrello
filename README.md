@@ -11,7 +11,7 @@ An example use case (which is already implemented) could be to create a Trello c
 Copy and rename `config.example.yml` as `config.yml`, then set your own values in `config.yml`.
 
 #### Disbling Individual Data Sources
-In order to disable a data source, ust update the corresponding line as:
+In order to disable a data source, just update the corresponding line as:
 ```yml
 enabled: false
 ```
