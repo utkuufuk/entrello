@@ -14,13 +14,16 @@ type Client struct {
 	existingCardNames map[string][]string
 }
 
-func NewClient(c config.Config) Client {
+func NewClient(c config.Config) (Client, error) {
+	if c.BoardId == "" || c.ListId == "" || c.TrelloApiKey == "" || c.TrelloApiToken == "" {
+		return Client{}, fmt.Errorf("could not create trello client, missing configuration parameter(s)")
+	}
 	return Client{
 		client:            trello.NewClient(c.TrelloApiKey, c.TrelloApiToken),
 		boardId:           c.BoardId,
 		listId:            c.ListId,
 		existingCardNames: make(map[string][]string),
-	}
+	}, nil
 }
 
 // LoadExistingCardNames retrieves and saves all existing cards from the board that has at least one
@@ -59,6 +62,8 @@ func (c Client) UpdateCards(cards []Card) error {
 		if err := c.createCard(card); err != nil {
 			return fmt.Errorf("[-] could not create card '%s': %v", card.name, err)
 		}
+
+		// @todo: send telegram notification if enabled
 	}
 	return nil
 }
@@ -76,6 +81,10 @@ func (c Client) createCard(card Card) error {
 
 // contains returns true if the list of strings contain the given string
 func contains(list []string, item string) bool {
+	if item == "" {
+		return false
+	}
+
 	for _, i := range list {
 		if i == item {
 			return true

@@ -34,7 +34,11 @@ func main() {
 		return
 	}
 
-	client := trello.NewClient(cfg)
+	client, err := trello.NewClient(cfg)
+	if err != nil {
+		log.Fatalf("[-] could not create trello client: %v", err)
+	}
+
 	if err := client.LoadExistingCardNames(labels); err != nil {
 		// @todo: send telegram notification instead if enabled
 		log.Fatalf("[-] could not load existing cards from the board: %v", err)
