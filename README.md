@@ -41,6 +41,7 @@ Both of the following jobs run every hour and both assume that `config.yml` is l
 | Dependency | Purpose |
 |:-|:-|
 | [adlio/trello](https://github.com/adlio/trello)           | Trello API Client |
-| [golang/oauth2](https://github.com/golang/oauth2)         | OAuth 2.0 Client |
-| [go-github/github](https://github.com/google/go-github)   | GitHub API Client |
 | [google/go-cmp](https://github.com/google/go-cmp)         | Equality Comparisons in Tests |
+| [go-github/github](https://github.com/google/go-github)   | GitHub API Client |
+| [golang/oauth2](https://github.com/golang/oauth2)         | OAuth 2.0 Client |
+| [go-yaml/yaml](https://github.com/go-yaml/yaml)           | Decoding YAML Configuration |
