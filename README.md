@@ -24,12 +24,16 @@ enabled: false
 ```
 
 ### Example Cron Job
-Both of the following jobs check data sources every hour. Also, they both assume that `config.yml` is located in the current working directory.
+Both of the following jobs run every hour and both assume that `config.yml` is located in the current working directory.
 ``` sh
-# using "go run"
+# use "go run"
+# 'config.yml' should be located in '/home/utku/git/entrello'
+# your go executable may or may not be located in the same place (i.e. /usr/local/go/bin/)
 0 * * * * cd /home/utku/git/entrello && /usr/local/go/bin/go run ./cmd/entrello
 
-# using binary executable (see releases: https://github.com/utkuufuk/entrello/releases)
+# use binary executable
+# see releases: https://github.com/utkuufuk/entrello/releases
+# 'config.yml' should be located in '/path/to/binary'
 0 * * * * cd /path/to/binary && ./entrello
 ```
 
