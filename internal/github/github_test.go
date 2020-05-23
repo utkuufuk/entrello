@@ -8,7 +8,7 @@ import (
 )
 
 func TestToCards(t *testing.T) {
-	testStr := "test"
+	str := "test"
 
 	tt := []struct {
 		name     string
@@ -19,53 +19,50 @@ func TestToCards(t *testing.T) {
 	}{
 		{
 			name:     "pull request",
-			label:    testStr,
+			label:    str,
 			issues:   []*github.Issue{{PullRequestLinks: &github.PullRequestLinks{}}},
 			numCards: 0,
 			err:      nil,
 		},
 		{
 			name:     "valid issue",
-			label:    testStr,
-			issues:   []*github.Issue{createIssue(testStr, testStr, testStr)},
+			label:    str,
+			issues:   []*github.Issue{newIssue(str, str, str)},
 			numCards: 1,
 			err:      nil,
 		},
 		{
-			name:  "two valid issues",
-			label: testStr,
-			issues: []*github.Issue{
-				createIssue(testStr, testStr, testStr),
-				createIssue(testStr, testStr, testStr),
-			},
+			name:     "two valid issues",
+			label:    str,
+			issues:   []*github.Issue{newIssue(str, str, str), newIssue(str, str, str)},
 			numCards: 2,
 			err:      nil,
 		},
 		{
 			name:     "empty label",
 			label:    "",
-			issues:   []*github.Issue{createIssue(testStr, testStr, testStr)},
+			issues:   []*github.Issue{newIssue(str, str, str)},
 			numCards: 0,
 			err:      errors.New(""),
 		},
 		{
 			name:     "empty URL",
-			label:    testStr,
-			issues:   []*github.Issue{createIssue(testStr, testStr, "")},
+			label:    str,
+			issues:   []*github.Issue{newIssue(str, str, "")},
 			numCards: 0,
 			err:      errors.New(""),
 		},
 		{
 			name:     "empty repo name",
-			label:    testStr,
-			issues:   []*github.Issue{createIssue(testStr, "", testStr)},
+			label:    str,
+			issues:   []*github.Issue{newIssue(str, "", str)},
 			numCards: 0,
 			err:      errors.New(""),
 		},
 		{
 			name:     "empty title",
-			label:    testStr,
-			issues:   []*github.Issue{createIssue("", testStr, testStr)},
+			label:    str,
+			issues:   []*github.Issue{newIssue("", str, str)},
 			numCards: 0,
 			err:      errors.New(""),
 		},
@@ -85,7 +82,7 @@ func TestToCards(t *testing.T) {
 	}
 }
 
-func createIssue(title, repoName, url string) *github.Issue {
+func newIssue(title, repoName, url string) *github.Issue {
 	return &github.Issue{
 		Title:      &title,
 		Repository: &github.Repository{Name: &repoName},
