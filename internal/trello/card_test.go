@@ -47,7 +47,6 @@ func TestNewCard(t *testing.T) {
 
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
-
 			var opts cmp.Options
 			opts = append(opts, cmp.Comparer(func(x, y error) bool {
 				return (x == nil && y == nil) || (x.Error() == y.Error())
@@ -55,7 +54,7 @@ func TestNewCard(t *testing.T) {
 
 			_, err := NewCard(tc.cName, tc.cLabel, tc.cDesc, nil)
 			if diff := cmp.Diff(err, tc.err, opts...); diff != "" {
-				t.Errorf("labels diff: %s", diff)
+				t.Errorf("errors diff: %s", diff)
 			}
 		})
 	}

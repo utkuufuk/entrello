@@ -59,7 +59,10 @@ func toCards(issues []*github.Issue, label string) ([]trello.Card, error) {
 }
 
 // toCard converts the given issue into a trello card
-func toCard(issue *github.Issue, label string) (trello.Card, error) {
+func toCard(issue *github.Issue, label string) (c trello.Card, err error) {
+	if *issue.Repository.Name == "" || *issue.Title == "" || *issue.URL == "" || label == "" {
+		return c, fmt.Errorf("could not convert issue to card, title, repo name, url and label cannot be blank")
+	}
 	name := fmt.Sprintf("[%s] %s", *issue.Repository.Name, *issue.Title)
 	url := strings.Replace(*issue.URL, "api.", "", 1)
 	url = strings.Replace(url, "/repos", "", 1)
