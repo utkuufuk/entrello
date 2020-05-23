@@ -41,7 +41,7 @@ func (g GithubIssuesSource) GetNewCards() ([]trello.Card, error) {
 	return toCards(issues, g.label)
 }
 
-// toCards converts a list of issue into a list of trello card models
+// toCards converts a list of issues into a list of trello card
 func toCards(issues []*github.Issue, label string) ([]trello.Card, error) {
 	cards := make([]trello.Card, 0, len(issues))
 	for _, issue := range issues {
@@ -58,10 +58,10 @@ func toCards(issues []*github.Issue, label string) ([]trello.Card, error) {
 	return cards, nil
 }
 
-// toCard converts the given issue into a trello card model
+// toCard converts the given issue into a trello card
 func toCard(issue *github.Issue, label string) (trello.Card, error) {
 	name := fmt.Sprintf("[%s] %s", *issue.Repository.Name, *issue.Title)
 	url := strings.Replace(*issue.URL, "api.", "", 1)
 	url = strings.Replace(url, "/repos", "", 1)
-	return trello.CreateCard(name, label, url, nil)
+	return trello.NewCard(name, label, url, nil)
 }

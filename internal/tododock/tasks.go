@@ -74,7 +74,7 @@ func toCards(tasks []task, label string) (cards []trello.Card, err error) {
 		}
 
 		url := fmt.Sprintf("https://tododock.com/home/%d\n%s", t.Id, t.Notes)
-		c, err := trello.CreateCard(t.Name, label, url, &d)
+		c, err := trello.NewCard(t.Name, label, url, &d)
 		if err != nil {
 			return cards, fmt.Errorf("could not create card: %w", err)
 		}

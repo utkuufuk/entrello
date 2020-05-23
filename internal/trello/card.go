@@ -13,7 +13,7 @@ type Card struct {
 	dueDate     *time.Time
 }
 
-func CreateCard(name, label, description string, dueDate *time.Time) (card Card, err error) {
+func NewCard(name, label, description string, dueDate *time.Time) (card Card, err error) {
 	if name == "" {
 		return card, fmt.Errorf("card name cannot be blank")
 	}
