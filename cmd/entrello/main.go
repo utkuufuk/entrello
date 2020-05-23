@@ -25,6 +25,7 @@ type Source interface {
 func main() {
 	cfg, err := config.ReadConfig("config.yml")
 	if err != nil {
+		// @todo: send telegram notification instead if enabled
 		log.Fatalf("[-] could not read config variables: %v", err)
 	}
 
@@ -36,6 +37,7 @@ func main() {
 
 	client, err := trello.NewClient(cfg)
 	if err != nil {
+		// @todo: send telegram notification instead if enabled
 		log.Fatalf("[-] could not create trello client: %v", err)
 	}
 

@@ -76,8 +76,7 @@ func TestGetEnabledSourcesAndLabels(t *testing.T) {
 				return
 			}
 
-			var opts cmp.Options
-			if diff := cmp.Diff(labels, tc.labels, opts...); diff != "" {
+			if diff := cmp.Diff(labels, tc.labels); diff != "" {
 				t.Errorf("labels diff: %s", diff)
 			}
 		})
