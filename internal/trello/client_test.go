@@ -6,11 +6,8 @@ import (
 	"github.com/utkuufuk/entrello/internal/config"
 )
 
-var (
-	testStr = "placeholder"
-)
-
 func TestNewClient(t *testing.T) {
+	str := "placeholder"
 
 	tt := []struct {
 		name     string
@@ -22,41 +19,41 @@ func TestNewClient(t *testing.T) {
 	}{
 		{
 			name:     "no errors",
-			boardId:  testStr,
-			listId:   testStr,
-			apiKey:   testStr,
-			apiToken: testStr,
+			boardId:  str,
+			listId:   str,
+			apiKey:   str,
+			apiToken: str,
 			err:      false,
 		},
 		{
 			name:     "missing board ID",
 			boardId:  "",
-			listId:   testStr,
-			apiKey:   testStr,
-			apiToken: testStr,
+			listId:   str,
+			apiKey:   str,
+			apiToken: str,
 			err:      true,
 		},
 		{
 			name:     "missing list ID",
-			boardId:  testStr,
+			boardId:  str,
 			listId:   "",
-			apiKey:   testStr,
-			apiToken: testStr,
+			apiKey:   str,
+			apiToken: str,
 			err:      true,
 		},
 		{
 			name:     "missing api key",
-			boardId:  testStr,
-			listId:   testStr,
+			boardId:  str,
+			listId:   str,
 			apiKey:   "",
-			apiToken: testStr,
+			apiToken: str,
 			err:      true,
 		},
 		{
 			name:     "missing api token",
-			boardId:  testStr,
-			listId:   testStr,
-			apiKey:   testStr,
+			boardId:  str,
+			listId:   str,
+			apiKey:   str,
 			apiToken: "",
 			err:      true,
 		},
@@ -80,6 +77,8 @@ func TestNewClient(t *testing.T) {
 }
 
 func TestContains(t *testing.T) {
+	str := "placeholder"
+
 	tt := []struct {
 		name    string
 		list    []string
@@ -94,14 +93,14 @@ func TestContains(t *testing.T) {
 		},
 		{
 			name:    "empty query",
-			list:    []string{testStr},
+			list:    []string{str},
 			query:   "",
 			outcome: false,
 		},
 		{
 			name:    "empty list",
 			list:    []string{},
-			query:   testStr,
+			query:   str,
 			outcome: false,
 		},
 		{
@@ -112,8 +111,8 @@ func TestContains(t *testing.T) {
 		},
 		{
 			name:    "match",
-			list:    []string{"a", "b", "c", testStr},
-			query:   testStr,
+			list:    []string{"a", "b", "c", str},
+			query:   str,
 			outcome: true,
 		},
 	}
