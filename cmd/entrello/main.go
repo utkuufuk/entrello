@@ -12,74 +12,68 @@ import (
 
 // Source represents a card source which exports a name and a getter for the cards to be created
 type Source interface {
-	// GetCards returns a list of Trello cards to be inserted into the board from the source
-	GetCards() ([]trello.Card, error)
+	// GetName returns a human-readable name of the source
+	GetName() string
+
+	// GetLabel returns the corresponding card label ID for the source
+	GetLabel() string
+
+	// GetNewCards returns a list of Trello cards to be inserted into the board from the source
+	GetNewCards() ([]trello.Card, error)
 }
 
 func main() {
 	cfg, err := config.ReadConfig("config.yml")
 	if err != nil {
+		// @todo: send telegram notification instead if enabled
 		log.Fatalf("[-] could not read config variables: %v", err)
 	}
 
-	sources := collectSources(cfg.Sources)
+	sources, labels := getEnabledSourcesAndLabels(cfg.Sources)
 	if len(sources) == 0 {
 		log.Println("[+] no sources enabled, aborting...")
 		return
 	}
 
-	// fetch all existing cards in the board with their corresponding labels
-	client := trello.NewClient(cfg)
-	cardMap, err := client.FetchBoardCards()
+	client, err := trello.NewClient(cfg)
 	if err != nil {
-		log.Fatalf("[-] could not fetch cards in Tasks board: %v", err)
+		// @todo: send telegram notification instead if enabled
+		log.Fatalf("[-] could not create trello client: %v", err)
 	}
 
-	for name, source := range sources {
-		cards, err := source.GetCards()
+	if err := client.LoadExistingCardNames(labels); err != nil {
+		// @todo: send telegram notification instead if enabled
+		log.Fatalf("[-] could not load existing cards from the board: %v", err)
+	}
+
+	for _, src := range sources {
+		cards, err := src.GetNewCards()
 		if err != nil {
-			log.Printf("[-] could not get cards from source '%s': %v", name, err)
+			// @todo: send telegram notification instead if enabled
+			log.Printf("[-] could not get cards for source '%s': %v", src.GetName(), err)
+			continue
 		}
 
-		for _, card := range cards {
-			// if card name already exists with the same label, do not create a duplicate one
-			if labels, ok := cardMap[card.GetName()]; ok {
-				if contains(labels, card.GetLabelId()) {
-					continue
-				}
-			}
-
-			err = client.AddCard(card)
-			if err != nil {
-				log.Printf("[-] could not create card '%s': %v", card.GetName(), err)
-				continue
-			}
-			log.Printf("[+] created new card: '%s'\n", card.GetName())
+		if err := client.UpdateCards(cards); err != nil {
+			// @todo: send telegram notification instead if enabled
+			log.Printf("[-] error occurred while processing source '%s': %v", src.GetName(), err)
 		}
 	}
 }
 
-// collectSources populates & returns a map of card sources to be iterated over
-func collectSources(cfg config.Sources) (s map[string]Source) {
-	s = make(map[string]Source)
+// getEnabledSourcesAndLabels returns a list of enabled sources & all relevant label IDs
+func getEnabledSourcesAndLabels(cfg config.Sources) (sources []Source, labels []string) {
+	if cfg.GithubIssues.Enabled {
+		src := github.GetSource(context.Background(), cfg.GithubIssues)
+		sources = append(sources, src)
+		labels = append(labels, src.GetLabel())
+	}
 
 	if cfg.TodoDock.Enabled {
-		s["TodoDock"] = tododock.GetSource(cfg.TodoDock)
+		src := tododock.GetSource(cfg.TodoDock)
+		sources = append(sources, src)
+		labels = append(labels, src.GetLabel())
 	}
 
-	if cfg.GithubIssues.Enabled {
-		s["Github Issues"] = github.GetSource(context.Background(), cfg.GithubIssues)
-	}
-
-	return s
-}
-
-// contains returns true if the list of label IDs contain the given label ID
-func contains(labels []string, label string) bool {
-	for _, l := range labels {
-		if l == label {
-			return true
-		}
-	}
-	return false
+	return sources, labels
 }

@@ -12,41 +12,59 @@ import (
 )
 
 type GithubIssuesSource struct {
-	client  *github.Client
-	ctx     context.Context
-	labelId string
+	client *github.Client
+	ctx    context.Context
+	label  string
 }
 
 func GetSource(ctx context.Context, cfg config.GithubIssues) GithubIssuesSource {
 	ts := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: cfg.Token})
 	tc := oauth2.NewClient(ctx, ts)
 	client := github.NewClient(tc)
-	return GithubIssuesSource{client, ctx, cfg.LabelId}
+	return GithubIssuesSource{client, ctx, cfg.Label}
 }
 
-func (g GithubIssuesSource) GetCards() (cards []trello.Card, err error) {
+func (g GithubIssuesSource) GetName() string {
+	return "Github Issues"
+}
+
+func (g GithubIssuesSource) GetLabel() string {
+	return g.label
+}
+
+func (g GithubIssuesSource) GetNewCards() ([]trello.Card, error) {
 	issues, _, err := g.client.Issues.List(g.ctx, false, nil)
 	if err != nil {
-		return cards, fmt.Errorf("could not retrieve issues: %w", err)
+		return nil, fmt.Errorf("could not retrieve issues: %w", err)
 	}
 
-	cards = make([]trello.Card, 0, len(issues))
+	return toCards(issues, g.label)
+}
+
+// toCards converts a list of issues into a list of trello card
+func toCards(issues []*github.Issue, label string) ([]trello.Card, error) {
+	cards := make([]trello.Card, 0, len(issues))
 	for _, issue := range issues {
-		// do not create cards for pull requests
 		if issue.IsPullRequest() {
 			continue
 		}
 
-		// convert API URL to web URL
-		url := strings.Replace(*issue.URL, "api.", "", 1)
-		url = strings.Replace(url, "/repos", "", 1)
-
-		name := fmt.Sprintf("[%s] %s", *issue.Repository.Name, *issue.Title)
-		c, err := trello.CreateCard(name, g.labelId, url, nil)
+		c, err := toCard(issue, label)
 		if err != nil {
-			return cards, fmt.Errorf("could not create card: %w", err)
+			return nil, fmt.Errorf("could not create card: %w", err)
 		}
 		cards = append(cards, c)
 	}
 	return cards, nil
+}
+
+// toCard converts the given issue into a trello card
+func toCard(issue *github.Issue, label string) (c trello.Card, err error) {
+	if *issue.Repository.Name == "" || *issue.Title == "" || *issue.URL == "" || label == "" {
+		return c, fmt.Errorf("could not convert issue to card, title, repo name, url and label cannot be blank")
+	}
+	name := fmt.Sprintf("[%s] %s", *issue.Repository.Name, *issue.Title)
+	url := strings.Replace(*issue.URL, "api.", "", 1)
+	url = strings.Replace(url, "/repos", "", 1)
+	return trello.NewCard(name, label, url, nil)
 }

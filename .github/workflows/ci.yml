@@ -1,7 +1,6 @@
 name: entrello
 on:
   push:
-  pull_request:
 jobs:
   ci:
     runs-on: ubuntu-latest
@@ -24,4 +23,11 @@ jobs:
       run: go mod tidy && git diff --no-patch --exit-code
 
     - name: Run tests
-      run: go test ./... -v
+      run: go test -covermode=count -coverprofile=profile.cov ./...
+
+    - name: Send coverage
+      env:
+        COVERALLS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        GO111MODULE=off go get github.com/mattn/goveralls
+        $(go env GOPATH)/bin/goveralls -coverprofile=profile.cov -service=github
