@@ -23,7 +23,7 @@ jobs:
       run: go mod tidy && git diff --no-patch --exit-code
 
     - name: Run tests
-      run: got test -covermode=count -coverprofile=profile.cov ./...
+      run: go test -covermode=count -coverprofile=profile.cov ./...
 
     - name: Send coverage
       env:
