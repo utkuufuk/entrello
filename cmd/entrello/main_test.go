@@ -16,13 +16,13 @@ func TestGetEnabledSourcesAndLabels(t *testing.T) {
 		labels       []string
 	}{
 		{
-			name:         "test",
+			name:         "nothing enabled",
 			githubIssues: config.GithubIssues{Enabled: false},
 			todoDock:     config.TodoDock{Enabled: false},
 			numResults:   0,
 		},
 		{
-			name: "test",
+			name: "only github issues enabled",
 			githubIssues: config.GithubIssues{
 				Enabled: true,
 				Label:   "github-label",
@@ -32,7 +32,7 @@ func TestGetEnabledSourcesAndLabels(t *testing.T) {
 			labels:     []string{"github-label"},
 		},
 		{
-			name:         "test",
+			name:         "only tododock enabled",
 			githubIssues: config.GithubIssues{Enabled: false},
 			todoDock: config.TodoDock{
 				Enabled: true,
@@ -42,7 +42,7 @@ func TestGetEnabledSourcesAndLabels(t *testing.T) {
 			labels:     []string{"tododock-label"},
 		},
 		{
-			name: "test",
+			name: "all enabled",
 			githubIssues: config.GithubIssues{
 				Enabled: true,
 				Label:   "github-label",

@@ -63,7 +63,7 @@ func (c Client) UpdateCards(cards []Card) error {
 	return nil
 }
 
-// createCard adds the specified card to the configured Trello list
+// createCard creates a Trello card
 func (c Client) createCard(card Card) error {
 	return c.client.CreateCard(&trello.Card{
 		Name:     card.name,

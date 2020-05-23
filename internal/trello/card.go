@@ -21,5 +21,9 @@ func NewCard(name, label, description string, dueDate *time.Time) (card Card, er
 	if label == "" {
 		return card, fmt.Errorf("label ID cannot be blank")
 	}
+
+	if description == "" {
+		return card, fmt.Errorf("description cannot be blank")
+	}
 	return Card{name, label, description, dueDate}, nil
 }
