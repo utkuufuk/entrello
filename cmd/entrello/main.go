@@ -57,14 +57,14 @@ func main() {
 
 // getEnabledSourcesAndLabels returns a list of enabled sources & all relevant label IDs
 func getEnabledSourcesAndLabels(cfg config.Sources) (sources []Source, labels []string) {
-	if cfg.TodoDock.Enabled {
-		src := tododock.GetSource(cfg.TodoDock)
+	if cfg.GithubIssues.Enabled {
+		src := github.GetSource(context.Background(), cfg.GithubIssues)
 		sources = append(sources, src)
 		labels = append(labels, src.GetLabel())
 	}
 
-	if cfg.GithubIssues.Enabled {
-		src := github.GetSource(context.Background(), cfg.GithubIssues)
+	if cfg.TodoDock.Enabled {
+		src := tododock.GetSource(cfg.TodoDock)
 		sources = append(sources, src)
 		labels = append(labels, src.GetLabel())
 	}
