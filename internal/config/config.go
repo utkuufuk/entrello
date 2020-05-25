@@ -7,14 +7,21 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+type Period struct {
+	Type     string `yaml:"type"`
+	Interval int    `yaml:"interval"`
+}
+
 type GithubIssues struct {
-	Enabled bool `yaml:"enabled"`
+	Enabled bool   `yaml:"enabled"`
+	Period  Period `yaml:"period"`
 	Token   string
 	Label   string `yaml:"label_id"`
 }
 
 type TodoDock struct {
 	Enabled  bool   `yaml:"enabled"`
+	Period   Period `yaml:"period"`
 	Email    string `yaml:"email"`
 	Password string `yaml:"password"`
 	Label    string `yaml:"label_id"`

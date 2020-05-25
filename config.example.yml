@@ -6,11 +6,19 @@ list_id: xxxxxxxxxxxxxxxxxxxxxxxx  # trello list to insert cards (must be in the
 sources:
   github_issues:
     enabled: true
+    # every 15 minutes
+    period:
+      type: minute # minute, hour or day
+      interval: 15
     token: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx # github personal access token
     label_id: xxxxxxxxxxxxxxxxxxxxxxxx
 
   tododock:
     enabled: true
+    # every hour
+    period:
+      type: hour # minute, hour or day
+      interval: 1
     email: abc@def.com
     password: xxxxxxxx
     label_id: xxxxxxxxxxxxxxxxxxxxxxxx
