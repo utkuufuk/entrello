@@ -15,7 +15,7 @@ type Period struct {
 type GithubIssues struct {
 	Enabled bool   `yaml:"enabled"`
 	Period  Period `yaml:"period"`
-	Token   string
+	Token   string `yaml:"personal_access_token"`
 	Label   string `yaml:"label_id"`
 }
 
