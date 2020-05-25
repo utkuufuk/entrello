@@ -229,10 +229,7 @@ func TestShouldQuery(t *testing.T) {
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
 			cfg := config.TodoDock{
-				Email:    "",
-				Password: "",
-				Label:    "",
-				Enabled:  true,
+				Enabled: true,
 				Period: config.Period{
 					Type:     tc.pType,
 					Interval: tc.pInterval,
