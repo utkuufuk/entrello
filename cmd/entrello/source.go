@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"fmt"
+	"log"
 	"time"
 
 	"github.com/utkuufuk/entrello/internal/config"
@@ -37,7 +39,11 @@ func getEnabledSourcesAndLabels(cfg config.Sources) (sources []Source, labels []
 	now := time.Now()
 
 	for _, src := range arr {
-		if !src.IsEnabled() || !shouldCheck(now, src.GetPeriod()) {
+		if ok, err := shouldQuery(src, now); !ok {
+			if err != nil {
+				// @todo: send telegram notification instead if enabled
+				log.Printf("[-] could not check if '%s' should be queried or not, skipping", src.GetName())
+			}
 			continue
 		}
 		sources = append(sources, src)
@@ -46,9 +52,23 @@ func getEnabledSourcesAndLabels(cfg config.Sources) (sources []Source, labels []
 	return sources, labels
 }
 
-// @todo: implement
-// shouldCheck returns true if the given time instance is a valid point in time for checking the source
-func shouldCheck(now time.Time, period config.Period) bool {
-	// m := now.Minute()
-	return true
+// shouldQuery checks if the given source should be queried at the given time
+func shouldQuery(src Source, now time.Time) (bool, error) {
+	if !src.IsEnabled() {
+		return false, nil
+	}
+
+	interval := src.GetPeriod().Interval
+	switch src.GetPeriod().Type {
+	case config.PERIOD_TYPE_DEFAULT:
+		return true, nil
+	case config.PERIOD_TYPE_DAY:
+		return now.Day()%interval == 0, nil
+	case config.PERIOD_TYPE_HOUR:
+		return now.Hour()%interval == 0, nil
+	case config.PERIOD_TYPE_MINUTE:
+		return now.Minute()%interval == 0, nil
+	}
+
+	return false, fmt.Errorf("unrecognized source period type: '%s'", src.GetPeriod().Type)
 }

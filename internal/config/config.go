@@ -7,6 +7,13 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+const (
+	PERIOD_TYPE_DEFAULT = "default"
+	PERIOD_TYPE_DAY     = "day"
+	PERIOD_TYPE_HOUR    = "hour"
+	PERIOD_TYPE_MINUTE  = "minute"
+)
+
 type Period struct {
 	Type     string `yaml:"type"`
 	Interval int    `yaml:"interval"`

@@ -8,6 +8,11 @@ import (
 )
 
 func TestGetEnabledSourcesAndLabels(t *testing.T) {
+	period := config.Period{
+		Type:     "default",
+		Interval: 0,
+	}
+
 	tt := []struct {
 		name         string
 		githubIssues config.GithubIssues
@@ -17,25 +22,27 @@ func TestGetEnabledSourcesAndLabels(t *testing.T) {
 	}{
 		{
 			name:         "nothing enabled",
-			githubIssues: config.GithubIssues{Enabled: false},
-			todoDock:     config.TodoDock{Enabled: false},
+			githubIssues: config.GithubIssues{Enabled: false, Period: period},
+			todoDock:     config.TodoDock{Enabled: false, Period: period},
 			numResults:   0,
 		},
 		{
 			name: "only github issues enabled",
 			githubIssues: config.GithubIssues{
 				Enabled: true,
+				Period:  period,
 				Label:   "github-label",
 			},
-			todoDock:   config.TodoDock{Enabled: false},
+			todoDock:   config.TodoDock{Enabled: false, Period: period},
 			numResults: 1,
 			labels:     []string{"github-label"},
 		},
 		{
 			name:         "only tododock enabled",
-			githubIssues: config.GithubIssues{Enabled: false},
+			githubIssues: config.GithubIssues{Enabled: false, Period: period},
 			todoDock: config.TodoDock{
 				Enabled: true,
+				Period:  period,
 				Label:   "tododock-label",
 			},
 			numResults: 1,
@@ -45,10 +52,12 @@ func TestGetEnabledSourcesAndLabels(t *testing.T) {
 			name: "all enabled",
 			githubIssues: config.GithubIssues{
 				Enabled: true,
+				Period:  period,
 				Label:   "github-label",
 			},
 			todoDock: config.TodoDock{
 				Enabled: true,
+				Period:  period,
 				Label:   "tododock-label",
 			},
 			numResults: 2,
