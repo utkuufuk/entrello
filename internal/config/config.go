@@ -7,14 +7,28 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+const (
+	PERIOD_TYPE_DEFAULT = "default"
+	PERIOD_TYPE_DAY     = "day"
+	PERIOD_TYPE_HOUR    = "hour"
+	PERIOD_TYPE_MINUTE  = "minute"
+)
+
+type Period struct {
+	Type     string `yaml:"type"`
+	Interval int    `yaml:"interval"`
+}
+
 type GithubIssues struct {
-	Enabled bool `yaml:"enabled"`
-	Token   string
+	Enabled bool   `yaml:"enabled"`
+	Period  Period `yaml:"period"`
+	Token   string `yaml:"personal_access_token"`
 	Label   string `yaml:"label_id"`
 }
 
 type TodoDock struct {
 	Enabled  bool   `yaml:"enabled"`
+	Period   Period `yaml:"period"`
 	Email    string `yaml:"email"`
 	Password string `yaml:"password"`
 	Label    string `yaml:"label_id"`

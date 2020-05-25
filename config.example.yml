@@ -1,16 +1,22 @@
 api_key: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 api_token: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-board_id: xxxxxxxxxxxxxxxxxxxxxxxx # trello board to search for duplicate cards
-list_id: xxxxxxxxxxxxxxxxxxxxxxxx  # trello list to insert cards (must be in the board above)
+board_id: xxxxxxxxxxxxxxxxxxxxxxxx
+list_id: xxxxxxxxxxxxxxxxxxxxxxxx
 
 sources:
   github_issues:
     enabled: true
-    token: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx # github personal access token
+    period:
+      type: minute
+      interval: 15
+    personal_access_token: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
     label_id: xxxxxxxxxxxxxxxxxxxxxxxx
 
   tododock:
     enabled: true
+    period:
+      type: hour
+      interval: 1
     email: abc@def.com
     password: xxxxxxxx
     label_id: xxxxxxxxxxxxxxxxxxxxxxxx

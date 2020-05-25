@@ -14,14 +14,18 @@ import (
 type GithubIssuesSource struct {
 	client *github.Client
 	ctx    context.Context
-	label  string
+	cfg    config.GithubIssues
 }
 
 func GetSource(ctx context.Context, cfg config.GithubIssues) GithubIssuesSource {
 	ts := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: cfg.Token})
 	tc := oauth2.NewClient(ctx, ts)
 	client := github.NewClient(tc)
-	return GithubIssuesSource{client, ctx, cfg.Label}
+	return GithubIssuesSource{client, ctx, cfg}
+}
+
+func (g GithubIssuesSource) IsEnabled() bool {
+	return g.cfg.Enabled
 }
 
 func (g GithubIssuesSource) GetName() string {
@@ -29,16 +33,20 @@ func (g GithubIssuesSource) GetName() string {
 }
 
 func (g GithubIssuesSource) GetLabel() string {
-	return g.label
+	return g.cfg.Label
 }
 
-func (g GithubIssuesSource) GetNewCards() ([]trello.Card, error) {
+func (g GithubIssuesSource) GetPeriod() config.Period {
+	return g.cfg.Period
+}
+
+func (g GithubIssuesSource) FetchNewCards() ([]trello.Card, error) {
 	issues, _, err := g.client.Issues.List(g.ctx, false, nil)
 	if err != nil {
 		return nil, fmt.Errorf("could not retrieve issues: %w", err)
 	}
 
-	return toCards(issues, g.label)
+	return toCards(issues, g.cfg.Label)
 }
 
 // toCards converts a list of issues into a list of trello card
