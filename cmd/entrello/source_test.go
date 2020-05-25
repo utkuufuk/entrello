@@ -12,7 +12,7 @@ import (
 
 func TestGetEnabledSourcesAndLabels(t *testing.T) {
 	period := config.Period{
-		Type:     "default",
+		Type:     config.PERIOD_TYPE_DEFAULT,
 		Interval: 0,
 	}
 
