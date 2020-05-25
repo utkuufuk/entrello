@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func TestGetEnabledSourcesAndLabels(t *testing.T) {
+func TestReadConfig(t *testing.T) {
 	tt := []struct {
 		name     string
 		filename string
@@ -17,7 +17,7 @@ func TestGetEnabledSourcesAndLabels(t *testing.T) {
 		},
 		{
 			name:     "non-existing file",
-			filename: "../../config.example1.yml",
+			filename: "./no-way-this-file-exists.yml",
 			err:      true,
 		},
 		{
@@ -32,7 +32,7 @@ func TestGetEnabledSourcesAndLabels(t *testing.T) {
 			_, err := ReadConfig(tc.filename)
 
 			if (err != nil && !tc.err) || err == nil && tc.err {
-				t.Fatalf("did not expect to get '%v' error", err)
+				t.Errorf("did not expect to get '%v' error", err)
 			}
 		})
 	}
