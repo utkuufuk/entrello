@@ -28,6 +28,8 @@ In order to disable a source, just update the `enabled` flag to `false`. There's
 #### Defining Custom Periods
 You can define a custom query period for each source, by populating the `type` and `interval` fields under the `period` for a source.
 
+It's important to make sure that the cron job runs frequently enough to accomodate the most frequent custom interval for a source. It wouldn't make sense to define a custom period of 15 minutes while the cron job only runs every hour.
+
 Example:
 ```yml
 # query every 2 hours
@@ -35,7 +37,7 @@ period:
   type: hour
   interval: 2
 
-# fallback to default
+# query on each execution
 period:
   type: default
   interval:

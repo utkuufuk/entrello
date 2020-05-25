@@ -9,7 +9,7 @@ sources:
     period:
       type: minute
       interval: 15
-    personal_access_token: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx # github personal access token
+    personal_access_token: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
     label_id: xxxxxxxxxxxxxxxxxxxxxxxx
 
   tododock:
