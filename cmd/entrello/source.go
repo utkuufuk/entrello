@@ -70,12 +70,12 @@ func shouldQuery(src Source, now time.Time) (bool, error) {
 		if interval > 31 {
 			return false, fmt.Errorf("daily interval cannot be more than 14, got: '%d'", interval)
 		}
-		return now.Day()%interval == 0, nil
+		return now.Day()%interval == 0 && now.Hour() == 0 && now.Minute() == 0, nil
 	case config.PERIOD_TYPE_HOUR:
 		if interval > 23 {
 			return false, fmt.Errorf("hourly interval cannot be more than 23, got: '%d'", interval)
 		}
-		return now.Hour()%interval == 0, nil
+		return now.Hour()%interval == 0 && now.Minute() == 0, nil
 	case config.PERIOD_TYPE_MINUTE:
 		if interval > 60 {
 			return false, fmt.Errorf("minute interval cannot be more than 60, got: '%d'", interval)
