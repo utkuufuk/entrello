@@ -59,14 +59,27 @@ func shouldQuery(src Source, now time.Time) (bool, error) {
 	}
 
 	interval := src.GetPeriod().Interval
+	if interval < 0 {
+		return false, fmt.Errorf("period interval must be a positive integer, got: '%d'", interval)
+	}
+
 	switch src.GetPeriod().Type {
 	case config.PERIOD_TYPE_DEFAULT:
 		return true, nil
 	case config.PERIOD_TYPE_DAY:
+		if interval > 31 {
+			return false, fmt.Errorf("daily interval cannot be more than 14, got: '%d'", interval)
+		}
 		return now.Day()%interval == 0, nil
 	case config.PERIOD_TYPE_HOUR:
+		if interval > 23 {
+			return false, fmt.Errorf("hourly interval cannot be more than 23, got: '%d'", interval)
+		}
 		return now.Hour()%interval == 0, nil
 	case config.PERIOD_TYPE_MINUTE:
+		if interval > 60 {
+			return false, fmt.Errorf("minute interval cannot be more than 60, got: '%d'", interval)
+		}
 		return now.Minute()%interval == 0, nil
 	}
 
