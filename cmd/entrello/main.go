@@ -16,7 +16,6 @@ func main() {
 
 	sources, labels := getEnabledSourcesAndLabels(cfg.Sources)
 	if len(sources) == 0 {
-		log.Println("[+] no sources enabled, aborting...")
 		return
 	}
 

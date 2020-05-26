@@ -21,6 +21,7 @@ type Period struct {
 
 type GithubIssues struct {
 	Enabled bool   `yaml:"enabled"`
+	Strict  bool   `yaml:"strict"`
 	Period  Period `yaml:"period"`
 	Token   string `yaml:"personal_access_token"`
 	Label   string `yaml:"label_id"`
@@ -28,6 +29,7 @@ type GithubIssues struct {
 
 type TodoDock struct {
 	Enabled  bool   `yaml:"enabled"`
+	Strict   bool   `yaml:"strict"`
 	Period   Period `yaml:"period"`
 	Email    string `yaml:"email"`
 	Password string `yaml:"password"`

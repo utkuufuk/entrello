@@ -17,15 +17,20 @@ Feel free to add new sources or improve the implementations of the existing ones
 ## Configuration
 Copy and rename `config.example.yml` as `config.yml`, then set your own values in `config.yml` according to the following:
 
-#### Trello Client Configuration
+#### Trello
 You need to set your [Trello API key & token](https://trello.com/app-key) in the configuraiton file, as well as the Trello board & list IDs.
 
 The given list will be the one that new cards is going to be inserted, and it has to be in the given board.
 
-#### Disbling Individual Data Sources
+#### Enabling/Disbling Individual Data Sources
 In order to disable a source, just update the `enabled` flag to `false`. There's no need to remove/edit the other parameters for that source.
 
-#### Defining Custom Periods
+#### Strict Mode
+Strict mode can be enabled for individual data sources by setting the `strict` flag to `true`. When strict mode is enabled, all the existing Trello cards in the board with the label for the corresponding data source will be deleted, unless the card also exists in the fresh data. 
+
+For instance, strict mode can be used to automatically remove resolved GitHub issues from the board. Every time the source is queried, it will return an up-to-date set of open issues. If the board contains any cards that doesn't exist in that set, they will be automatically deleted.
+
+#### Custom Periods
 You can define a custom query period for each source, by populating the `type` and `interval` fields under the `period` for a source.
 
 Example:

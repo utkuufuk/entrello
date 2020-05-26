@@ -6,6 +6,7 @@ list_id: xxxxxxxxxxxxxxxxxxxxxxxx
 sources:
   github_issues:
     enabled: true
+    strict: true
     period:
       type: minute
       interval: 15
@@ -14,6 +15,7 @@ sources:
 
   tododock:
     enabled: true
+    strict: false
     period:
       type: hour
       interval: 1
