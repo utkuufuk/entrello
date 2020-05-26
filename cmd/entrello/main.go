@@ -31,16 +31,6 @@ func main() {
 	}
 
 	for _, src := range sources {
-		cards, err := src.FetchNewCards()
-		if err != nil {
-			// @todo: send telegram notification instead if enabled
-			log.Printf("[-] could not get cards for source '%s': %v", src.GetName(), err)
-			continue
-		}
-
-		if err := client.UpdateCards(cards); err != nil {
-			// @todo: send telegram notification instead if enabled
-			log.Printf("[-] error occurred while processing source '%s': %v", src.GetName(), err)
-		}
+		process(client, src)
 	}
 }

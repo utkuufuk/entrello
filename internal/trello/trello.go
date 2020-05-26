@@ -85,9 +85,9 @@ func (c Client) LoadExistingCards(labels []string) error {
 	return nil
 }
 
-// @todo: optionally delete existing cards that do not appear in the new list
-// UpdateCards creates the given cards except the ones that already exist
-func (c Client) UpdateCards(cards []Card) error {
+// UpdateCards creates the given cards except the ones that already exist.
+// Also deletes the stale cards if strict mode is enabled.
+func (c Client) UpdateCards(cards []Card, strict bool) error {
 	for _, card := range cards {
 		if contains(c.existingCards[card.label], card.name) {
 			continue

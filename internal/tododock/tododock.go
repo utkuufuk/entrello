@@ -49,6 +49,10 @@ func (t TodoDockSource) IsEnabled() bool {
 	return t.cfg.Enabled
 }
 
+func (t TodoDockSource) IsStrict() bool {
+	return t.cfg.Strict
+}
+
 func (t TodoDockSource) GetName() string {
 	return "TodoDock"
 }

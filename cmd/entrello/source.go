@@ -12,10 +12,13 @@ import (
 	"github.com/utkuufuk/entrello/internal/trello"
 )
 
-// Source defines an interface for a Trello card source
-type Source interface {
-	// IsEnabled returns true if the source is enabled by configuration.
+// source defines an interface for a Trello card source
+type source interface {
+	// IsEnabled returns true if the source is enabled.
 	IsEnabled() bool
+
+	// IsStrict returns true if "strict" mode is enabled for the source
+	IsStrict() bool
 
 	// GetName returns a human-readable name of the source
 	GetName() string
@@ -31,8 +34,8 @@ type Source interface {
 }
 
 // getEnabledSourcesAndLabels returns a list of enabled sources & all relevant label IDs
-func getEnabledSourcesAndLabels(cfg config.Sources) (sources []Source, labels []string) {
-	arr := []Source{
+func getEnabledSourcesAndLabels(cfg config.Sources) (sources []source, labels []string) {
+	arr := []source{
 		github.GetSource(context.Background(), cfg.GithubIssues),
 		tododock.GetSource(cfg.TodoDock),
 	}
@@ -53,7 +56,7 @@ func getEnabledSourcesAndLabels(cfg config.Sources) (sources []Source, labels []
 }
 
 // shouldQuery checks if the given source should be queried at the given time
-func shouldQuery(src Source, now time.Time) (bool, error) {
+func shouldQuery(src source, now time.Time) (bool, error) {
 	if !src.IsEnabled() {
 		return false, nil
 	}
@@ -84,4 +87,18 @@ func shouldQuery(src Source, now time.Time) (bool, error) {
 	}
 
 	return false, fmt.Errorf("unrecognized source period type: '%s'", src.GetPeriod().Type)
+}
+
+func process(client trello.Client, src source) {
+	cards, err := src.FetchNewCards()
+	if err != nil {
+		// @todo: send telegram notification instead if enabled
+		log.Printf("[-] could not get cards for source '%s': %v", src.GetName(), err)
+		return
+	}
+
+	if err := client.UpdateCards(cards, src.IsStrict()); err != nil {
+		// @todo: send telegram notification instead if enabled
+		log.Printf("[-] error occurred while processing source '%s': %v", src.GetName(), err)
+	}
 }
