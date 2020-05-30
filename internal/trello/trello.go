@@ -8,10 +8,12 @@ import (
 	"github.com/utkuufuk/entrello/internal/config"
 )
 
+type Card *trello.Card
+
 // Client represents a Trello client model
 type Client struct {
 	// client is the Trello API client
-	client *trello.Client
+	api *trello.Client
 
 	// boardId is the ID of the board to read & write cards
 	boardId string
@@ -20,26 +22,19 @@ type Client struct {
 	listId string
 
 	// a map of existing cards in the board, where the key is the label ID and value is the card name
-	existingCards map[string][]string
+	existingCards map[string][]Card
 }
 
-// Card represents a Trello card
-type Card struct {
-	name        string
-	label       string
-	description string
-	dueDate     *time.Time
-}
-
-func NewClient(c config.Config) (Client, error) {
+func NewClient(c config.Config) (client Client, err error) {
 	if c.BoardId == "" || c.ListId == "" || c.TrelloApiKey == "" || c.TrelloApiToken == "" {
-		return Client{}, fmt.Errorf("could not create trello client, missing configuration parameter(s)")
+		return client, fmt.Errorf("could not create trello client, missing configuration parameter(s)")
 	}
+
 	return Client{
-		client:        trello.NewClient(c.TrelloApiKey, c.TrelloApiToken),
+		api:           trello.NewClient(c.TrelloApiKey, c.TrelloApiToken),
 		boardId:       c.BoardId,
 		listId:        c.ListId,
-		existingCards: make(map[string][]string),
+		existingCards: make(map[string][]Card),
 	}, nil
 }
 
@@ -57,13 +52,17 @@ func NewCard(name, label, description string, dueDate *time.Time) (card Card, er
 	if description == "" {
 		return card, fmt.Errorf("description cannot be blank")
 	}
-	return Card{name, label, description, dueDate}, nil
+	return &trello.Card{
+		Name:     name,
+		Desc:     description,
+		Due:      dueDate,
+		IDLabels: []string{label},
+	}, nil
 }
 
-// LoadExistingCards retrieves and saves all existing cards from the board that has at least one
-// of the given label IDs
-func (c Client) LoadExistingCards(labels []string) error {
-	board, err := c.client.GetBoard(c.boardId, trello.Defaults())
+// LoadCards retrieves existing cards from the board that have at least one of the given label IDs
+func (c Client) LoadCards(labels []string) error {
+	board, err := c.api.GetBoard(c.boardId, trello.Defaults())
 	if err != nil {
 		return fmt.Errorf("could not get board data: %w", err)
 	}
@@ -74,43 +73,52 @@ func (c Client) LoadExistingCards(labels []string) error {
 	}
 
 	for _, label := range labels {
-		c.existingCards[label] = make([]string, 0, len(cards))
+		c.existingCards[label] = make([]Card, 0, len(cards))
 	}
 
 	for _, card := range cards {
 		for _, label := range card.IDLabels {
-			c.existingCards[label] = append(c.existingCards[label], card.Name)
+			c.existingCards[label] = append(c.existingCards[label], card)
 		}
 	}
 	return nil
 }
 
-// UpdateCards creates the given cards except the ones that already exist.
-// Also deletes the stale cards if strict mode is enabled.
-func (c Client) UpdateCards(cards []Card, strict bool) error {
+// CompareWithExisting
+func (c Client) CompareWithExisting(cards []Card, label string) (new, stale []Card) {
+	m := make(map[string]*trello.Card)
+	for _, card := range c.existingCards[label] {
+		m[card.Name] = card
+	}
+
 	for _, card := range cards {
-		if contains(c.existingCards[card.label], card.name) {
+		_, ok := m[card.Name]
+		m[card.Name] = nil
+		if ok {
 			continue
 		}
-
-		if err := c.createCard(card); err != nil {
-			return fmt.Errorf("[-] could not create card '%s': %v", card.name, err)
-		}
-
-		// @todo: send telegram notification if enabled
+		new = append(new, card)
 	}
-	return nil
+
+	for _, card := range m {
+		if card == nil {
+			continue
+		}
+		stale = append(stale, card)
+	}
+
+	return new, stale
 }
 
-// createCard creates a Trello card using the the API client
-func (c Client) createCard(card Card) error {
-	return c.client.CreateCard(&trello.Card{
-		Name:     card.name,
-		Desc:     card.description,
-		Due:      card.dueDate,
-		IDList:   c.listId,
-		IDLabels: []string{card.label},
-	}, trello.Defaults())
+// CreateCard creates a Trello card using the the Trello API
+func (c Client) CreateCard(card Card) error {
+	card.IDList = c.listId
+	return c.api.CreateCard(card, trello.Defaults())
+}
+
+// ArchiveCard archives a Trello card using the the Trello API
+func (c Client) ArchiveCard(card Card) error {
+	return (*trello.Card)(card).Update(trello.Arguments{"closed": "true"})
 }
 
 // contains returns true if the list of strings contain the given string

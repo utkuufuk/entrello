@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"sync"
 	"time"
 
 	"github.com/utkuufuk/entrello/internal/config"
@@ -89,16 +90,29 @@ func shouldQuery(src source, now time.Time) (bool, error) {
 	return false, fmt.Errorf("unrecognized source period type: '%s'", src.GetPeriod().Type)
 }
 
-func process(client trello.Client, src source) {
+// queueActionables fetches new cards from the source, then pushes those to be created and
+// to be deleted into the corresponding channels, as well as any errors encountered.
+func queueActionables(src source, client trello.Client, q CardQueue, wg *sync.WaitGroup) {
+	defer wg.Done()
+
 	cards, err := src.FetchNewCards()
 	if err != nil {
-		// @todo: send telegram notification instead if enabled
-		log.Printf("[-] could not get cards for source '%s': %v", src.GetName(), err)
+		q.err <- fmt.Errorf("could not fetch cards for source '%s': %v", src.GetName(), err)
 		return
 	}
 
-	if err := client.UpdateCards(cards, src.IsStrict()); err != nil {
-		// @todo: send telegram notification instead if enabled
-		log.Printf("[-] error occurred while processing source '%s': %v", src.GetName(), err)
+	new, stale := client.CompareWithExisting(cards, src.GetLabel())
+	fmt.Printf("%s\nnew: %v\nstale:%v\n", src.GetName(), new, stale)
+
+	for _, c := range new {
+		q.add <- c
+	}
+
+	if !src.IsStrict() {
+		return
+	}
+
+	for _, c := range stale {
+		q.del <- c
 	}
 }
