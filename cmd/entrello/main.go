@@ -9,12 +9,6 @@ import (
 	"github.com/utkuufuk/entrello/internal/trello"
 )
 
-type CardQueue struct {
-	add chan trello.Card
-	del chan trello.Card
-	err chan error
-}
-
 func main() {
 	// read config params
 	cfg, err := config.ReadConfig("config.yml")
@@ -47,40 +41,10 @@ func main() {
 		log.Fatalf("[-] could not load existing cards from the board: %v", err)
 	}
 
-	// initialize channels, then start listening each source for cards to create/delete and errors
-	q := CardQueue{
-		add: make(chan trello.Card),
-		del: make(chan trello.Card),
-		err: make(chan error),
-	}
-
-	// concurrently fetch new cards from each source and start queuing cards to be created & deleted
+	// concurrently fetch new cards from sources and start processing cards to be created & deleted
+	q := CardQueue{make(chan trello.Card), make(chan trello.Card), make(chan error)}
 	for _, src := range sources {
 		go queueActionables(src, client, q)
 	}
-
-	//
-	for {
-		select {
-		case c := <-q.add:
-			// @todo: send telegram notification instead if enabled
-			if err := client.CreateCard(c); err != nil {
-				log.Printf("[-] error occurred while creating card: %v", err)
-				break
-			}
-			log.Printf("[+] created new card: %s", c.Name)
-		case c := <-q.del:
-			// @todo: send telegram notification instead if enabled
-			if err := client.ArchiveCard(c); err != nil {
-				log.Printf("[-] error occurred while archiving card: %v", err)
-				break
-			}
-			log.Printf("[+] archived stale card: %s", c.Name)
-		case err := <-q.err:
-			// @todo: send telegram notification instead if enabled
-			log.Printf("[-] %v", err)
-		case <-ctx.Done():
-			return
-		}
-	}
+	processActionables(ctx, client, q)
 }

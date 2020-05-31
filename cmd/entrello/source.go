@@ -88,27 +88,3 @@ func shouldQuery(src source, now time.Time) (bool, error) {
 
 	return false, fmt.Errorf("unrecognized source period type: '%s'", src.GetPeriod().Type)
 }
-
-// queueActionables fetches new cards from the source, then pushes those to be created and
-// to be deleted into the corresponding channels, as well as any errors encountered.
-func queueActionables(src source, client trello.Client, q CardQueue) {
-	cards, err := src.FetchNewCards()
-	if err != nil {
-		q.err <- fmt.Errorf("could not fetch cards for source '%s': %v", src.GetName(), err)
-		return
-	}
-
-	new, stale := client.CompareWithExisting(cards, src.GetLabel())
-
-	for _, c := range new {
-		q.add <- c
-	}
-
-	if !src.IsStrict() {
-		return
-	}
-
-	for _, c := range stale {
-		q.del <- c
-	}
-}
