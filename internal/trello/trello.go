@@ -79,17 +79,3 @@ func (c Client) CompareWithExisting(cards []Card, label string) (new, stale []Ca
 
 	return new, stale
 }
-
-// setExistingCards populates the map within the client from the given cards where the keys
-// are labels and the values are card slices
-func (c Client) setExistingCards(cards []*trello.Card, labels []string) {
-	for _, label := range labels {
-		c.existingCards[label] = make([]Card, 0, len(cards))
-	}
-
-	for _, card := range cards {
-		for _, label := range card.IDLabels {
-			c.existingCards[label] = append(c.existingCards[label], card)
-		}
-	}
-}
