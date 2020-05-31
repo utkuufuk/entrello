@@ -1,7 +1,10 @@
-api_key: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-api_token: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-board_id: xxxxxxxxxxxxxxxxxxxxxxxx
-list_id: xxxxxxxxxxxxxxxxxxxxxxxx
+timeout_secs: 45
+
+trello:
+  api_key: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  api_token: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  board_id: xxxxxxxxxxxxxxxxxxxxxxxx
+  list_id: xxxxxxxxxxxxxxxxxxxxxxxx
 
 sources:
   github_issues:

@@ -1,8 +1,9 @@
 package main
 
 import (
+	"context"
 	"log"
-	"sync"
+	"time"
 
 	"github.com/utkuufuk/entrello/internal/config"
 	"github.com/utkuufuk/entrello/internal/trello"
@@ -22,14 +23,19 @@ func main() {
 		log.Fatalf("[-] could not read config variables: %v", err)
 	}
 
+	// set global timeout
+	timeout := time.Second * time.Duration(cfg.TimeoutSeconds)
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	defer cancel()
+
 	// get a list of enabled sources and the corresponding labels for each source
-	sources, labels := getEnabledSourcesAndLabels(cfg.Sources)
+	sources, labels := getEnabledSourcesAndLabels(ctx, cfg.Sources)
 	if len(sources) == 0 {
 		return
 	}
 
 	// initialize the Trello client
-	client, err := trello.NewClient(cfg)
+	client, err := trello.NewClient(cfg.Trello)
 	if err != nil {
 		// @todo: send telegram notification instead if enabled
 		log.Fatalf("[-] could not create trello client: %v", err)
@@ -48,35 +54,33 @@ func main() {
 		err: make(chan error),
 	}
 
-	var wg sync.WaitGroup
-	wg.Add(len(sources))
+	// concurrently fetch new cards from each source and start queuing cards to be created & deleted
 	for _, src := range sources {
-		go queueActionables(src, client, q, &wg)
+		go queueActionables(src, client, q)
 	}
 
-	go func() {
-		for {
-			select {
-			case c := <-q.add:
-				// @todo: send telegram notification instead if enabled
-				if err := client.CreateCard(c); err != nil {
-					log.Printf("[-] error occurred while creating card: %v", err)
-					break
-				}
-				log.Printf("[+] created new card: %s", c.Name)
-			case c := <-q.del:
-				// @todo: send telegram notification instead if enabled
-				if err := client.ArchiveCard(c); err != nil {
-					log.Printf("[-] error occurred while archiving card: %v", err)
-					break
-				}
-				log.Printf("[+] archived stale card: %s", c.Name)
-			case err := <-q.err:
-				// @todo: send telegram notification instead if enabled
-				log.Printf("[-] %v", err)
+	//
+	for {
+		select {
+		case c := <-q.add:
+			// @todo: send telegram notification instead if enabled
+			if err := client.CreateCard(c); err != nil {
+				log.Printf("[-] error occurred while creating card: %v", err)
+				break
 			}
+			log.Printf("[+] created new card: %s", c.Name)
+		case c := <-q.del:
+			// @todo: send telegram notification instead if enabled
+			if err := client.ArchiveCard(c); err != nil {
+				log.Printf("[-] error occurred while archiving card: %v", err)
+				break
+			}
+			log.Printf("[+] archived stale card: %s", c.Name)
+		case err := <-q.err:
+			// @todo: send telegram notification instead if enabled
+			log.Printf("[-] %v", err)
+		case <-ctx.Done():
+			return
 		}
-	}()
-
-	wg.Wait()
+	}
 }

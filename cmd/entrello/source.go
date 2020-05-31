@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"sync"
 	"time"
 
 	"github.com/utkuufuk/entrello/internal/config"
@@ -35,9 +34,9 @@ type source interface {
 }
 
 // getEnabledSourcesAndLabels returns a list of enabled sources & all relevant label IDs
-func getEnabledSourcesAndLabels(cfg config.Sources) (sources []source, labels []string) {
+func getEnabledSourcesAndLabels(ctx context.Context, cfg config.Sources) (sources []source, labels []string) {
 	arr := []source{
-		github.GetSource(context.Background(), cfg.GithubIssues),
+		github.GetSource(ctx, cfg.GithubIssues),
 		tododock.GetSource(cfg.TodoDock),
 	}
 	now := time.Now()
@@ -92,9 +91,7 @@ func shouldQuery(src source, now time.Time) (bool, error) {
 
 // queueActionables fetches new cards from the source, then pushes those to be created and
 // to be deleted into the corresponding channels, as well as any errors encountered.
-func queueActionables(src source, client trello.Client, q CardQueue, wg *sync.WaitGroup) {
-	defer wg.Done()
-
+func queueActionables(src source, client trello.Client, q CardQueue) {
 	cards, err := src.FetchNewCards()
 	if err != nil {
 		q.err <- fmt.Errorf("could not fetch cards for source '%s': %v", src.GetName(), err)
@@ -102,7 +99,6 @@ func queueActionables(src source, client trello.Client, q CardQueue, wg *sync.Wa
 	}
 
 	new, stale := client.CompareWithExisting(cards, src.GetLabel())
-	fmt.Printf("%s\nnew: %v\nstale:%v\n", src.GetName(), new, stale)
 
 	for _, c := range new {
 		q.add <- c

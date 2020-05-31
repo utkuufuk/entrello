@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"testing"
 	"time"
@@ -68,6 +69,7 @@ func TestGetEnabledSourcesAndLabels(t *testing.T) {
 		},
 	}
 
+	ctx := context.Background()
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
 			cfg := config.Sources{
@@ -75,7 +77,7 @@ func TestGetEnabledSourcesAndLabels(t *testing.T) {
 				TodoDock:     tc.todoDock,
 			}
 
-			sources, labels := getEnabledSourcesAndLabels(cfg)
+			sources, labels := getEnabledSourcesAndLabels(ctx, cfg)
 			if len(sources) != tc.numResults {
 				t.Errorf("expected %d source(s); got %v", tc.numResults, len(sources))
 			}

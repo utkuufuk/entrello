@@ -17,6 +17,11 @@ Feel free to add new sources or improve the implementations of the existing ones
 ## Configuration
 Copy and rename `config.example.yml` as `config.yml`, then set your own values in `config.yml` according to the following:
 
+#### Global Timeout
+You can edit the `timeout_secs` config value in order to update global timeout (in seconds) for a single execution. 
+
+The execution will not terminate until the timeout is reached, so it's important that the timeout is shorter than the cron job period.
+
 #### Trello
 You need to set your [Trello API key & token](https://trello.com/app-key) in the configuraiton file, as well as the Trello board & list IDs.
 

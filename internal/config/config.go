@@ -41,11 +41,16 @@ type Sources struct {
 	TodoDock     TodoDock     `yaml:"tododock"`
 }
 
+type Trello struct {
+	ApiKey   string `yaml:"api_key"`
+	ApiToken string `yaml:"api_token"`
+	BoardId  string `yaml:"board_id"`
+	ListId   string `yaml:"list_id"`
+}
+
 type Config struct {
-	TrelloApiKey   string  `yaml:"trello_api_key"`
-	TrelloApiToken string  `yaml:"trello_api_token"`
-	BoardId        string  `yaml:"board_id"`
-	ListId         string  `yaml:"list_id"`
+	TimeoutSeconds int     `yaml:"timeout_secs"`
+	Trello         Trello  `yaml:"trello"`
 	Sources        Sources `yaml:"sources"`
 }
 

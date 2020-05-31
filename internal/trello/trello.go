@@ -25,15 +25,15 @@ type Client struct {
 	existingCards map[string][]Card
 }
 
-func NewClient(c config.Config) (client Client, err error) {
-	if c.BoardId == "" || c.ListId == "" || c.TrelloApiKey == "" || c.TrelloApiToken == "" {
+func NewClient(cfg config.Trello) (client Client, err error) {
+	if cfg.BoardId == "" || cfg.ListId == "" || cfg.ApiKey == "" || cfg.ApiToken == "" {
 		return client, fmt.Errorf("could not create trello client, missing configuration parameter(s)")
 	}
 
 	return Client{
-		api:           trello.NewClient(c.TrelloApiKey, c.TrelloApiToken),
-		boardId:       c.BoardId,
-		listId:        c.ListId,
+		api:           trello.NewClient(cfg.ApiKey, cfg.ApiToken),
+		boardId:       cfg.BoardId,
+		listId:        cfg.ListId,
 		existingCards: make(map[string][]Card),
 	}, nil
 }
@@ -52,6 +52,7 @@ func NewCard(name, label, description string, dueDate *time.Time) (card Card, er
 	if description == "" {
 		return card, fmt.Errorf("description cannot be blank")
 	}
+
 	return &trello.Card{
 		Name:     name,
 		Desc:     description,
@@ -84,7 +85,8 @@ func (c Client) LoadCards(labels []string) error {
 	return nil
 }
 
-// CompareWithExisting
+// CompareWithExisting compares the given cards with the existing cards and returns two arrays;
+// one containing new cards and the other containing stale cards.
 func (c Client) CompareWithExisting(cards []Card, label string) (new, stale []Card) {
 	m := make(map[string]*trello.Card)
 	for _, card := range c.existingCards[label] {
