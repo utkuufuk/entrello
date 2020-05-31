@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/adlio/trello"
 	"github.com/google/go-cmp/cmp"
 	"github.com/utkuufuk/entrello/internal/config"
 )
@@ -117,13 +118,15 @@ func TestNewClient(t *testing.T) {
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
 			cfg := config.Config{
-				TrelloApiKey:   tc.apiKey,
-				TrelloApiToken: tc.apiToken,
-				BoardId:        tc.boardId,
-				ListId:         tc.listId,
-				Sources:        config.Sources{},
+				Trello: config.Trello{
+					ApiKey:   tc.apiKey,
+					ApiToken: tc.apiToken,
+					BoardId:  tc.boardId,
+					ListId:   tc.listId,
+				},
+				Sources: config.Sources{},
 			}
-			_, err := NewClient(cfg)
+			_, err := NewClient(cfg.Trello)
 			if (err != nil && !tc.err) || err == nil && tc.err {
 				t.Fatalf("did not expect the error outcome to be: '%t'", tc.err)
 			}
@@ -131,59 +134,76 @@ func TestNewClient(t *testing.T) {
 	}
 }
 
-func TestContains(t *testing.T) {
-	str := "placeholder"
-
+func TestCompareWithExisting(t *testing.T) {
+	label := "label"
 	tt := []struct {
-		name    string
-		list    []string
-		query   string
-		outcome bool
+		name     string
+		client   Client
+		cards    []Card
+		label    string
+		numNew   int
+		numStale int
 	}{
 		{
-			name:    "all empty",
-			list:    []string{},
-			query:   "",
-			outcome: false,
+			name: "only existing cards",
+			client: Client{existingCards: map[string][]Card{label: {
+				newTestCardByName("a"),
+				newTestCardByName("b"),
+			}}},
+			cards:    []Card{newTestCardByName("a"), newTestCardByName("b")},
+			numNew:   0,
+			numStale: 0,
 		},
 		{
-			name:    "empty query",
-			list:    []string{str},
-			query:   "",
-			outcome: false,
+			name:     "only new cards",
+			client:   Client{existingCards: map[string][]Card{label: {}}},
+			cards:    []Card{newTestCardByName("a"), newTestCardByName("b")},
+			numNew:   2,
+			numStale: 0,
 		},
 		{
-			name:    "empty list",
-			list:    []string{},
-			query:   str,
-			outcome: false,
+			name: "only stale cards",
+			client: Client{existingCards: map[string][]Card{label: {
+				newTestCardByName("a"),
+				newTestCardByName("b"),
+			}}},
+			cards:    []Card{},
+			numNew:   0,
+			numStale: 2,
 		},
 		{
-			name:    "no match",
-			list:    []string{"a", "b", "c"},
-			query:   "d",
-			outcome: false,
-		},
-		{
-			name:    "match",
-			list:    []string{"a", "b", "c", str},
-			query:   str,
-			outcome: true,
+			name: "new, stale and existing cards",
+			client: Client{existingCards: map[string][]Card{label: {
+				newTestCardByName("a"),
+				newTestCardByName("b"), // stale
+				newTestCardByName("c"), // stale
+			}}},
+			cards: []Card{
+				newTestCardByName("a"), // existing
+				newTestCardByName("d"), // new
+			},
+			numNew:   1,
+			numStale: 2,
 		},
 	}
 
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
-			outcome := contains(tc.list, tc.query)
-			if outcome == tc.outcome {
-				return
+			new, stale := tc.client.CompareWithExisting(tc.cards, label)
+
+			if len(new) != tc.numNew {
+				t.Errorf("wanted %d new cards, got %d", tc.numNew, len(new))
 			}
 
-			prefix := "expected "
-			if !tc.outcome {
-				prefix = "did not expect "
+			if len(stale) != tc.numStale {
+				t.Errorf("wanted %d stale cards, got %d", tc.numStale, len(stale))
 			}
-			t.Fatalf("%s %s to be in the list %v, got %t", prefix, tc.query, tc.list, outcome)
 		})
+	}
+}
+
+func newTestCardByName(name string) *trello.Card {
+	return &trello.Card{
+		Name: name,
 	}
 }

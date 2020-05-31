@@ -8,38 +8,25 @@ import (
 	"github.com/utkuufuk/entrello/internal/config"
 )
 
-// Client represents a Trello client model
+type Card *trello.Card
+
 type Client struct {
-	// client is the Trello API client
-	client *trello.Client
-
-	// boardId is the ID of the board to read & write cards
-	boardId string
-
-	// list is the ID of the Trello list to insert new cards
-	listId string
-
-	// a map of existing cards in the board, where the key is the label ID and value is the card name
-	existingCards map[string][]string
+	api           *trello.Client
+	boardId       string
+	listId        string
+	existingCards map[string][]Card
 }
 
-// Card represents a Trello card
-type Card struct {
-	name        string
-	label       string
-	description string
-	dueDate     *time.Time
-}
-
-func NewClient(c config.Config) (Client, error) {
-	if c.BoardId == "" || c.ListId == "" || c.TrelloApiKey == "" || c.TrelloApiToken == "" {
-		return Client{}, fmt.Errorf("could not create trello client, missing configuration parameter(s)")
+func NewClient(cfg config.Trello) (client Client, err error) {
+	if cfg.BoardId == "" || cfg.ListId == "" || cfg.ApiKey == "" || cfg.ApiToken == "" {
+		return client, fmt.Errorf("could not create trello client, missing configuration parameter(s)")
 	}
+
 	return Client{
-		client:        trello.NewClient(c.TrelloApiKey, c.TrelloApiToken),
-		boardId:       c.BoardId,
-		listId:        c.ListId,
-		existingCards: make(map[string][]string),
+		api:           trello.NewClient(cfg.ApiKey, cfg.ApiToken),
+		boardId:       cfg.BoardId,
+		listId:        cfg.ListId,
+		existingCards: make(map[string][]Card),
 	}, nil
 }
 
@@ -57,72 +44,38 @@ func NewCard(name, label, description string, dueDate *time.Time) (card Card, er
 	if description == "" {
 		return card, fmt.Errorf("description cannot be blank")
 	}
-	return Card{name, label, description, dueDate}, nil
+
+	return &trello.Card{
+		Name:     name,
+		Desc:     description,
+		Due:      dueDate,
+		IDLabels: []string{label},
+	}, nil
 }
 
-// LoadExistingCards retrieves and saves all existing cards from the board that has at least one
-// of the given label IDs
-func (c Client) LoadExistingCards(labels []string) error {
-	board, err := c.client.GetBoard(c.boardId, trello.Defaults())
-	if err != nil {
-		return fmt.Errorf("could not get board data: %w", err)
-	}
-
-	cards, err := board.GetCards(trello.Defaults())
-	if err != nil {
-		return fmt.Errorf("could not fetch cards in board: %w", err)
-	}
-
-	for _, label := range labels {
-		c.existingCards[label] = make([]string, 0, len(cards))
+// CompareWithExisting compares the given cards with the existing cards and returns two arrays;
+// one containing new cards and the other containing stale cards.
+func (c Client) CompareWithExisting(cards []Card, label string) (new, stale []Card) {
+	m := make(map[string]*trello.Card)
+	for _, card := range c.existingCards[label] {
+		m[card.Name] = card
 	}
 
 	for _, card := range cards {
-		for _, label := range card.IDLabels {
-			c.existingCards[label] = append(c.existingCards[label], card.Name)
-		}
-	}
-	return nil
-}
-
-// @todo: optionally delete existing cards that do not appear in the new list
-// UpdateCards creates the given cards except the ones that already exist
-func (c Client) UpdateCards(cards []Card) error {
-	for _, card := range cards {
-		if contains(c.existingCards[card.label], card.name) {
+		_, ok := m[card.Name]
+		m[card.Name] = nil
+		if ok {
 			continue
 		}
+		new = append(new, card)
+	}
 
-		if err := c.createCard(card); err != nil {
-			return fmt.Errorf("[-] could not create card '%s': %v", card.name, err)
+	for _, card := range m {
+		if card == nil {
+			continue
 		}
-
-		// @todo: send telegram notification if enabled
-	}
-	return nil
-}
-
-// createCard creates a Trello card using the the API client
-func (c Client) createCard(card Card) error {
-	return c.client.CreateCard(&trello.Card{
-		Name:     card.name,
-		Desc:     card.description,
-		Due:      card.dueDate,
-		IDList:   c.listId,
-		IDLabels: []string{card.label},
-	}, trello.Defaults())
-}
-
-// contains returns true if the list of strings contain the given string
-func contains(list []string, item string) bool {
-	if item == "" {
-		return false
+		stale = append(stale, card)
 	}
 
-	for _, i := range list {
-		if i == item {
-			return true
-		}
-	}
-	return false
+	return new, stale
 }

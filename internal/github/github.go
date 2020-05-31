@@ -28,6 +28,10 @@ func (g GithubIssuesSource) IsEnabled() bool {
 	return g.cfg.Enabled
 }
 
+func (g GithubIssuesSource) IsStrict() bool {
+	return g.cfg.Strict
+}
+
 func (g GithubIssuesSource) GetName() string {
 	return "Github Issues"
 }
