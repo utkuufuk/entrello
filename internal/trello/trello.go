@@ -10,18 +10,10 @@ import (
 
 type Card *trello.Card
 
-// Client represents a Trello client model
 type Client struct {
-	// client is the Trello API client
-	api *trello.Client
-
-	// boardId is the ID of the board to read & write cards
-	boardId string
-
-	// list is the ID of the Trello list to insert new cards
-	listId string
-
-	// a map of existing cards in the board, where the key is the label ID and value is the card name
+	api           *trello.Client
+	boardId       string
+	listId        string
 	existingCards map[string][]Card
 }
 
@@ -61,30 +53,6 @@ func NewCard(name, label, description string, dueDate *time.Time) (card Card, er
 	}, nil
 }
 
-// LoadCards retrieves existing cards from the board that have at least one of the given label IDs
-func (c Client) LoadCards(labels []string) error {
-	board, err := c.api.GetBoard(c.boardId, trello.Defaults())
-	if err != nil {
-		return fmt.Errorf("could not get board data: %w", err)
-	}
-
-	cards, err := board.GetCards(trello.Defaults())
-	if err != nil {
-		return fmt.Errorf("could not fetch cards in board: %w", err)
-	}
-
-	for _, label := range labels {
-		c.existingCards[label] = make([]Card, 0, len(cards))
-	}
-
-	for _, card := range cards {
-		for _, label := range card.IDLabels {
-			c.existingCards[label] = append(c.existingCards[label], card)
-		}
-	}
-	return nil
-}
-
 // CompareWithExisting compares the given cards with the existing cards and returns two arrays;
 // one containing new cards and the other containing stale cards.
 func (c Client) CompareWithExisting(cards []Card, label string) (new, stale []Card) {
@@ -112,27 +80,16 @@ func (c Client) CompareWithExisting(cards []Card, label string) (new, stale []Ca
 	return new, stale
 }
 
-// CreateCard creates a Trello card using the the Trello API
-func (c Client) CreateCard(card Card) error {
-	card.IDList = c.listId
-	return c.api.CreateCard(card, trello.Defaults())
-}
-
-// ArchiveCard archives a Trello card using the the Trello API
-func (c Client) ArchiveCard(card Card) error {
-	return (*trello.Card)(card).Update(trello.Arguments{"closed": "true"})
-}
-
-// contains returns true if the list of strings contain the given string
-func contains(list []string, item string) bool {
-	if item == "" {
-		return false
+// setExistingCards populates the map within the client from the given cards where the keys
+// are labels and the values are card slices
+func (c Client) setExistingCards(cards []*trello.Card, labels []string) {
+	for _, label := range labels {
+		c.existingCards[label] = make([]Card, 0, len(cards))
 	}
 
-	for _, i := range list {
-		if i == item {
-			return true
+	for _, card := range cards {
+		for _, label := range card.IDLabels {
+			c.existingCards[label] = append(c.existingCards[label], card)
 		}
 	}
-	return false
 }
