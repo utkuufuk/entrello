@@ -73,32 +73,44 @@ func TestSetExistingCards(t *testing.T) {
 		numCards  map[string]int
 	}{
 		{
-			name:      "no labels",
-			client:    Client{existingCards: make(map[string][]Card)},
-			cards:     []*trello.Card{createCard([]string{"a"}), createCard([]string{"b"})},
+			name:   "no labels",
+			client: Client{existingCards: make(map[string][]Card)},
+			cards: []*trello.Card{
+				newTestCardByLabel([]string{"a"}),
+				newTestCardByLabel([]string{"b"}),
+			},
 			labels:    []string{},
 			numLabels: 0,
 		},
 		{
-			name:      "no matching labels",
-			client:    Client{existingCards: make(map[string][]Card)},
-			cards:     []*trello.Card{createCard([]string{"a"}), createCard([]string{"b"})},
+			name:   "no matching labels",
+			client: Client{existingCards: make(map[string][]Card)},
+			cards: []*trello.Card{
+				newTestCardByLabel([]string{"a"}),
+				newTestCardByLabel([]string{"b"}),
+			},
 			labels:    []string{"c"},
 			numLabels: 1,
 			numCards:  map[string]int{"c": 0},
 		},
 		{
-			name:      "all matching labels",
-			client:    Client{existingCards: make(map[string][]Card)},
-			cards:     []*trello.Card{createCard([]string{"a"}), createCard([]string{"b"})},
+			name:   "all matching labels",
+			client: Client{existingCards: make(map[string][]Card)},
+			cards: []*trello.Card{
+				newTestCardByLabel([]string{"a"}),
+				newTestCardByLabel([]string{"b"}),
+			},
 			labels:    []string{"b", "a"},
 			numLabels: 2,
 			numCards:  map[string]int{"a": 1, "b": 1},
 		},
 		{
-			name:      "all matching overlapping labels",
-			client:    Client{existingCards: make(map[string][]Card)},
-			cards:     []*trello.Card{createCard([]string{"a", "b"}), createCard([]string{"a", "b"})},
+			name:   "all matching overlapping labels",
+			client: Client{existingCards: make(map[string][]Card)},
+			cards: []*trello.Card{
+				newTestCardByLabel([]string{"a", "b"}),
+				newTestCardByLabel([]string{"a", "b"}),
+			},
 			labels:    []string{"b", "a"},
 			numLabels: 2,
 			numCards:  map[string]int{"a": 2, "b": 2},
@@ -107,9 +119,9 @@ func TestSetExistingCards(t *testing.T) {
 			name:   "some matching labels",
 			client: Client{existingCards: make(map[string][]Card)},
 			cards: []*trello.Card{
-				createCard([]string{"a"}),
-				createCard([]string{"b"}),
-				createCard([]string{"c"}),
+				newTestCardByLabel([]string{"a"}),
+				newTestCardByLabel([]string{"b"}),
+				newTestCardByLabel([]string{"c"}),
 			},
 			labels:    []string{"b", "a"},
 			numLabels: 2,
@@ -138,7 +150,7 @@ func TestSetExistingCards(t *testing.T) {
 	}
 }
 
-func createCard(labels []string) *trello.Card {
+func newTestCardByLabel(labels []string) *trello.Card {
 	return &trello.Card{
 		IDLabels: labels,
 	}
