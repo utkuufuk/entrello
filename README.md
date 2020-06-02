@@ -35,6 +35,11 @@ Strict mode can be enabled for individual data sources by setting the `strict` f
 
 For instance, strict mode can be used to automatically remove resolved GitHub issues from the board. Every time the source is queried, it will return an up-to-date set of open issues. If the board contains any cards that doesn't exist in that set, they will be automatically deleted.
 
+#### Telegram
+Since it's not very practical to manually check a log file for a cron job, entrello has an optional Telegram integration that you can use if you want to receive messages on card updates & possible errors.
+
+You need a Telegram token & a chat ID in order to enable the integration.
+
 #### Custom Periods
 You can define a custom query period for each source, by populating the `type` and `interval` fields under the `period` for a source.
 

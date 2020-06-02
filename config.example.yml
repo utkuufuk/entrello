@@ -25,3 +25,8 @@ sources:
     email: abc@def.com
     password: xxxxxxxx
     label_id: xxxxxxxxxxxxxxxxxxxxxxxx
+
+telegram:
+  enabled: true
+  token: xxxxxxxxxx:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  chat_id: 1234567890
