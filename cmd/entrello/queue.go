@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
 
 	"github.com/utkuufuk/entrello/internal/trello"
 )
@@ -44,22 +43,19 @@ func processActionables(ctx context.Context, client trello.Client, q CardQueue) 
 	for {
 		select {
 		case c := <-q.add:
-			// @todo: send telegram notification instead if enabled
 			if err := client.CreateCard(c); err != nil {
-				log.Printf("[-] error occurred while creating card: %v", err)
+				logger.Errorf("could not create Trello card: %v", err)
 				break
 			}
-			log.Printf("[+] created new card: %s", c.Name)
+			logger.Printf("created new card: %s", c.Name)
 		case c := <-q.del:
-			// @todo: send telegram notification instead if enabled
 			if err := client.ArchiveCard(c); err != nil {
-				log.Printf("[-] error occurred while archiving card: %v", err)
+				logger.Errorf("could not archive card card: %v", err)
 				break
 			}
-			log.Printf("[+] archived stale card: %s", c.Name)
+			logger.Printf("archived stale card: %s", c.Name)
 		case err := <-q.err:
-			// @todo: send telegram notification instead if enabled
-			log.Printf("[-] %v", err)
+			logger.Errorf("%v", err)
 		case <-ctx.Done():
 			return
 		}

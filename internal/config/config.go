@@ -48,10 +48,17 @@ type Trello struct {
 	ListId   string `yaml:"list_id"`
 }
 
+type Telegram struct {
+	Enabled bool   `yaml:"enabled"`
+	Token   string `yaml:"token"`
+	ChatId  int64  `yaml:"chat_id"`
+}
+
 type Config struct {
-	TimeoutSeconds int     `yaml:"timeout_secs"`
-	Trello         Trello  `yaml:"trello"`
-	Sources        Sources `yaml:"sources"`
+	TimeoutSeconds int      `yaml:"timeout_secs"`
+	Trello         Trello   `yaml:"trello"`
+	Sources        Sources  `yaml:"sources"`
+	Telegram       Telegram `yaml:"telegram"`
 }
 
 // ReadConfig reads the YAML config file & decodes all parameters

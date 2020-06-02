@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/utkuufuk/entrello/internal/config"
@@ -44,8 +43,7 @@ func getEnabledSourcesAndLabels(ctx context.Context, cfg config.Sources) (source
 	for _, src := range arr {
 		if ok, err := shouldQuery(src, now); !ok {
 			if err != nil {
-				// @todo: send telegram notification instead if enabled
-				log.Printf("[-] could not check if '%s' should be queried or not, skipping", src.GetName())
+				logger.Errorf("could not check if '%s' should be queried or not, skipping", src.GetName())
 			}
 			continue
 		}
