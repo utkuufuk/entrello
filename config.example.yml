@@ -29,4 +29,4 @@ sources:
 telegram:
   enabled: true
   token: xxxxxxxxxx:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-  chat_id: xxxxxxxxxx
+  chat_id: 1234567890

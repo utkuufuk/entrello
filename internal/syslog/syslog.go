@@ -18,13 +18,13 @@ type Logger struct {
 // NewLogger creates a new system logger instance
 func NewLogger(cfg config.Telegram) (l Logger) {
 	if !cfg.Enabled {
-		return Logger{false, nil, 0}
+		return l
 	}
 
 	api, err := tgbotapi.NewBotAPI(cfg.Token)
 	if err != nil {
 		log.Printf("could not create Telegram Logger: %v", err)
-		return Logger{false, nil, 0}
+		return l
 	}
 	return Logger{true, api, cfg.ChatId}
 }
@@ -50,10 +50,10 @@ func (l Logger) Fatalf(msg string, v ...interface{}) {
 func (l Logger) logf(prefix, msg string, v ...interface{}) {
 	msg = fmt.Sprintf(msg, v...)
 	log.Println(msg)
+
 	if !l.enabled || l.api == nil || l.chatId == 0 {
 		return
 	}
-
 	msg = fmt.Sprintf("%s %s", prefix, msg)
 	m := tgbotapi.NewMessage(l.chatId, msg)
 	l.api.Send(m)
