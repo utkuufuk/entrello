@@ -19,28 +19,27 @@ type Period struct {
 	Interval int    `yaml:"interval"`
 }
 
-type GithubIssues struct {
+type SourceConfig struct {
+	Name    string `yaml:"name"`
 	Enabled bool   `yaml:"enabled"`
 	Strict  bool   `yaml:"strict"`
 	Label   string `yaml:"label_id"`
 	Period  Period `yaml:"period"`
-	Token   string `yaml:"personal_access_token"`
+}
+
+type GithubIssues struct {
+	SourceConfig SourceConfig `yaml:"source_config"`
+	Token        string       `yaml:"personal_access_token"`
 }
 
 type TodoDock struct {
-	Enabled  bool   `yaml:"enabled"`
-	Strict   bool   `yaml:"strict"`
-	Label    string `yaml:"label_id"`
-	Period   Period `yaml:"period"`
-	Email    string `yaml:"email"`
-	Password string `yaml:"password"`
+	SourceConfig SourceConfig `yaml:"source_config"`
+	Email        string       `yaml:"email"`
+	Password     string       `yaml:"password"`
 }
 
 type Habits struct {
-	Enabled bool   `yaml:"enabled"`
-	Strict  bool   `yaml:"strict"`
-	Label   string `yaml:"label_id"`
-	Period  Period `yaml:"period"`
+	SourceConfig SourceConfig `yaml:"source_config"`
 }
 
 type Sources struct {

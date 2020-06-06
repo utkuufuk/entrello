@@ -16,19 +16,19 @@ type CardQueue struct {
 // queueActionables fetches new cards from the source, then pushes those to be created and
 // to be deleted into the corresponding channels, as well as any errors encountered.
 func queueActionables(src source, client trello.Client, q CardQueue) {
-	cards, err := src.FetchNewCards()
+	cards, err := src.api.FetchNewCards()
 	if err != nil {
-		q.err <- fmt.Errorf("could not fetch cards for source '%s': %v", src.GetName(), err)
+		q.err <- fmt.Errorf("could not fetch cards for source '%s': %v", src.cfg.Name, err)
 		return
 	}
 
-	new, stale := client.CompareWithExisting(cards, src.GetLabel())
+	new, stale := client.CompareWithExisting(cards, src.cfg.Label)
 
 	for _, c := range new {
 		q.add <- c
 	}
 
-	if !src.IsStrict() {
+	if !src.cfg.Strict {
 		return
 	}
 

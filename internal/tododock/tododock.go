@@ -32,33 +32,13 @@ func GetSource(cfg config.TodoDock) TodoDockSource {
 	return TodoDockSource{cfg}
 }
 
-func (t TodoDockSource) IsEnabled() bool {
-	return t.cfg.Enabled
-}
-
-func (t TodoDockSource) IsStrict() bool {
-	return t.cfg.Strict
-}
-
-func (t TodoDockSource) GetName() string {
-	return "TodoDock"
-}
-
-func (t TodoDockSource) GetLabel() string {
-	return t.cfg.Label
-}
-
-func (t TodoDockSource) GetPeriod() config.Period {
-	return t.cfg.Period
-}
-
 func (t TodoDockSource) FetchNewCards() (cards []trello.Card, err error) {
 	id, token, err := t.login()
 	if err != nil {
 		return cards, nil
 	}
 	tasks, err := t.fetchTasks(id, token)
-	return toCards(tasks, t.cfg.Label)
+	return toCards(tasks, t.cfg.SourceConfig.Label)
 }
 
 // toCards cherry-picks the 'active' and 'due' tasks from a list of tasks,

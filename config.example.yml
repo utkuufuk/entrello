@@ -6,34 +6,40 @@ trello:
   board_id: xxxxxxxxxxxxxxxxxxxxxxxx
   list_id: xxxxxxxxxxxxxxxxxxxxxxxx
 
-sources:
-  github_issues:
-    enabled: true
-    strict: true
-    period:
-      type: minute
-      interval: 15
-    personal_access_token: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    label_id: xxxxxxxxxxxxxxxxxxxxxxxx
-
-  tododock:
-    enabled: true
-    strict: false
-    period:
-      type: hour
-      interval: 1
-    email: abc@def.com
-    password: xxxxxxxx
-    label_id: xxxxxxxxxxxxxxxxxxxxxxxx
-
-  habits:
-    enabled: true
-    strict: true
-    period:
-      type: hour
-      interval: 12
-
 telegram:
   enabled: true
   token: xxxxxxxxxx:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
   chat_id: 1234567890
+
+sources:
+  github_issues:
+    personal_access_token: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    source_config:
+      name: "Github Issues"
+      enabled: true
+      strict: true
+      label_id: xxxxxxxxxxxxxxxxxxxxxxxx
+      period:
+        type: minute
+        interval: 15
+
+  tododock:
+    email: abc@def.com
+    password: xxxxxxxx
+    source_config:
+      name: "TodoDock"
+      enabled: true
+      strict: false
+      label_id: xxxxxxxxxxxxxxxxxxxxxxxx
+      period:
+        type: hour
+        interval: 1
+
+  habits:
+    source_config:
+      name: "Google Spreadsheet Habits"
+      enabled: true
+      strict: true
+      period:
+        type: hour
+        interval: 12

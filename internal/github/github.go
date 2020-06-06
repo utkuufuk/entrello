@@ -24,33 +24,13 @@ func GetSource(ctx context.Context, cfg config.GithubIssues) GithubIssuesSource 
 	return GithubIssuesSource{client, ctx, cfg}
 }
 
-func (g GithubIssuesSource) IsEnabled() bool {
-	return g.cfg.Enabled
-}
-
-func (g GithubIssuesSource) IsStrict() bool {
-	return g.cfg.Strict
-}
-
-func (g GithubIssuesSource) GetName() string {
-	return "Github Issues"
-}
-
-func (g GithubIssuesSource) GetLabel() string {
-	return g.cfg.Label
-}
-
-func (g GithubIssuesSource) GetPeriod() config.Period {
-	return g.cfg.Period
-}
-
 func (g GithubIssuesSource) FetchNewCards() ([]trello.Card, error) {
 	issues, _, err := g.client.Issues.List(g.ctx, false, nil)
 	if err != nil {
 		return nil, fmt.Errorf("could not retrieve issues: %w", err)
 	}
 
-	return toCards(issues, g.cfg.Label)
+	return toCards(issues, g.cfg.SourceConfig.Label)
 }
 
 // toCards converts a list of issues into a list of trello card
