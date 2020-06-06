@@ -37,7 +37,7 @@ func GetSource(cfg config.TodoDock) source {
 func (s source) FetchNewCards(ctx context.Context, cfg config.SourceConfig) (cards []trello.Card, err error) {
 	id, token, err := s.login()
 	if err != nil {
-		return cards, nil
+		return cards, fmt.Errorf("failed to authenticate with TodoDock: %w", err)
 	}
 	tasks, err := s.fetchTasks(id, token)
 	return toCards(tasks, cfg.Label)
