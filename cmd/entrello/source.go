@@ -14,7 +14,7 @@ import (
 type source struct {
 	cfg config.SourceConfig
 	api interface {
-		FetchNewCards() ([]trello.Card, error)
+		FetchNewCards(config.SourceConfig) ([]trello.Card, error)
 	}
 }
 

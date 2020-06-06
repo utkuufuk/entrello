@@ -21,8 +21,8 @@ type fetchTasksResponse struct {
 // and returns the user ID and JWT obtained from the HTTP response
 func (t TodoDockSource) login() (id int, jwt string, err error) {
 	req, err := json.Marshal(map[string]string{
-		"email":    t.cfg.Email,
-		"password": t.cfg.Password,
+		"email":    t.email,
+		"password": t.password,
 	})
 	if err != nil {
 		return -1, "", fmt.Errorf("could not build TodoDock login request body: %w", err)

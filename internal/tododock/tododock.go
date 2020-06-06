@@ -13,7 +13,8 @@ const (
 )
 
 type TodoDockSource struct {
-	cfg config.TodoDock
+	email    string
+	password string
 }
 
 // task represents the TodoDock task model
@@ -29,16 +30,16 @@ type task struct {
 }
 
 func GetSource(cfg config.TodoDock) TodoDockSource {
-	return TodoDockSource{cfg}
+	return TodoDockSource{cfg.Email, cfg.Password}
 }
 
-func (t TodoDockSource) FetchNewCards() (cards []trello.Card, err error) {
+func (t TodoDockSource) FetchNewCards(cfg config.SourceConfig) (cards []trello.Card, err error) {
 	id, token, err := t.login()
 	if err != nil {
 		return cards, nil
 	}
 	tasks, err := t.fetchTasks(id, token)
-	return toCards(tasks, t.cfg.SourceConfig.Label)
+	return toCards(tasks, cfg.Label)
 }
 
 // toCards cherry-picks the 'active' and 'due' tasks from a list of tasks,

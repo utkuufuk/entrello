@@ -14,23 +14,22 @@ import (
 type GithubIssuesSource struct {
 	client *github.Client
 	ctx    context.Context
-	cfg    config.GithubIssues
 }
 
 func GetSource(ctx context.Context, cfg config.GithubIssues) GithubIssuesSource {
 	ts := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: cfg.Token})
 	tc := oauth2.NewClient(ctx, ts)
 	client := github.NewClient(tc)
-	return GithubIssuesSource{client, ctx, cfg}
+	return GithubIssuesSource{client, ctx}
 }
 
-func (g GithubIssuesSource) FetchNewCards() ([]trello.Card, error) {
+func (g GithubIssuesSource) FetchNewCards(cfg config.SourceConfig) ([]trello.Card, error) {
 	issues, _, err := g.client.Issues.List(g.ctx, false, nil)
 	if err != nil {
 		return nil, fmt.Errorf("could not retrieve issues: %w", err)
 	}
 
-	return toCards(issues, g.cfg.SourceConfig.Label)
+	return toCards(issues, cfg.Label)
 }
 
 // toCards converts a list of issues into a list of trello card
