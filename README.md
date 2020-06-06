@@ -9,38 +9,52 @@ Run this as a cron job to periodically check custom data sources and automatical
 An example use case (which is already implemented) could be to create a Trello card for each GitHub issue that's been assigned to you.
 
 ## Currently Available Sources
- * Github Issues - https://github.com/issues/assigned
- * TodoDock Tasks - https://tododock.com
+| | |
+|:-|:-|
+| Assigned Github Issues                |   https://github.com/issues/assigned      |
+| TodoDock Tasks                        |   https://tododock.com                    |
+| Daily Habits (Google Spreadsheets)    |   https://www.google.com/sheets/about/    |
 
 Feel free to add new sources or improve the implementations of the existing ones. Contributions are always welcome!
 
 ## Configuration
-Copy and rename `config.example.yml` as `config.yml`, then set your own values in `config.yml` according to the following:
+Copy and rename `config.example.yml` as `config.yml`, then set your own values in `config.yml`. Most of the configuration parameters are self explanatory, so the following only covers some of them:
 
-#### Global Timeout
+### Global Timeout
 You can edit the `timeout_secs` config value in order to update global timeout (in seconds) for a single execution. 
 
 The execution will not terminate until the timeout is reached, so it's important that the timeout is shorter than the cron job period.
 
-#### Trello
+### Trello
 You need to set your [Trello API key & token](https://trello.com/app-key) in the configuraiton file, as well as the Trello board & list IDs.
 
 The given list will be the one that new cards is going to be inserted, and it has to be in the given board.
 
-#### Enabling/Disbling Individual Data Sources
+### Telegram
+You need a Telegram token & a chat ID in order to enable the integration if you want to receive messages on card updates & possible errors.
+
+### Data Sources
+Every data source must have the following configuration parameters under the `source_config` key:
+ * `name`
+ * `enabled`
+ * `strict`
+ * `label_id`
+ * `period`
+
+#### `enabled`
 In order to disable a source, just update the `enabled` flag to `false`. There's no need to remove/edit the other parameters for that source.
 
-#### Strict Mode
-Strict mode can be enabled for individual data sources by setting the `strict` flag to `true`. When strict mode is enabled, all the existing Trello cards in the board with the label for the corresponding data source will be deleted, unless the card also exists in the fresh data. 
+#### `strict`
+Strict mode, which is recommended for most cases, can be enabled for individual data sources by setting the `strict` flag to `true`.
+
+When strict mode is enabled, all the existing Trello cards in the board with the label for the corresponding data source will be deleted, unless the card also exists in the fresh data.
 
 For instance, strict mode can be used to automatically remove resolved GitHub issues from the board. Every time the source is queried, it will return an up-to-date set of open issues. If the board contains any cards that doesn't exist in that set, they will be automatically deleted.
 
-#### Telegram
-Since it's not very practical to manually check a log file for a cron job, entrello has an optional Telegram integration that you can use if you want to receive messages on card updates & possible errors.
+#### `label_id`
+Each data source must have a distinct Trello label associated with it.
 
-You need a Telegram token & a chat ID in order to enable the integration.
-
-#### Custom Periods
+#### `period`
 You can define a custom query period for each source, by populating the `type` and `interval` fields under the `period` for a source.
 
 Example:
