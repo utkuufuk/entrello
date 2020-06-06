@@ -86,8 +86,9 @@ Both of the following jobs run every hour and both assume that `config.yml` is l
 | | |
 |:-|:-|
 | [adlio/trello](https://github.com/adlio/trello)           | Trello API Client |
-| [go-github/github](https://github.com/google/go-github)   | GitHub API Client |
 | [go-telegram-bot-api/telegram-bot-api](https://github.com/go-telegram-bot-api/telegram-bot-api) | Telegram Bot API |
-| [go-yaml/yaml](https://github.com/go-yaml/yaml)           | Decoding YAML Configuration |
-| [golang/oauth2](https://github.com/golang/oauth2)         | OAuth 2.0 Client |
 | [google/go-cmp](https://github.com/google/go-cmp)         | Equality Comparisons in Tests |
+| [go-github/github](https://github.com/google/go-github)   | GitHub API Client |
+| [golang/oauth2](https://github.com/golang/oauth2)         | OAuth 2.0 Client |
+| [googleapis/google-api-go-client](https://github.com/googleapis/google-api-go-client) | Google API Client |
+| [go-yaml/yaml](https://github.com/go-yaml/yaml)           | Decoding YAML Configuration |

@@ -36,6 +36,9 @@ sources:
         interval: 1
 
   habits:
+    spreadsheet_id: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    credentials_file: credentials.json
+    token_file: token.json
     source_config:
       name: "Google Spreadsheet Habits"
       enabled: true

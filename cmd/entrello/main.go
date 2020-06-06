@@ -7,6 +7,7 @@ import (
 
 	"github.com/utkuufuk/entrello/internal/config"
 	"github.com/utkuufuk/entrello/internal/github"
+	"github.com/utkuufuk/entrello/internal/habits"
 	"github.com/utkuufuk/entrello/internal/syslog"
 	"github.com/utkuufuk/entrello/internal/tododock"
 	"github.com/utkuufuk/entrello/internal/trello"
@@ -67,6 +68,7 @@ func getEnabledSourcesAndLabels(cfg config.Sources) (sources []source, labels []
 	arr := []source{
 		{cfg.GithubIssues.SourceConfig, github.GetSource(cfg.GithubIssues)},
 		{cfg.TodoDock.SourceConfig, tododock.GetSource(cfg.TodoDock)},
+		{cfg.Habits.SourceConfig, habits.GetSource(cfg.Habits)},
 	}
 
 	now := time.Now()

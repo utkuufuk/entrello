@@ -39,7 +39,10 @@ type TodoDock struct {
 }
 
 type Habits struct {
-	SourceConfig SourceConfig `yaml:"source_config"`
+	SourceConfig    SourceConfig `yaml:"source_config"`
+	SpreadsheetId   string       `yaml:"spreadsheet_id"`
+	CredentialsFile string       `yaml:"credentials_file"`
+	TokenFile       string       `yaml:"token_file"`
 }
 
 type Sources struct {
