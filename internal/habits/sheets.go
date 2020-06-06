@@ -59,8 +59,8 @@ func readToken(tokenPath string) (*oauth2.Token, error) {
 }
 
 // read reads a range of cell values from the spreadsheet
-func (s source) readCells(spreadsheetId string, rangeName string) ([][]interface{}, error) {
-	resp, err := (*sheets.SpreadsheetsValuesService)(s.service).Get(spreadsheetId, rangeName).Do()
+func (s source) readCells(rangeName string) ([][]interface{}, error) {
+	resp, err := (*sheets.SpreadsheetsValuesService)(s.service).Get(s.spreadsheetId, rangeName).Do()
 	if err != nil {
 		return nil, fmt.Errorf("could not read cells: %w", err)
 	}
