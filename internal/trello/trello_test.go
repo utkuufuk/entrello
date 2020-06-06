@@ -32,13 +32,6 @@ func TestNewCard(t *testing.T) {
 			err:    fmt.Errorf("card name cannot be blank"),
 		},
 		{
-			name:   "missing description",
-			cName:  "name",
-			cLabel: "label",
-			cDesc:  "",
-			err:    fmt.Errorf("description cannot be blank"),
-		},
-		{
 			name:   "missing label ID",
 			cName:  "name",
 			cLabel: "",
