@@ -22,23 +22,31 @@ type Period struct {
 type GithubIssues struct {
 	Enabled bool   `yaml:"enabled"`
 	Strict  bool   `yaml:"strict"`
+	Label   string `yaml:"label_id"`
 	Period  Period `yaml:"period"`
 	Token   string `yaml:"personal_access_token"`
-	Label   string `yaml:"label_id"`
 }
 
 type TodoDock struct {
 	Enabled  bool   `yaml:"enabled"`
 	Strict   bool   `yaml:"strict"`
+	Label    string `yaml:"label_id"`
 	Period   Period `yaml:"period"`
 	Email    string `yaml:"email"`
 	Password string `yaml:"password"`
-	Label    string `yaml:"label_id"`
+}
+
+type Habits struct {
+	Enabled bool   `yaml:"enabled"`
+	Strict  bool   `yaml:"strict"`
+	Label   string `yaml:"label_id"`
+	Period  Period `yaml:"period"`
 }
 
 type Sources struct {
 	GithubIssues GithubIssues `yaml:"github_issues"`
 	TodoDock     TodoDock     `yaml:"tododock"`
+	Habits       Habits       `yaml:"habits"`
 }
 
 type Trello struct {

@@ -26,6 +26,13 @@ sources:
     password: xxxxxxxx
     label_id: xxxxxxxxxxxxxxxxxxxxxxxx
 
+  habits:
+    enabled: true
+    strict: true
+    period:
+      type: hour
+      interval: 12
+
 telegram:
   enabled: true
   token: xxxxxxxxxx:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
