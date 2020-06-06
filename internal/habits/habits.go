@@ -3,6 +3,7 @@ package habits
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/utkuufuk/entrello/internal/config"
 	"github.com/utkuufuk/entrello/internal/trello"
@@ -25,10 +26,45 @@ func (s source) FetchNewCards(ctx context.Context, cfg config.SourceConfig) ([]t
 	if err != nil {
 		return nil, fmt.Errorf("could not initialize google spreadsheet service: %w", err)
 	}
+	habits, err := s.fetchHabits()
+	if err != nil {
+		return nil, fmt.Errorf("could not fetch habits: %w", err)
+	}
 
-	data, _ := s.readCells("Jun 2020!B1:M1")
-	fmt.Println(data)
-	return []trello.Card{}, nil
+	fmt.Println(habits)
+	return toCards(habits, cfg.Label)
+}
+
+func toCards(habits map[interface{}]interface{}, label string) (cards []trello.Card, err error) {
+	for habit, state := range habits {
+		if fmt.Sprintf("%v", state) != "" {
+			continue
+		}
+
+		c, err := trello.NewCard(fmt.Sprintf("%v", habit), label, "", nil)
+		if err != nil {
+			return nil, fmt.Errorf("could not create habit card: %w", err)
+		}
+
+		cards = append(cards, c)
+	}
+	return cards, nil
+}
+
+func (s source) fetchHabits() (map[interface{}]interface{}, error) {
+	today := time.Now()
+	rangeName := fmt.Sprintf("%s %d!B1:Z%d", today.Month().String()[:3], today.Year(), today.Day()+3)
+	rows, err := s.readCells(rangeName)
+	if err != nil {
+		return nil, fmt.Errorf("could not read cells: %w", err)
+	}
+
+	states := make(map[interface{}]interface{})
+	for i := 0; i < len(rows[0]); i++ {
+		states[rows[0][i]] = rows[today.Day()+2][i]
+	}
+
+	return states, nil
 }
 
 // readCells reads a range of cell values with the given range

@@ -43,6 +43,7 @@ sources:
       name: "Google Spreadsheet Habits"
       enabled: true
       strict: true
+      label_id: xxxxxxxxxxxxxxxxxxxxxxxx
       period:
         type: hour
         interval: 12
