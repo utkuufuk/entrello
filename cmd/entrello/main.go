@@ -30,7 +30,7 @@ func main() {
 	defer cancel()
 
 	// get a list of enabled sources and the corresponding labels for each source
-	sources, labels := getEnabledSourcesAndLabels(ctx, cfg.Sources)
+	sources, labels := getEnabledSourcesAndLabels(cfg.Sources)
 	if len(sources) == 0 {
 		return
 	}
@@ -49,7 +49,7 @@ func main() {
 	// concurrently fetch new cards from sources and start processing cards to be created & deleted
 	q := CardQueue{make(chan trello.Card), make(chan trello.Card), make(chan error)}
 	for _, src := range sources {
-		go queueActionables(src, client, q)
+		go queueActionables(ctx, src, client, q)
 	}
 	processActionables(ctx, client, q)
 }

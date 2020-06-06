@@ -14,29 +14,30 @@ import (
 type source struct {
 	cfg config.SourceConfig
 	api interface {
-		FetchNewCards(config.SourceConfig) ([]trello.Card, error)
+		FetchNewCards(ctx context.Context, cfg config.SourceConfig) ([]trello.Card, error)
 	}
 }
 
 // getEnabledSourcesAndLabels returns a list of enabled sources & all relevant label IDs
-func getEnabledSourcesAndLabels(ctx context.Context, cfg config.Sources) (s []source, l []string) {
-	sources := []source{
-		{cfg.GithubIssues.SourceConfig, github.GetSource(ctx, cfg.GithubIssues)},
+func getEnabledSourcesAndLabels(cfg config.Sources) (sources []source, labels []string) {
+	arr := []source{
+		{cfg.GithubIssues.SourceConfig, github.GetSource(cfg.GithubIssues)},
 		{cfg.TodoDock.SourceConfig, tododock.GetSource(cfg.TodoDock)},
 	}
+
 	now := time.Now()
 
-	for _, src := range sources {
+	for _, src := range arr {
 		if ok, err := shouldQuery(src.cfg, now); !ok {
 			if err != nil {
 				logger.Errorf("could not check if '%s' should be queried or not, skipping", src.cfg.Name)
 			}
 			continue
 		}
-		s = append(s, src)
-		l = append(l, src.cfg.Label)
+		sources = append(sources, src)
+		labels = append(labels, src.cfg.Label)
 	}
-	return s, l
+	return sources, labels
 }
 
 // shouldQuery checks if a query should be executed at the given time given the source configuration

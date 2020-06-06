@@ -11,20 +11,19 @@ import (
 	"golang.org/x/oauth2"
 )
 
-type GithubIssuesSource struct {
+type source struct {
 	client *github.Client
-	ctx    context.Context
 }
 
-func GetSource(ctx context.Context, cfg config.GithubIssues) GithubIssuesSource {
+func GetSource(cfg config.GithubIssues) source {
 	ts := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: cfg.Token})
-	tc := oauth2.NewClient(ctx, ts)
+	tc := oauth2.NewClient(context.Background(), ts)
 	client := github.NewClient(tc)
-	return GithubIssuesSource{client, ctx}
+	return source{client}
 }
 
-func (g GithubIssuesSource) FetchNewCards(cfg config.SourceConfig) ([]trello.Card, error) {
-	issues, _, err := g.client.Issues.List(g.ctx, false, nil)
+func (s source) FetchNewCards(ctx context.Context, cfg config.SourceConfig) ([]trello.Card, error) {
+	issues, _, err := s.client.Issues.List(ctx, false, nil)
 	if err != nil {
 		return nil, fmt.Errorf("could not retrieve issues: %w", err)
 	}

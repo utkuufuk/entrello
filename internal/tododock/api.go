@@ -19,10 +19,10 @@ type fetchTasksResponse struct {
 
 // login logs-in to TodoDock with the configured user's credentials,
 // and returns the user ID and JWT obtained from the HTTP response
-func (t TodoDockSource) login() (id int, jwt string, err error) {
+func (s source) login() (id int, jwt string, err error) {
 	req, err := json.Marshal(map[string]string{
-		"email":    t.email,
-		"password": t.password,
+		"email":    s.email,
+		"password": s.password,
 	})
 	if err != nil {
 		return -1, "", fmt.Errorf("could not build TodoDock login request body: %w", err)
@@ -41,7 +41,7 @@ func (t TodoDockSource) login() (id int, jwt string, err error) {
 }
 
 // fetchTasks retrieves all TodoDock tasks owned by the logged-in user with the given ID
-func (t TodoDockSource) fetchTasks(id int, token string) (tasks []task, err error) {
+func (s source) fetchTasks(id int, token string) (tasks []task, err error) {
 	// build GET request with auth header
 	url := fmt.Sprintf("%s/tasks/%d", BASE_URL, id)
 	req, err := http.NewRequest("GET", url, nil)

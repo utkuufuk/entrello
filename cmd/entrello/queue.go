@@ -15,8 +15,8 @@ type CardQueue struct {
 
 // queueActionables fetches new cards from the source, then pushes those to be created and
 // to be deleted into the corresponding channels, as well as any errors encountered.
-func queueActionables(src source, client trello.Client, q CardQueue) {
-	cards, err := src.api.FetchNewCards(src.cfg)
+func queueActionables(ctx context.Context, src source, client trello.Client, q CardQueue) {
+	cards, err := src.api.FetchNewCards(ctx, src.cfg)
 	if err != nil {
 		q.err <- fmt.Errorf("could not fetch cards for source '%s': %v", src.cfg.Name, err)
 		return

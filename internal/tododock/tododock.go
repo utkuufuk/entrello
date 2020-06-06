@@ -1,6 +1,7 @@
 package tododock
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -12,7 +13,7 @@ const (
 	BASE_URL = "https://tododock.com/api"
 )
 
-type TodoDockSource struct {
+type source struct {
 	email    string
 	password string
 }
@@ -29,16 +30,16 @@ type task struct {
 	MuteEmails    int    `json:"mute_reminder_emails"`
 }
 
-func GetSource(cfg config.TodoDock) TodoDockSource {
-	return TodoDockSource{cfg.Email, cfg.Password}
+func GetSource(cfg config.TodoDock) source {
+	return source{cfg.Email, cfg.Password}
 }
 
-func (t TodoDockSource) FetchNewCards(cfg config.SourceConfig) (cards []trello.Card, err error) {
-	id, token, err := t.login()
+func (s source) FetchNewCards(ctx context.Context, cfg config.SourceConfig) (cards []trello.Card, err error) {
+	id, token, err := s.login()
 	if err != nil {
 		return cards, nil
 	}
-	tasks, err := t.fetchTasks(id, token)
+	tasks, err := s.fetchTasks(id, token)
 	return toCards(tasks, cfg.Label)
 }
 
