@@ -24,7 +24,7 @@ func (s source) FetchNewCards(ctx context.Context, cfg config.SourceConfig) ([]t
 	if err != nil {
 		return nil, fmt.Errorf("could not create spreadsheet service: %w", err)
 	}
-	data, _ := s.readCells(s.spreadsheetId, "Jun 2020!B1:M1")
+	data, _ := s.readCells("Jun 2020!B1:M1")
 	fmt.Println(data)
 	return []trello.Card{}, nil
 }
