@@ -6,8 +6,6 @@ import (
 	"time"
 
 	"github.com/utkuufuk/entrello/internal/config"
-	"github.com/utkuufuk/entrello/internal/github"
-	"github.com/utkuufuk/entrello/internal/tododock"
 	"github.com/utkuufuk/entrello/internal/trello"
 )
 
@@ -18,40 +16,18 @@ type source struct {
 	}
 }
 
-// getEnabledSourcesAndLabels returns a list of enabled sources & all relevant label IDs
-func getEnabledSourcesAndLabels(cfg config.Sources) (sources []source, labels []string) {
-	arr := []source{
-		{cfg.GithubIssues.SourceConfig, github.GetSource(cfg.GithubIssues)},
-		{cfg.TodoDock.SourceConfig, tododock.GetSource(cfg.TodoDock)},
-	}
-
-	now := time.Now()
-
-	for _, src := range arr {
-		if ok, err := shouldQuery(src.cfg, now); !ok {
-			if err != nil {
-				logger.Errorf("could not check if '%s' should be queried or not, skipping", src.cfg.Name)
-			}
-			continue
-		}
-		sources = append(sources, src)
-		labels = append(labels, src.cfg.Label)
-	}
-	return sources, labels
-}
-
-// shouldQuery checks if a query should be executed at the given time given the source configuration
-func shouldQuery(cfg config.SourceConfig, now time.Time) (bool, error) {
-	if !cfg.Enabled {
+// shouldQuery checks if a the source should be queried at the given time
+func (s source) shouldQuery(now time.Time) (bool, error) {
+	if !s.cfg.Enabled {
 		return false, nil
 	}
 
-	interval := cfg.Period.Interval
+	interval := s.cfg.Period.Interval
 	if interval < 0 {
 		return false, fmt.Errorf("period interval must be a positive integer, got: '%d'", interval)
 	}
 
-	switch cfg.Period.Type {
+	switch s.cfg.Period.Type {
 	case config.PERIOD_TYPE_DEFAULT:
 		return true, nil
 	case config.PERIOD_TYPE_DAY:
@@ -71,5 +47,29 @@ func shouldQuery(cfg config.SourceConfig, now time.Time) (bool, error) {
 		return now.Minute()%interval == 0, nil
 	}
 
-	return false, fmt.Errorf("unrecognized source period type: '%s'", cfg.Period.Type)
+	return false, fmt.Errorf("unrecognized source period type: '%s'", s.cfg.Period.Type)
+}
+
+// queueActionables fetches new cards from the source, then pushes those to be created and
+// to be deleted into the corresponding channels, as well as any errors encountered.
+func (s source) queueActionables(ctx context.Context, client trello.Client, q CardQueue) {
+	cards, err := s.api.FetchNewCards(ctx, s.cfg)
+	if err != nil {
+		q.err <- fmt.Errorf("could not fetch cards for source '%s': %v", s.cfg.Name, err)
+		return
+	}
+
+	new, stale := client.CompareWithExisting(cards, s.cfg.Label)
+
+	for _, c := range new {
+		q.add <- c
+	}
+
+	if !s.cfg.Strict {
+		return
+	}
+
+	for _, c := range stale {
+		q.del <- c
+	}
 }

@@ -234,7 +234,8 @@ func TestShouldQuery(t *testing.T) {
 					Interval: tc.pInterval,
 				},
 			}
-			ok, err := shouldQuery(cfg, tc.date)
+			src := source{cfg, nil}
+			ok, err := src.shouldQuery(tc.date)
 
 			if err != nil || tc.err != nil {
 				if err == nil || tc.err == nil || err.Error() != tc.err.Error() {
