@@ -35,7 +35,7 @@ func (s source) FetchNewCards(ctx context.Context, cfg config.SourceConfig) ([]t
 }
 
 // fetchHabits retrieves the state of today's habits from the spreadsheet
-func (s source) fetchHabits() (map[interface{}]interface{}, error) {
+func (s source) fetchHabits() (map[string]string, error) {
 	today := time.Now()
 	rangeName := fmt.Sprintf("%s %d!B1:Z%d", today.Month().String()[:3], today.Year(), today.Day()+3)
 	rows, err := s.readCells(rangeName)
@@ -43,9 +43,11 @@ func (s source) fetchHabits() (map[interface{}]interface{}, error) {
 		return nil, fmt.Errorf("could not read cells: %w", err)
 	}
 
-	states := make(map[interface{}]interface{})
+	states := make(map[string]string)
 	for i := 0; i < len(rows[0]); i++ {
-		states[rows[0][i]] = rows[today.Day()+2][i]
+		name := fmt.Sprintf("%v", rows[0][i])
+		state := fmt.Sprintf("%v", rows[today.Day()+2][i])
+		states[name] = state
 	}
 
 	return states, nil
@@ -61,9 +63,9 @@ func (s source) readCells(rangeName string) ([][]interface{}, error) {
 }
 
 // toCards returns a slice of trello cards from the given habits which haven't been marked today
-func toCards(habits map[interface{}]interface{}, label string) (cards []trello.Card, err error) {
+func toCards(habits map[string]string, label string) (cards []trello.Card, err error) {
 	for habit, state := range habits {
-		if fmt.Sprintf("%v", state) != "" {
+		if state != "" {
 			continue
 		}
 
