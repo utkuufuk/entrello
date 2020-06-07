@@ -1,14 +1,12 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"testing"
 	"time"
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/utkuufuk/entrello/internal/config"
-	"github.com/utkuufuk/entrello/internal/tododock"
 )
 
 func TestGetEnabledSourcesAndLabels(t *testing.T) {
@@ -18,33 +16,33 @@ func TestGetEnabledSourcesAndLabels(t *testing.T) {
 	}
 
 	tt := []struct {
-		name         string
-		githubIssues config.GithubIssues
-		todoDock     config.TodoDock
-		numResults   int
-		labels       []string
+		name            string
+		githubIssuesCfg config.SourceConfig
+		todoDockCfg     config.SourceConfig
+		numResults      int
+		labels          []string
 	}{
 		{
-			name:         "nothing enabled",
-			githubIssues: config.GithubIssues{Enabled: false, Period: period},
-			todoDock:     config.TodoDock{Enabled: false, Period: period},
-			numResults:   0,
+			name:            "nothing enabled",
+			githubIssuesCfg: config.SourceConfig{Enabled: false, Period: period},
+			todoDockCfg:     config.SourceConfig{Enabled: false, Period: period},
+			numResults:      0,
 		},
 		{
 			name: "only github issues enabled",
-			githubIssues: config.GithubIssues{
+			githubIssuesCfg: config.SourceConfig{
 				Enabled: true,
 				Period:  period,
 				Label:   "github-label",
 			},
-			todoDock:   config.TodoDock{Enabled: false, Period: period},
-			numResults: 1,
-			labels:     []string{"github-label"},
+			todoDockCfg: config.SourceConfig{Enabled: false, Period: period},
+			numResults:  1,
+			labels:      []string{"github-label"},
 		},
 		{
-			name:         "only tododock enabled",
-			githubIssues: config.GithubIssues{Enabled: false, Period: period},
-			todoDock: config.TodoDock{
+			name:            "only tododock enabled",
+			githubIssuesCfg: config.SourceConfig{Enabled: false, Period: period},
+			todoDockCfg: config.SourceConfig{
 				Enabled: true,
 				Period:  period,
 				Label:   "tododock-label",
@@ -54,12 +52,12 @@ func TestGetEnabledSourcesAndLabels(t *testing.T) {
 		},
 		{
 			name: "all enabled",
-			githubIssues: config.GithubIssues{
+			githubIssuesCfg: config.SourceConfig{
 				Enabled: true,
 				Period:  period,
 				Label:   "github-label",
 			},
-			todoDock: config.TodoDock{
+			todoDockCfg: config.SourceConfig{
 				Enabled: true,
 				Period:  period,
 				Label:   "tododock-label",
@@ -69,15 +67,14 @@ func TestGetEnabledSourcesAndLabels(t *testing.T) {
 		},
 	}
 
-	ctx := context.Background()
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
 			cfg := config.Sources{
-				GithubIssues: tc.githubIssues,
-				TodoDock:     tc.todoDock,
+				GithubIssues: config.GithubIssues{SourceConfig: tc.githubIssuesCfg},
+				TodoDock:     config.TodoDock{SourceConfig: tc.todoDockCfg},
 			}
 
-			sources, labels := getEnabledSourcesAndLabels(ctx, cfg)
+			sources, labels := getEnabledSourcesAndLabels(cfg)
 			if len(sources) != tc.numResults {
 				t.Errorf("expected %d source(s); got %v", tc.numResults, len(sources))
 			}
@@ -230,15 +227,15 @@ func TestShouldQuery(t *testing.T) {
 
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
-			cfg := config.TodoDock{
+			cfg := config.SourceConfig{
 				Enabled: true,
 				Period: config.Period{
 					Type:     tc.pType,
 					Interval: tc.pInterval,
 				},
 			}
-			src := tododock.GetSource(cfg)
-			ok, err := shouldQuery(src, tc.date)
+			src := source{cfg, nil}
+			ok, err := src.shouldQuery(tc.date)
 
 			if err != nil || tc.err != nil {
 				if err == nil || tc.err == nil || err.Error() != tc.err.Error() {

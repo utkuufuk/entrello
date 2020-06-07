@@ -19,26 +19,36 @@ type Period struct {
 	Interval int    `yaml:"interval"`
 }
 
-type GithubIssues struct {
+type SourceConfig struct {
+	Name    string `yaml:"name"`
 	Enabled bool   `yaml:"enabled"`
 	Strict  bool   `yaml:"strict"`
-	Period  Period `yaml:"period"`
-	Token   string `yaml:"personal_access_token"`
 	Label   string `yaml:"label_id"`
+	Period  Period `yaml:"period"`
+}
+
+type GithubIssues struct {
+	SourceConfig SourceConfig `yaml:"source_config"`
+	Token        string       `yaml:"personal_access_token"`
 }
 
 type TodoDock struct {
-	Enabled  bool   `yaml:"enabled"`
-	Strict   bool   `yaml:"strict"`
-	Period   Period `yaml:"period"`
-	Email    string `yaml:"email"`
-	Password string `yaml:"password"`
-	Label    string `yaml:"label_id"`
+	SourceConfig SourceConfig `yaml:"source_config"`
+	Email        string       `yaml:"email"`
+	Password     string       `yaml:"password"`
+}
+
+type Habits struct {
+	SourceConfig    SourceConfig `yaml:"source_config"`
+	SpreadsheetId   string       `yaml:"spreadsheet_id"`
+	CredentialsFile string       `yaml:"credentials_file"`
+	TokenFile       string       `yaml:"token_file"`
 }
 
 type Sources struct {
 	GithubIssues GithubIssues `yaml:"github_issues"`
 	TodoDock     TodoDock     `yaml:"tododock"`
+	Habits       Habits       `yaml:"habits"`
 }
 
 type Trello struct {

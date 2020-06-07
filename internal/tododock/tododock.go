@@ -1,6 +1,7 @@
 package tododock
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -12,8 +13,9 @@ const (
 	BASE_URL = "https://tododock.com/api"
 )
 
-type TodoDockSource struct {
-	cfg config.TodoDock
+type source struct {
+	email    string
+	password string
 }
 
 // task represents the TodoDock task model
@@ -28,37 +30,17 @@ type task struct {
 	MuteEmails    int    `json:"mute_reminder_emails"`
 }
 
-func GetSource(cfg config.TodoDock) TodoDockSource {
-	return TodoDockSource{cfg}
+func GetSource(cfg config.TodoDock) source {
+	return source{cfg.Email, cfg.Password}
 }
 
-func (t TodoDockSource) IsEnabled() bool {
-	return t.cfg.Enabled
-}
-
-func (t TodoDockSource) IsStrict() bool {
-	return t.cfg.Strict
-}
-
-func (t TodoDockSource) GetName() string {
-	return "TodoDock"
-}
-
-func (t TodoDockSource) GetLabel() string {
-	return t.cfg.Label
-}
-
-func (t TodoDockSource) GetPeriod() config.Period {
-	return t.cfg.Period
-}
-
-func (t TodoDockSource) FetchNewCards() (cards []trello.Card, err error) {
-	id, token, err := t.login()
+func (s source) FetchNewCards(ctx context.Context, cfg config.SourceConfig) (cards []trello.Card, err error) {
+	id, token, err := s.login()
 	if err != nil {
-		return cards, nil
+		return cards, fmt.Errorf("failed to authenticate with TodoDock: %w", err)
 	}
-	tasks, err := t.fetchTasks(id, token)
-	return toCards(tasks, t.cfg.Label)
+	tasks, err := s.fetchTasks(id, token)
+	return toCards(tasks, cfg.Label)
 }
 
 // toCards cherry-picks the 'active' and 'due' tasks from a list of tasks,

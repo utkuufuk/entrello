@@ -11,46 +11,24 @@ import (
 	"golang.org/x/oauth2"
 )
 
-type GithubIssuesSource struct {
+type source struct {
 	client *github.Client
-	ctx    context.Context
-	cfg    config.GithubIssues
 }
 
-func GetSource(ctx context.Context, cfg config.GithubIssues) GithubIssuesSource {
+func GetSource(cfg config.GithubIssues) source {
 	ts := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: cfg.Token})
-	tc := oauth2.NewClient(ctx, ts)
+	tc := oauth2.NewClient(context.Background(), ts)
 	client := github.NewClient(tc)
-	return GithubIssuesSource{client, ctx, cfg}
+	return source{client}
 }
 
-func (g GithubIssuesSource) IsEnabled() bool {
-	return g.cfg.Enabled
-}
-
-func (g GithubIssuesSource) IsStrict() bool {
-	return g.cfg.Strict
-}
-
-func (g GithubIssuesSource) GetName() string {
-	return "Github Issues"
-}
-
-func (g GithubIssuesSource) GetLabel() string {
-	return g.cfg.Label
-}
-
-func (g GithubIssuesSource) GetPeriod() config.Period {
-	return g.cfg.Period
-}
-
-func (g GithubIssuesSource) FetchNewCards() ([]trello.Card, error) {
-	issues, _, err := g.client.Issues.List(g.ctx, false, nil)
+func (s source) FetchNewCards(ctx context.Context, cfg config.SourceConfig) ([]trello.Card, error) {
+	issues, _, err := s.client.Issues.List(ctx, false, nil)
 	if err != nil {
 		return nil, fmt.Errorf("could not retrieve issues: %w", err)
 	}
 
-	return toCards(issues, g.cfg.Label)
+	return toCards(issues, cfg.Label)
 }
 
 // toCards converts a list of issues into a list of trello card
@@ -63,7 +41,7 @@ func toCards(issues []*github.Issue, label string) ([]trello.Card, error) {
 
 		c, err := toCard(issue, label)
 		if err != nil {
-			return nil, fmt.Errorf("could not create card: %w", err)
+			return nil, fmt.Errorf("could not create github issue card: %w", err)
 		}
 		cards = append(cards, c)
 	}
@@ -73,7 +51,8 @@ func toCards(issues []*github.Issue, label string) ([]trello.Card, error) {
 // toCard converts the given issue into a trello card
 func toCard(issue *github.Issue, label string) (c trello.Card, err error) {
 	if *issue.Repository.Name == "" || *issue.Title == "" || *issue.URL == "" || label == "" {
-		return c, fmt.Errorf("could not convert issue to card, title, repo name, url and label cannot be blank")
+		e := "could not create card from issue; title, repo name, url and label are mandatory"
+		return c, fmt.Errorf(e)
 	}
 	name := fmt.Sprintf("[%s] %s", *issue.Repository.Name, *issue.Title)
 	url := strings.Replace(*issue.URL, "api.", "", 1)
