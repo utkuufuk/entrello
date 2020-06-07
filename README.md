@@ -41,20 +41,20 @@ Every data source must have the following configuration parameters under the `so
  * `label_id`
  * `period`
 
-#### `enabled`
+#### **`enabled`**
 In order to disable a source, just update the `enabled` flag to `false`. There's no need to remove/edit the other parameters for that source.
 
-#### `strict`
+#### **`strict`**
 Strict mode, which is recommended for most cases, can be enabled for individual data sources by setting the `strict` flag to `true`.
 
 When strict mode is enabled, all the existing Trello cards in the board with the label for the corresponding data source will be deleted, unless the card also exists in the fresh data.
 
 For instance, strict mode can be used to automatically remove resolved GitHub issues from the board. Every time the source is queried, it will return an up-to-date set of open issues. If the board contains any cards that doesn't exist in that set, they will be automatically deleted.
 
-#### `label_id`
+#### **`label_id`**
 Each data source must have a distinct Trello label associated with it.
 
-#### `period`
+#### **`period`**
 You can define a custom query period for each source, by populating the `type` and `interval` fields under the `period` for a source.
 
 Example:
