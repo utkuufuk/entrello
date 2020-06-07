@@ -11,11 +11,6 @@ func TestReadToken(t *testing.T) {
 		err      bool
 	}{
 		{
-			name:     "valid json file",
-			filename: "./test.json",
-			err:      false,
-		},
-		{
 			name:     "invalid json file",
 			filename: "../../config.example.yml",
 			err:      true,
