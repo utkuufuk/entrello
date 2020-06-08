@@ -11,33 +11,33 @@ func TestToCards(t *testing.T) {
 	tt := []struct {
 		name     string
 		label    string
-		habits   map[string]string
+		habits   map[string]habit
 		numCards int
 		err      error
 	}{
 		{
 			name:     "blank habit name",
 			label:    str,
-			habits:   map[string]string{"": ""},
+			habits:   map[string]habit{"": {}},
 			numCards: 0,
 			err:      errors.New(""),
 		},
 		{
 			name:     "missing label",
 			label:    "",
-			habits:   map[string]string{str: ""},
+			habits:   map[string]habit{str: {}},
 			numCards: 0,
 			err:      errors.New(""),
 		},
 		{
 			name:  "marked habits",
 			label: str,
-			habits: map[string]string{
-				"a": "✔",
-				"b": "x",
-				"c": "✘",
-				"d": "–",
-				"e": "-",
+			habits: map[string]habit{
+				"a": {str, "✔"},
+				"b": {str, "x"},
+				"c": {str, "✘"},
+				"d": {str, "–"},
+				"e": {str, "-"},
 			},
 			numCards: 0,
 			err:      nil,
@@ -45,14 +45,14 @@ func TestToCards(t *testing.T) {
 		{
 			name:  "some marked some unhabits",
 			label: str,
-			habits: map[string]string{
-				"a": "✔",
-				"b": "x",
-				"c": "✘",
-				"d": "–",
-				"e": "-",
-				"f": "",
-				"g": "",
+			habits: map[string]habit{
+				"a": {str, "✔"},
+				"b": {str, "x"},
+				"c": {str, "✘"},
+				"d": {str, "–"},
+				"e": {str, "-"},
+				"f": {str, ""},
+				"g": {str, ""},
 			},
 			numCards: 2,
 			err:      nil,

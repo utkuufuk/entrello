@@ -17,6 +17,11 @@ type source struct {
 	service         *sheets.SpreadsheetsValuesService
 }
 
+type habit struct {
+	cellName string
+	state    string
+}
+
 func GetSource(cfg config.Habits) source {
 	return source{cfg.SpreadsheetId, cfg.CredentialsFile, cfg.TokenFile, nil}
 }
@@ -35,19 +40,24 @@ func (s source) FetchNewCards(ctx context.Context, cfg config.SourceConfig) ([]t
 }
 
 // fetchHabits retrieves the state of today's habits from the spreadsheet
-func (s source) fetchHabits() (map[string]string, error) {
+func (s source) fetchHabits() (map[string]habit, error) {
 	today := time.Now()
-	rangeName := fmt.Sprintf("%s %d!B1:Z%d", today.Month().String()[:3], today.Year(), today.Day()+3)
+	month := today.Month().String()[:3]
+	year := today.Year()
+	rowNo := today.Day() + 3
+
+	rangeName := fmt.Sprintf("%s %d!B1:Z%d", month, year, rowNo)
 	rows, err := s.readCells(rangeName)
 	if err != nil {
 		return nil, fmt.Errorf("could not read cells: %w", err)
 	}
 
-	states := make(map[string]string)
+	states := make(map[string]habit)
 	for i := 0; i < len(rows[0]); i++ {
 		name := fmt.Sprintf("%v", rows[0][i])
 		state := fmt.Sprintf("%v", rows[today.Day()+2][i])
-		states[name] = state
+		cellName := fmt.Sprintf("%s %d!%s%d", month, year, string('A'+1+i), rowNo)
+		states[name] = habit{cellName, state}
 	}
 
 	return states, nil
@@ -63,13 +73,13 @@ func (s source) readCells(rangeName string) ([][]interface{}, error) {
 }
 
 // toCards returns a slice of trello cards from the given habits which haven't been marked today
-func toCards(habits map[string]string, label string) (cards []trello.Card, err error) {
-	for habit, state := range habits {
-		if state != "" {
+func toCards(habits map[string]habit, label string) (cards []trello.Card, err error) {
+	for name, habit := range habits {
+		if habit.state != "" {
 			continue
 		}
 
-		c, err := trello.NewCard(fmt.Sprintf("%v", habit), label, "", nil)
+		c, err := trello.NewCard(fmt.Sprintf("%v", name), label, habit.cellName, nil)
 		if err != nil {
 			return nil, fmt.Errorf("could not create habit card: %w", err)
 		}
