@@ -6,9 +6,10 @@ import (
 	"github.com/adlio/trello"
 )
 
-// ArchiveCard archives a Trello card using the the Trello API
-func (c Client) ArchiveCard(card Card) error {
-	return (*trello.Card)(card).Update(trello.Arguments{"closed": "true"})
+// DeleteCard deletes a Trello card using the the Trello API
+func (c Client) DeleteCard(card Card) error {
+	path := fmt.Sprintf("cards/%s", card.ID)
+	return c.api.Delete(path, trello.Defaults(), card)
 }
 
 // CreateCard creates a Trello card using the the Trello API
