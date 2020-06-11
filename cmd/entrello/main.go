@@ -98,11 +98,11 @@ func processActionables(ctx context.Context, client trello.Client, q CardQueue) 
 			}
 			logger.Printf("created new card: %s", c.Name)
 		case c := <-q.del:
-			if err := client.ArchiveCard(c); err != nil {
-				logger.Errorf("could not archive card card: %v", err)
+			if err := client.DeleteCard(c); err != nil {
+				logger.Errorf("could not delete Trello card: %v", err)
 				break
 			}
-			logger.Printf("archived stale card: %s", c.Name)
+			logger.Printf("deleted stale card: %s", c.Name)
 		case err := <-q.err:
 			logger.Errorf("%v", err)
 		case <-ctx.Done():
