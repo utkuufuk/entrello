@@ -50,8 +50,8 @@ func main() {
 		logger.Fatalf("could not create trello client: %v", err)
 	}
 
-	// within the Trello client, load the existing cards (only with relevant labels)
-	if err := client.LoadCards(labels); err != nil {
+	// load Trello cards from the board with relevant labels
+	if err := client.LoadBoard(labels); err != nil {
 		logger.Fatalf("could not load existing cards from the board: %v", err)
 	}
 

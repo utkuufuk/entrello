@@ -127,7 +127,7 @@ func TestNewClient(t *testing.T) {
 	}
 }
 
-func TestCompareWithExisting(t *testing.T) {
+func TestFilterNewAndStale(t *testing.T) {
 	label := "label"
 	tt := []struct {
 		name     string
@@ -182,7 +182,7 @@ func TestCompareWithExisting(t *testing.T) {
 
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
-			new, stale := tc.client.CompareWithExisting(tc.cards, label)
+			new, stale := tc.client.FilterNewAndStale(tc.cards, label)
 
 			if len(new) != tc.numNew {
 				t.Errorf("wanted %d new cards, got %d", tc.numNew, len(new))

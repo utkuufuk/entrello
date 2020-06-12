@@ -59,7 +59,7 @@ func (s source) queueActionables(ctx context.Context, client trello.Client, q Ca
 		return
 	}
 
-	new, stale := client.CompareWithExisting(cards, s.cfg.Label)
+	new, stale := client.FilterNewAndStale(cards, s.cfg.Label)
 
 	for _, c := range new {
 		q.add <- c
