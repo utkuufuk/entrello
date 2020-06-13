@@ -96,7 +96,6 @@ func TestMapHabits(t *testing.T) {
 				"b": {"Jan 2020!C4", "✘"},
 				"c": {"Jan 2020!D4", "–"},
 			},
-			err: nil,
 		},
 		{
 			name: "blank mid rows",
@@ -111,7 +110,6 @@ func TestMapHabits(t *testing.T) {
 				"b": {"Jan 2020!C4", "✘"},
 				"c": {"Jan 2020!D4", "–"},
 			},
-			err: nil,
 		},
 		{
 			name: "blank cell in the middle",
@@ -127,7 +125,6 @@ func TestMapHabits(t *testing.T) {
 				"c": {"Jan 2020!D4", ""},
 				"d": {"Jan 2020!E4", "–"},
 			},
-			err: nil,
 		},
 		{
 			name: "blank cells in the end",
@@ -144,7 +141,6 @@ func TestMapHabits(t *testing.T) {
 				"d": {"Jan 2020!E4", ""},
 				"e": {"Jan 2020!F4", ""},
 			},
-			err: nil,
 		},
 	}
 

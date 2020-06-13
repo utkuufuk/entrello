@@ -18,7 +18,7 @@ func (c Client) CreateCard(card Card) error {
 	return c.api.CreateCard(card, trello.Defaults())
 }
 
-// LoadBoard retrieves all cards from the board that have at least one of the given label IDs
+// LoadBoard retrieves existing cards from the board that have at least one of the given label IDs
 func (c Client) LoadBoard(labels []string) error {
 	board, err := c.api.GetBoard(c.boardId, trello.Defaults())
 	if err != nil {

@@ -9,7 +9,7 @@ import (
 	"github.com/utkuufuk/entrello/internal/config"
 )
 
-func TestGetEnabledSourcesAndLabels(t *testing.T) {
+func TestGetEnabledSources(t *testing.T) {
 	period := config.Period{
 		Type:     config.PERIOD_TYPE_DEFAULT,
 		Interval: 0,
@@ -74,7 +74,7 @@ func TestGetEnabledSourcesAndLabels(t *testing.T) {
 				TodoDock:     config.TodoDock{SourceConfig: tc.todoDockCfg},
 			}
 
-			sources, labels := getEnabledSourcesAndLabels(cfg)
+			sources, labels := getEnabledSources(cfg)
 			if len(sources) != tc.numResults {
 				t.Errorf("expected %d source(s); got %v", tc.numResults, len(sources))
 			}
@@ -234,7 +234,7 @@ func TestShouldQuery(t *testing.T) {
 					Interval: tc.pInterval,
 				},
 			}
-			src := source{cfg, nil}
+			src := source{cfg: cfg}
 			ok, err := src.shouldQuery(tc.date)
 
 			if err != nil || tc.err != nil {
