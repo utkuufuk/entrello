@@ -97,6 +97,7 @@ func mapHabits(rows [][]interface{}, date time.Time) (map[string]habit, error) {
 			return states, err
 		}
 
+		// handle cases where the last N columns are blank which reduces the slice length by N
 		state := ""
 		if i < len(rows[date.Day()+2]) {
 			state = fmt.Sprintf("%v", rows[date.Day()+2][i])
