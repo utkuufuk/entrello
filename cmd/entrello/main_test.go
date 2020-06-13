@@ -30,7 +30,7 @@ func TestProcessActionables(t *testing.T) {
 			ctx, cancel := context.WithTimeout(context.Background(), time.Second*time.Duration(tc.timeout))
 			defer cancel()
 
-			q := CardQueue{make(chan trello.Card), make(chan trello.Card), make(chan error)}
+			q := CardQueue{make(chan trello.Card), make(chan trello.Card)}
 			processActionables(ctx, trello.Client{}, q)
 
 			if secs := int(math.Round(time.Since(start).Seconds())); secs != tc.timeout {

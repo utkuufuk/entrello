@@ -18,8 +18,8 @@ func (c Client) CreateCard(card Card) error {
 	return c.api.CreateCard(card, trello.Defaults())
 }
 
-// LoadCards retrieves existing cards from the board that have at least one of the given label IDs
-func (c Client) LoadCards(labels []string) error {
+// LoadBoard retrieves existing cards from the board that have at least one of the given label IDs
+func (c Client) LoadBoard(labels []string) error {
 	board, err := c.api.GetBoard(c.boardId, trello.Defaults())
 	if err != nil {
 		return fmt.Errorf("could not get board data: %w", err)

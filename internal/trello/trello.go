@@ -49,9 +49,9 @@ func NewCard(name, label, description string, dueDate *time.Time) (card Card, er
 	}, nil
 }
 
-// CompareWithExisting compares the given cards with the existing cards and returns two arrays;
+// FilterNewAndStale compares the given cards with the existing cards and returns two arrays;
 // one containing new cards and the other containing stale cards.
-func (c Client) CompareWithExisting(cards []Card, label string) (new, stale []Card) {
+func (c Client) FilterNewAndStale(cards []Card, label string) (new, stale []Card) {
 	m := make(map[string]*trello.Card)
 	for _, card := range c.existingCards[label] {
 		m[card.Name] = card
