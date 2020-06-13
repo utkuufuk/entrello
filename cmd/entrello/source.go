@@ -93,7 +93,7 @@ func (s source) process(ctx context.Context, client trello.Client, wg *sync.Wait
 	for _, c := range new {
 		if err := client.CreateCard(c); err != nil {
 			logger.Errorf("could not create Trello card: %v", err)
-			break
+			continue
 		}
 		logger.Printf("created new card: %s", c.Name)
 	}
@@ -105,7 +105,7 @@ func (s source) process(ctx context.Context, client trello.Client, wg *sync.Wait
 	for _, c := range stale {
 		if err := client.DeleteCard(c); err != nil {
 			logger.Errorf("could not delete Trello card: %v", err)
-			break
+			continue
 		}
 		logger.Printf("deleted stale card: %s", c.Name)
 	}
