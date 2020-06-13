@@ -47,7 +47,7 @@ func main() {
 		logger.Fatalf("could not load existing cards from the board: %v", err)
 	}
 
-	// concurrently fetch new cards from each source and handle new & stale cards
+	// fetch new cards from each source and handle the new & stale ones
 	var wg sync.WaitGroup
 	wg.Add(len(sources))
 	for _, src := range sources {
