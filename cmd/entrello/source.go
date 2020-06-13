@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"sync"
 	"time"
 
 	"github.com/utkuufuk/entrello/internal/config"
@@ -13,12 +14,10 @@ import (
 )
 
 type source struct {
+	cfg config.SourceConfig
 	api interface {
 		FetchNewCards(ctx context.Context, cfg config.SourceConfig) ([]trello.Card, error)
 	}
-
-	cfg        config.SourceConfig
-	new, stale []trello.Card
 }
 
 // getEnabledSources returns a slice of enabled sources & their labels as a separate slice
@@ -78,29 +77,36 @@ func (s source) shouldQuery(now time.Time) (bool, error) {
 	return false, fmt.Errorf("unrecognized source period type: '%s'", s.cfg.Period.Type)
 }
 
-// queryAndQueue fetches new cards and queues the ones that need to be created or deleted
-func (s source) queryAndQueue(ctx context.Context, client trello.Client, q CardQueue) {
+// process fetches cards from the source and creates the ones that don't already exist,
+// also deletes the stale cards if strict mode is enabled
+func (s source) process(ctx context.Context, client trello.Client, wg *sync.WaitGroup) {
+	defer wg.Done()
+
 	cards, err := s.api.FetchNewCards(ctx, s.cfg)
 	if err != nil {
 		logger.Errorf("could not fetch cards for source '%s': %v", s.cfg.Name, err)
 		return
 	}
 
-	s.new, s.stale = client.FilterNewAndStale(cards, s.cfg.Label)
-	s.queue(q)
-}
+	new, stale := client.FilterNewAndStale(cards, s.cfg.Label)
 
-// queue pushes cards to be created and cards to be deleted to the given channels
-func (s source) queue(q CardQueue) {
-	for _, c := range s.new {
-		q.new <- c
+	for _, c := range new {
+		if err := client.CreateCard(c); err != nil {
+			logger.Errorf("could not create Trello card: %v", err)
+			break
+		}
+		logger.Printf("created new card: %s", c.Name)
 	}
 
 	if !s.cfg.Strict {
 		return
 	}
 
-	for _, c := range s.stale {
-		q.stale <- c
+	for _, c := range stale {
+		if err := client.DeleteCard(c); err != nil {
+			logger.Errorf("could not delete Trello card: %v", err)
+			break
+		}
+		logger.Printf("deleted stale card: %s", c.Name)
 	}
 }

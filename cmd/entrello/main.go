@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log"
+	"sync"
 	"time"
 
 	"github.com/utkuufuk/entrello/internal/config"
@@ -13,11 +14,6 @@ import (
 var (
 	logger syslog.Logger
 )
-
-type CardQueue struct {
-	new   chan trello.Card
-	stale chan trello.Card
-}
 
 func main() {
 	// read config params
@@ -51,33 +47,11 @@ func main() {
 		logger.Fatalf("could not load existing cards from the board: %v", err)
 	}
 
-	// concurrently fetch new cards from each source and start processing new & stale cards
-	q := CardQueue{make(chan trello.Card), make(chan trello.Card)}
+	// concurrently fetch new cards from each source and handle new & stale cards
+	var wg sync.WaitGroup
+	wg.Add(len(sources))
 	for _, src := range sources {
-		go src.queryAndQueue(ctx, client, q)
+		go src.process(ctx, client, &wg)
 	}
-	processActionables(ctx, client, q)
-}
-
-// processActionables listens to the card queue in an infinite loop and creates/deletes Trello cards
-// depending on which channel the cards come from. Terminates whenever the global timeout is reached.
-func processActionables(ctx context.Context, client trello.Client, q CardQueue) {
-	for {
-		select {
-		case c := <-q.new:
-			if err := client.CreateCard(c); err != nil {
-				logger.Errorf("could not create Trello card: %v", err)
-				break
-			}
-			logger.Printf("created new card: %s", c.Name)
-		case c := <-q.stale:
-			if err := client.DeleteCard(c); err != nil {
-				logger.Errorf("could not delete Trello card: %v", err)
-				break
-			}
-			logger.Printf("deleted stale card: %s", c.Name)
-		case <-ctx.Done():
-			return
-		}
-	}
+	wg.Wait()
 }
