@@ -77,6 +77,8 @@ func TestToCards(t *testing.T) {
 }
 
 func TestMapHabits(t *testing.T) {
+	any := "."
+
 	tt := []struct {
 		name string
 		rows [][]string
@@ -86,10 +88,10 @@ func TestMapHabits(t *testing.T) {
 		{
 			name: "all marked",
 			rows: [][]string{
-				{"a", "b", "c"},
-				{".", ".", "."},
-				{".", ".", "."},
-				{"✔", "✘", "–"},
+				{"", "a", "b", "c"},
+				{any, any, any, any},
+				{any, any, any, any},
+				{any, "✔", "✘", "–"},
 			},
 			out: map[string]habit{
 				"a": {"Jan 2020!B4", "✔"},
@@ -100,10 +102,10 @@ func TestMapHabits(t *testing.T) {
 		{
 			name: "blank mid rows",
 			rows: [][]string{
-				{"a", "b", "c"},
+				{"", "a", "b", "c"},
 				{},
 				{},
-				{"✔", "✘", "–"},
+				{any, "✔", "✘", "–"},
 			},
 			out: map[string]habit{
 				"a": {"Jan 2020!B4", "✔"},
@@ -114,10 +116,10 @@ func TestMapHabits(t *testing.T) {
 		{
 			name: "blank cell in the middle",
 			rows: [][]string{
-				{"a", "b", "c", "d"},
-				{".", ".", ".", "."},
-				{".", ".", ".", "."},
-				{"✔", "✘", "", "–"},
+				{"", "a", "b", "c", "d"},
+				{any, any, any, any, any},
+				{any, any, any, any, any},
+				{any, "✔", "✘", "", "–"},
 			},
 			out: map[string]habit{
 				"a": {"Jan 2020!B4", "✔"},
@@ -129,10 +131,10 @@ func TestMapHabits(t *testing.T) {
 		{
 			name: "blank cells in the end",
 			rows: [][]string{
-				{"a", "b", "c", "d", "e"},
-				{".", ".", ".", ".", "."},
-				{".", ".", ".", ".", "."},
-				{"✔", "✘", "–"},
+				{any, "a", "b", "c", "d", "e"},
+				{any, any, any, any, any, any},
+				{any, any, any, any, any, any},
+				{any, "✔", "✘", "–"},
 			},
 			out: map[string]habit{
 				"a": {"Jan 2020!B4", "✔"},

@@ -48,7 +48,7 @@ func (s source) FetchNewCards(ctx context.Context, cfg config.SourceConfig) ([]t
 // fetchHabits retrieves the state of today's habits from the spreadsheet
 func (s source) fetchHabits() (map[string]habit, error) {
 	today := time.Now()
-	rangeName, err := getRangeName(today, cell{"B", 1}, cell{"Z", today.Day() + 3})
+	rangeName, err := getRangeName(today, cell{"A", 1}, cell{"Z", today.Day() + 3})
 	if err != nil {
 		return nil, fmt.Errorf("could not get range name: %w", err)
 	}
@@ -90,8 +90,8 @@ func toCards(habits map[string]habit, label string) (cards []trello.Card, err er
 // mapHabits creates a state map for given a date and a spreadsheet row data
 func mapHabits(rows [][]interface{}, date time.Time) (map[string]habit, error) {
 	states := make(map[string]habit)
-	for i := 0; i < len(rows[0]); i++ {
-		c := cell{string('A' + 1 + i), date.Day() + 3}
+	for col := 1; col < len(rows[0]); col++ {
+		c := cell{string('A' + col), date.Day() + 3}
 		cellName, err := getRangeName(date, c, c)
 		if err != nil {
 			return states, err
@@ -99,11 +99,11 @@ func mapHabits(rows [][]interface{}, date time.Time) (map[string]habit, error) {
 
 		// handle cases where the last N columns are blank which reduces the slice length by N
 		state := ""
-		if i < len(rows[date.Day()+2]) {
-			state = fmt.Sprintf("%v", rows[date.Day()+2][i])
+		if col < len(rows[date.Day()+2]) {
+			state = fmt.Sprintf("%v", rows[date.Day()+2][col])
 		}
 
-		name := fmt.Sprintf("%v", rows[0][i])
+		name := fmt.Sprintf("%v", rows[0][col])
 		states[name] = habit{cellName, state}
 	}
 	return states, nil
