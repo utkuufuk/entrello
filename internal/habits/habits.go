@@ -73,11 +73,16 @@ func (s source) readCells(rangeName string) ([][]interface{}, error) {
 // toCards returns a slice of trello cards from the given habits which haven't been marked today
 func toCards(habits map[string]habit, label string) (cards []trello.Card, err error) {
 	for name, habit := range habits {
+		if len(habit.CellName) != 11 && len(habit.CellName) != 12 {
+			return nil, fmt.Errorf("illegal habit cell name: '%s' %w", habit.CellName, err)
+		}
+
 		if habit.State != "" {
 			continue
 		}
 
-		c, err := trello.NewCard(fmt.Sprintf("%v", name), label, habit.CellName, nil)
+		title := fmt.Sprintf("%v (%s)", name, habit.CellName[10:])
+		c, err := trello.NewCard(title, label, habit.CellName, nil)
 		if err != nil {
 			return nil, fmt.Errorf("could not create habit card: %w", err)
 		}
@@ -94,7 +99,7 @@ func mapHabits(rows [][]interface{}, date time.Time) (map[string]habit, error) {
 		c := cell{string('A' + col), date.Day() + 3}
 		cellName, err := getRangeName(date, c, c)
 		if err != nil {
-			return states, err
+			return nil, err
 		}
 
 		// handle cases where the last N columns are blank which reduces the slice length by N
@@ -104,6 +109,10 @@ func mapHabits(rows [][]interface{}, date time.Time) (map[string]habit, error) {
 		}
 
 		name := fmt.Sprintf("%v", rows[0][col])
+		if name == "" {
+			return nil, fmt.Errorf("habit name cannot be blank")
+		}
+
 		states[name] = habit{cellName, state}
 	}
 	return states, nil

@@ -10,6 +10,7 @@ import (
 
 func TestToCards(t *testing.T) {
 	str := "test"
+	cellName := "Jun 2020!C3"
 
 	tt := []struct {
 		name     string
@@ -19,16 +20,9 @@ func TestToCards(t *testing.T) {
 		err      error
 	}{
 		{
-			name:     "blank habit name",
-			label:    str,
-			habits:   map[string]habit{"": {}},
-			numCards: 0,
-			err:      errors.New(""),
-		},
-		{
 			name:     "missing label",
 			label:    "",
-			habits:   map[string]habit{str: {}},
+			habits:   map[string]habit{str: {cellName, ""}},
 			numCards: 0,
 			err:      errors.New(""),
 		},
@@ -36,26 +30,35 @@ func TestToCards(t *testing.T) {
 			name:  "marked habits",
 			label: str,
 			habits: map[string]habit{
-				"a": {str, "✔"},
-				"b": {str, "x"},
-				"c": {str, "✘"},
-				"d": {str, "–"},
-				"e": {str, "-"},
+				"a": {cellName, "✔"},
+				"b": {cellName, "x"},
+				"c": {cellName, "✘"},
+				"d": {cellName, "–"},
+				"e": {cellName, "-"},
 			},
 			numCards: 0,
 			err:      nil,
 		},
 		{
+			name:  "illegal cell name",
+			label: str,
+			habits: map[string]habit{
+				"a": {"abc", "✔"},
+			},
+			numCards: 0,
+			err:      errors.New(""),
+		},
+		{
 			name:  "some marked some unhabits",
 			label: str,
 			habits: map[string]habit{
-				"a": {str, "✔"},
-				"b": {str, "x"},
-				"c": {str, "✘"},
-				"d": {str, "–"},
-				"e": {str, "-"},
-				"f": {str, ""},
-				"g": {str, ""},
+				"a": {cellName, "✔"},
+				"b": {cellName, "x"},
+				"c": {cellName, "✘"},
+				"d": {cellName, "–"},
+				"e": {cellName, "-"},
+				"f": {cellName, ""},
+				"g": {cellName, ""},
 			},
 			numCards: 2,
 			err:      nil,
@@ -85,6 +88,17 @@ func TestMapHabits(t *testing.T) {
 		out  map[string]habit
 		err  error
 	}{
+		{
+			name: "blank name",
+			rows: [][]string{
+				{"", ""},
+				{any, any},
+				{any, any},
+				{any, "✔"},
+			},
+			out: nil,
+			err: errors.New(""),
+		},
 		{
 			name: "all marked",
 			rows: [][]string{
