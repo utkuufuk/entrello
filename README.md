@@ -21,7 +21,7 @@ Feel free to add new sources or improve the implementations of the existing ones
 Copy and rename `config.example.yml` as `config.yml`, then set your own values in `config.yml`. Most of the configuration parameters are self explanatory, so the following only covers some of them:
 
 ### Global Timeout
-You can edit the `timeout_secs` config value in order to update global timeout (in seconds) for a single execution. 
+You can edit the `timeout_secs` config value in order to update global timeout (in seconds) for a single execution.
 
 The execution will not terminate until the timeout is reached, so it's important that the timeout is shorter than the cron job period.
 
@@ -35,11 +35,11 @@ You need a Telegram token & a chat ID in order to enable the integration if you 
 
 ### Data Sources
 Every data source must have the following configuration parameters under the `source_config` key:
- * `name`
- * `enabled`
- * `strict`
- * `label_id`
- * `period`
+* `name`
+* `enabled`
+* `strict`
+* `label_id`
+* `period`
 
 #### **`enabled`**
 In order to disable a source, just update the `enabled` flag to `false`. There's no need to remove/edit the other parameters for that source.
