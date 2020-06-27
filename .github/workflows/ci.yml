@@ -16,6 +16,9 @@ jobs:
     - name: Check gofmt
       run: test -z "$(gofmt -s -d .)"
 
+    - name: Lint Code Base
+      uses: docker://github/super-linter:v2.2.0
+
     - name: Run go vet
       run: go vet ./...
 
