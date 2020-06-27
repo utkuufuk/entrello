@@ -49,7 +49,7 @@ func TestToCards(t *testing.T) {
 			err:      errors.New(""),
 		},
 		{
-			name:  "some marked some unhabits",
+			name:  "some marked some unmarked habits",
 			label: str,
 			habits: map[string]habit{
 				"a": {cellName, "✔"},
