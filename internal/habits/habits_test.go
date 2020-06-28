@@ -40,15 +40,6 @@ func TestToCards(t *testing.T) {
 			err:      nil,
 		},
 		{
-			name:  "illegal cell name",
-			label: str,
-			habits: map[string]habit{
-				"a": {"abc", "✔"},
-			},
-			numCards: 0,
-			err:      errors.New(""),
-		},
-		{
 			name:  "some marked some unmarked habits",
 			label: str,
 			habits: map[string]habit{

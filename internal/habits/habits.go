@@ -73,17 +73,12 @@ func (s source) readCells(rangeName string) ([][]interface{}, error) {
 // toCards returns a slice of trello cards from the given habits which haven't been marked today
 func toCards(habits map[string]habit, label string) (cards []trello.Card, err error) {
 	for name, habit := range habits {
-		// proper cell names are 11/12 characters long on single/double digit days of month
-		if len(habit.CellName) != 11 && len(habit.CellName) != 12 {
-			return nil, fmt.Errorf("illegal habit cell name: '%s' %w", habit.CellName, err)
-		}
-
 		if habit.State != "" {
 			continue
 		}
 
 		// include the day of month in card title to force overwrite in the beginning of the next day
-		title := fmt.Sprintf("%v (%s)", name, habit.CellName[10:])
+		title := fmt.Sprintf("%v (%d)", name, time.Now().Day())
 		c, err := trello.NewCard(title, label, habit.CellName, nil)
 		if err != nil {
 			return nil, fmt.Errorf("could not create habit card: %w", err)
