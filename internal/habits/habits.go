@@ -10,6 +10,13 @@ import (
 	"google.golang.org/api/sheets/v4"
 )
 
+const (
+	nameRowIndex     = 0
+	durationRowIndex = 1
+	dataRowOffset    = 4 // number of rows before the first data row starts in the spreadsheet
+	dataColumnOffset = 1 // number of columns before the first data column starts in the spreadsheet
+)
+
 type source struct {
 	spreadsheetId   string
 	credentialsFile string
@@ -20,6 +27,7 @@ type source struct {
 type habit struct {
 	CellName string
 	State    string
+	Duration string
 }
 
 type cell struct {
@@ -48,7 +56,7 @@ func (s source) FetchNewCards(ctx context.Context, cfg config.SourceConfig) ([]t
 // fetchHabits retrieves the state of today's habits from the spreadsheet
 func (s source) fetchHabits() (map[string]habit, error) {
 	today := time.Now()
-	rangeName, err := getRangeName(today, cell{"A", 1}, cell{"Z", today.Day() + 3})
+	rangeName, err := getRangeName(today, cell{"A", 1}, cell{"Z", today.Day() + dataRowOffset})
 	if err != nil {
 		return nil, fmt.Errorf("could not get range name: %w", err)
 	}
@@ -79,7 +87,14 @@ func toCards(habits map[string]habit, label string) (cards []trello.Card, err er
 
 		// include the day of month in card title to force overwrite in the beginning of the next day
 		title := fmt.Sprintf("%v (%d)", name, time.Now().Day())
-		c, err := trello.NewCard(title, label, habit.CellName, nil)
+
+		// include optional duration info in card description
+		description := habit.CellName
+		if habit.Duration != "–" {
+			description = fmt.Sprintf("%s\nDuration:%s", description, habit.Duration)
+		}
+
+		c, err := trello.NewCard(title, label, description, nil)
 		if err != nil {
 			return nil, fmt.Errorf("could not create habit card: %w", err)
 		}
@@ -92,8 +107,8 @@ func toCards(habits map[string]habit, label string) (cards []trello.Card, err er
 // mapHabits creates a state map for given a date and a spreadsheet row data
 func mapHabits(rows [][]interface{}, date time.Time) (map[string]habit, error) {
 	states := make(map[string]habit)
-	for col := 1; col < len(rows[0]); col++ {
-		c := cell{string('A' + col), date.Day() + 3}
+	for col := dataColumnOffset; col < len(rows[0]); col++ {
+		c := cell{string(rune('A' + col)), date.Day() + dataRowOffset}
 		cellName, err := getRangeName(date, c, c)
 		if err != nil {
 			return nil, err
@@ -101,16 +116,17 @@ func mapHabits(rows [][]interface{}, date time.Time) (map[string]habit, error) {
 
 		// handle cases where the last N columns are blank which reduces the slice length by N
 		state := ""
-		if col < len(rows[date.Day()+2]) {
-			state = fmt.Sprintf("%v", rows[date.Day()+2][col])
+		if col < len(rows[date.Day()+dataRowOffset-1]) {
+			state = fmt.Sprintf("%v", rows[date.Day()+dataRowOffset-1][col])
 		}
 
-		name := fmt.Sprintf("%v", rows[0][col])
+		name := fmt.Sprintf("%v", rows[nameRowIndex][col])
 		if name == "" {
 			return nil, fmt.Errorf("habit name cannot be blank")
 		}
 
-		states[name] = habit{cellName, state}
+		duration := fmt.Sprintf("%v", rows[durationRowIndex][col])
+		states[name] = habit{cellName, state, duration}
 	}
 	return states, nil
 }

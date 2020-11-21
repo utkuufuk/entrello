@@ -95,7 +95,7 @@ func (s source) process(ctx context.Context, client trello.Client, wg *sync.Wait
 			logger.Errorf("could not create Trello card: %v", err)
 			continue
 		}
-		logger.Printf("created new card: %s", c.Name)
+		logger.Debugf("created new card: %s", c.Name)
 	}
 
 	if !s.cfg.Strict {
@@ -107,6 +107,6 @@ func (s source) process(ctx context.Context, client trello.Client, wg *sync.Wait
 			logger.Errorf("could not delete Trello card: %v", err)
 			continue
 		}
-		logger.Printf("deleted stale card: %s", c.Name)
+		logger.Debugf("deleted stale card: %s", c.Name)
 	}
 }

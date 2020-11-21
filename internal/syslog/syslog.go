@@ -29,12 +29,18 @@ func NewLogger(cfg config.Telegram) (l Logger) {
 	return Logger{true, api, cfg.ChatId}
 }
 
-// Printf logs an informational message to stdout, and also sends a Telegram message if enabled
+// Debugf logs an debug message to stdout, but doesn't send a Telegram notification
+func (l Logger) Debugf(msg string, v ...interface{}) {
+	msg = fmt.Sprintf(msg, v...)
+	log.Println(msg)
+}
+
+// Printf logs an informational message to stdout, and also sends a Telegram notification if enabled
 func (l Logger) Printf(msg string, v ...interface{}) {
 	l.logf("Entrello:", msg, v...)
 }
 
-// Errorf logs an error message to stdout, and also sends a Telegram message if enabled
+// Errorf logs an error message to stdout, and also sends a Telegram notification if enabled
 func (l Logger) Errorf(msg string, v ...interface{}) {
 	l.logf("Entrello Error:", msg, v...)
 }
@@ -46,7 +52,7 @@ func (l Logger) Fatalf(msg string, v ...interface{}) {
 }
 
 // logf prints the message to stdout, and after prepending the given prefix to the message,
-// also sends a Telegram message if enabled
+// also sends a Telegram notification if enabled
 func (l Logger) logf(prefix, msg string, v ...interface{}) {
 	msg = fmt.Sprintf(msg, v...)
 	log.Println(msg)
