@@ -16,7 +16,7 @@ import (
 type source struct {
 	cfg config.SourceConfig
 	api interface {
-		FetchNewCards(ctx context.Context, cfg config.SourceConfig) ([]trello.Card, error)
+		FetchNewCards(ctx context.Context, cfg config.SourceConfig, now time.Time) ([]trello.Card, error)
 	}
 }
 
@@ -27,8 +27,6 @@ func getEnabledSources(cfg config.Sources) (sources []source, labels []string) {
 		{cfg: cfg.TodoDock.SourceConfig, api: tododock.GetSource(cfg.TodoDock)},
 		{cfg: cfg.Habits.SourceConfig, api: habits.GetSource(cfg.Habits)},
 	}
-
-	now := time.Now()
 
 	for _, src := range arr {
 		if ok, err := src.shouldQuery(now); !ok {
@@ -44,7 +42,7 @@ func getEnabledSources(cfg config.Sources) (sources []source, labels []string) {
 }
 
 // shouldQuery checks if a the source should be queried at the given time
-func (s source) shouldQuery(now time.Time) (bool, error) {
+func (s source) shouldQuery(date time.Time) (bool, error) {
 	if !s.cfg.Enabled {
 		return false, nil
 	}
@@ -61,17 +59,17 @@ func (s source) shouldQuery(now time.Time) (bool, error) {
 		if interval > 31 {
 			return false, fmt.Errorf("daily interval cannot be more than 14, got: '%d'", interval)
 		}
-		return now.Day()%interval == 0 && now.Hour() == 0 && now.Minute() == 0, nil
+		return date.Day()%interval == 0 && date.Hour() == 0 && date.Minute() == 0, nil
 	case config.PERIOD_TYPE_HOUR:
 		if interval > 23 {
 			return false, fmt.Errorf("hourly interval cannot be more than 23, got: '%d'", interval)
 		}
-		return now.Hour()%interval == 0 && now.Minute() == 0, nil
+		return date.Hour()%interval == 0 && date.Minute() == 0, nil
 	case config.PERIOD_TYPE_MINUTE:
 		if interval > 60 {
 			return false, fmt.Errorf("minute interval cannot be more than 60, got: '%d'", interval)
 		}
-		return now.Minute()%interval == 0, nil
+		return date.Minute()%interval == 0, nil
 	}
 
 	return false, fmt.Errorf("unrecognized source period type: '%s'", s.cfg.Period.Type)
@@ -82,7 +80,7 @@ func (s source) shouldQuery(now time.Time) (bool, error) {
 func (s source) process(ctx context.Context, client trello.Client, wg *sync.WaitGroup) {
 	defer wg.Done()
 
-	cards, err := s.api.FetchNewCards(ctx, s.cfg)
+	cards, err := s.api.FetchNewCards(ctx, s.cfg, now)
 	if err != nil {
 		logger.Errorf("could not fetch cards for source '%s': %v", s.cfg.Name, err)
 		return
@@ -91,7 +89,7 @@ func (s source) process(ctx context.Context, client trello.Client, wg *sync.Wait
 	new, stale := client.FilterNewAndStale(cards, s.cfg.Label)
 
 	for _, c := range new {
-		if err := client.CreateCard(c); err != nil {
+		if err := client.CreateCard(c, now); err != nil {
 			logger.Errorf("could not create Trello card: %v", err)
 			continue
 		}

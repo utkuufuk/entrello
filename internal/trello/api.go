@@ -14,14 +14,14 @@ func (c Client) DeleteCard(card Card) error {
 }
 
 // CreateCard creates a Trello card using the the Trello API
-func (c Client) CreateCard(card Card) error {
+func (c Client) CreateCard(card Card, now time.Time) error {
 	dueYear := card.Due.Year()
 	dueMonth := card.Due.Month()
 	dueDay := card.Due.Day()
 
-	thisYear := time.Now().Year()
-	thisMonth := time.Now().Month()
-	today := time.Now().Day()
+	thisYear := now.Year()
+	thisMonth := now.Month()
+	today := now.Day()
 
 	// insert into the todo list, unless the due date is sometime today
 	if dueYear > thisYear {

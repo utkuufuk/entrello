@@ -34,20 +34,20 @@ func GetSource(cfg config.TodoDock) source {
 	return source{cfg.Email, cfg.Password}
 }
 
-func (s source) FetchNewCards(ctx context.Context, cfg config.SourceConfig) (cards []trello.Card, err error) {
+func (s source) FetchNewCards(ctx context.Context, cfg config.SourceConfig, now time.Time) (cards []trello.Card, err error) {
 	id, token, err := s.login()
 	if err != nil {
 		return cards, fmt.Errorf("failed to authenticate with TodoDock: %w", err)
 	}
 	tasks, err := s.fetchTasks(id, token)
-	return toCards(tasks, cfg.Label)
+	return toCards(tasks, cfg.Label, now)
 }
 
 // toCards cherry-picks the 'active' and 'due' tasks from a list of tasks,
 // then returns a list of cards containing those
-func toCards(tasks []task, label string) (cards []trello.Card, err error) {
+func toCards(tasks []task, label string, now time.Time) (cards []trello.Card, err error) {
 	cards = make([]trello.Card, 0, len(tasks))
-	soon := time.Now().AddDate(0, 0, 2)
+	soon := now.AddDate(0, 0, 2)
 	for _, t := range tasks {
 		d, ok, err := shouldCreateCard(t, soon)
 		if !ok {
