@@ -15,6 +15,7 @@ const (
 	durationRowIndex = 1
 	dataRowOffset    = 4 // number of rows before the first data row starts in the spreadsheet
 	dataColumnOffset = 1 // number of columns before the first data column starts in the spreadsheet
+	dueHour          = 23
 )
 
 type source struct {
@@ -39,24 +40,23 @@ func GetSource(cfg config.Habits) source {
 	return source{cfg.SpreadsheetId, cfg.CredentialsFile, cfg.TokenFile, nil}
 }
 
-func (s source) FetchNewCards(ctx context.Context, cfg config.SourceConfig) ([]trello.Card, error) {
+func (s source) FetchNewCards(ctx context.Context, cfg config.SourceConfig, now time.Time) ([]trello.Card, error) {
 	err := s.initializeService(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("could not initialize google spreadsheet service: %w", err)
 	}
 
-	habits, err := s.fetchHabits()
+	habits, err := s.fetchHabits(now)
 	if err != nil {
 		return nil, fmt.Errorf("could not fetch habits: %w", err)
 	}
 
-	return toCards(habits, cfg.Label)
+	return toCards(habits, cfg.Label, now)
 }
 
 // fetchHabits retrieves the state of today's habits from the spreadsheet
-func (s source) fetchHabits() (map[string]habit, error) {
-	today := time.Now()
-	rangeName, err := getRangeName(today, cell{"A", 1}, cell{"Z", today.Day() + dataRowOffset})
+func (s source) fetchHabits(now time.Time) (map[string]habit, error) {
+	rangeName, err := getRangeName(now, cell{"A", 1}, cell{"Z", now.Day() + dataRowOffset})
 	if err != nil {
 		return nil, fmt.Errorf("could not get range name: %w", err)
 	}
@@ -66,7 +66,7 @@ func (s source) fetchHabits() (map[string]habit, error) {
 		return nil, fmt.Errorf("could not read cells: %w", err)
 	}
 
-	return mapHabits(rows, today)
+	return mapHabits(rows, now)
 }
 
 // readCells reads a range of cell values with the given range
@@ -79,14 +79,14 @@ func (s source) readCells(rangeName string) ([][]interface{}, error) {
 }
 
 // toCards returns a slice of trello cards from the given habits which haven't been marked today
-func toCards(habits map[string]habit, label string) (cards []trello.Card, err error) {
+func toCards(habits map[string]habit, label string, now time.Time) (cards []trello.Card, err error) {
 	for name, habit := range habits {
 		if habit.State != "" {
 			continue
 		}
 
 		// include the day of month in card title to force overwrite in the beginning of the next day
-		title := fmt.Sprintf("%v (%d)", name, time.Now().Day())
+		title := fmt.Sprintf("%v (%d)", name, now.Day())
 
 		// include optional duration info in card description
 		description := habit.CellName
@@ -94,7 +94,8 @@ func toCards(habits map[string]habit, label string) (cards []trello.Card, err er
 			description = fmt.Sprintf("%s\nDuration:%s", description, habit.Duration)
 		}
 
-		c, err := trello.NewCard(title, label, description, nil)
+		due := time.Date(now.Year(), now.Month(), now.Day(), dueHour, 0, 0, 0, now.Location())
+		c, err := trello.NewCard(title, label, description, &due)
 		if err != nil {
 			return nil, fmt.Errorf("could not create habit card: %w", err)
 		}

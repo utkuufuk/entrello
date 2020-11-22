@@ -52,10 +52,11 @@ type Sources struct {
 }
 
 type Trello struct {
-	ApiKey   string `yaml:"api_key"`
-	ApiToken string `yaml:"api_token"`
-	BoardId  string `yaml:"board_id"`
-	ListId   string `yaml:"list_id"`
+	ApiKey      string `yaml:"api_key"`
+	ApiToken    string `yaml:"api_token"`
+	BoardId     string `yaml:"board_id"`
+	TodoListId  string `yaml:"todo_list_id"`
+	TodayListId string `yaml:"today_list_id"`
 }
 
 type Telegram struct {
@@ -65,10 +66,11 @@ type Telegram struct {
 }
 
 type Config struct {
-	TimeoutSeconds int      `yaml:"timeout_secs"`
-	Trello         Trello   `yaml:"trello"`
-	Sources        Sources  `yaml:"sources"`
-	Telegram       Telegram `yaml:"telegram"`
+	TimezoneLocation string   `yaml:"timezone_location"`
+	TimeoutSeconds   int      `yaml:"timeout_secs"`
+	Trello           Trello   `yaml:"trello"`
+	Sources          Sources  `yaml:"sources"`
+	Telegram         Telegram `yaml:"telegram"`
 }
 
 // ReadConfig reads the YAML config file & decodes all parameters

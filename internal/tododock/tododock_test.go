@@ -2,6 +2,7 @@ package tododock
 
 import (
 	"testing"
+	"time"
 )
 
 func TestToCards(t *testing.T) {
@@ -73,7 +74,7 @@ func TestToCards(t *testing.T) {
 
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
-			cards, err := toCards(tc.tasks, tc.label)
+			cards, err := toCards(tc.tasks, tc.label, time.Now())
 
 			if (err != nil && !tc.err) || err == nil && tc.err {
 				t.Fatalf("did not expect to get '%v' error", err)

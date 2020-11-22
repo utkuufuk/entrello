@@ -13,6 +13,7 @@ import (
 
 var (
 	logger syslog.Logger
+	now    time.Time
 )
 
 func main() {
@@ -24,6 +25,13 @@ func main() {
 
 	// get a system logger instance
 	logger = syslog.NewLogger(cfg.Telegram)
+
+	// get current time for the configured location
+	loc, err := time.LoadLocation(cfg.TimezoneLocation)
+	if err != nil {
+		logger.Fatalf("invalid timezone location: %v", loc)
+	}
+	now = time.Now().In(loc)
 
 	// set global timeout
 	timeout := time.Second * time.Duration(cfg.TimeoutSeconds)

@@ -58,7 +58,7 @@ func TestToCards(t *testing.T) {
 
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
-			cards, err := toCards(tc.habits, tc.label)
+			cards, err := toCards(tc.habits, tc.label, time.Now())
 			if same := (err == nil && tc.err == nil) || tc.err != nil && err != nil; !same {
 				t.Fatalf("want '%v', got '%v'", tc.err, err)
 			}

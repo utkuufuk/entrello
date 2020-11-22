@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/google/go-github/github"
 	"github.com/utkuufuk/entrello/internal/config"
@@ -22,7 +23,7 @@ func GetSource(cfg config.GithubIssues) source {
 	return source{client}
 }
 
-func (s source) FetchNewCards(ctx context.Context, cfg config.SourceConfig) ([]trello.Card, error) {
+func (s source) FetchNewCards(ctx context.Context, cfg config.SourceConfig, now time.Time) ([]trello.Card, error) {
 	issues, _, err := s.client.Issues.List(ctx, false, nil)
 	if err != nil {
 		return nil, fmt.Errorf("could not retrieve issues: %w", err)
