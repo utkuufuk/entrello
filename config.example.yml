@@ -4,7 +4,8 @@ trello:
   api_key: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
   api_token: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
   board_id: xxxxxxxxxxxxxxxxxxxxxxxx
-  list_id: xxxxxxxxxxxxxxxxxxxxxxxx
+  todo_list_id: xxxxxxxxxxxxxxxxxxxxxxxx
+  today_list_id: xxxxxxxxxxxxxxxxxxxxxxxx
 
 telegram:
   enabled: true

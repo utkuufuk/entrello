@@ -13,19 +13,21 @@ type Card *trello.Card
 type Client struct {
 	api           *trello.Client
 	boardId       string
-	listId        string
+	todoListId    string
+	todayListId   string
 	existingCards map[string][]Card
 }
 
 func NewClient(cfg config.Trello) (client Client, err error) {
-	if cfg.BoardId == "" || cfg.ListId == "" || cfg.ApiKey == "" || cfg.ApiToken == "" {
+	if cfg.BoardId == "" || cfg.TodoListId == "" || cfg.TodayListId == "" || cfg.ApiKey == "" || cfg.ApiToken == "" {
 		return client, fmt.Errorf("could not create trello client, missing configuration parameter(s)")
 	}
 
 	return Client{
 		api:           trello.NewClient(cfg.ApiKey, cfg.ApiToken),
 		boardId:       cfg.BoardId,
-		listId:        cfg.ListId,
+		todoListId:    cfg.TodoListId,
+		todayListId:   cfg.TodayListId,
 		existingCards: make(map[string][]Card),
 	}, nil
 }
