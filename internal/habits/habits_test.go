@@ -22,7 +22,7 @@ func TestToCards(t *testing.T) {
 		{
 			name:     "missing label",
 			label:    "",
-			habits:   map[string]habit{str: {cellName, "", "–"}},
+			habits:   map[string]habit{str: {cellName, "", "–", 0}},
 			numCards: 0,
 			err:      errors.New(""),
 		},
@@ -30,11 +30,11 @@ func TestToCards(t *testing.T) {
 			name:  "marked habits",
 			label: str,
 			habits: map[string]habit{
-				"a": {cellName, "✔", "–"},
-				"b": {cellName, "x", "–"},
-				"c": {cellName, "✘", "–"},
-				"d": {cellName, "–", "–"},
-				"e": {cellName, "-", "–"},
+				"a": {cellName, "✔", "–", 0},
+				"b": {cellName, "x", "–", 0},
+				"c": {cellName, "✘", "–", 0},
+				"d": {cellName, "–", "–", 0},
+				"e": {cellName, "-", "–", 0},
 			},
 			numCards: 0,
 			err:      nil,
@@ -43,13 +43,13 @@ func TestToCards(t *testing.T) {
 			name:  "some marked some unmarked habits",
 			label: str,
 			habits: map[string]habit{
-				"a": {cellName, "✔", "–"},
-				"b": {cellName, "x", "–"},
-				"c": {cellName, "✘", "–"},
-				"d": {cellName, "–", "–"},
-				"e": {cellName, "-", "–"},
-				"f": {cellName, "", "–"},
-				"g": {cellName, "", "–"},
+				"a": {cellName, "✔", "–", 0},
+				"b": {cellName, "x", "–", 0},
+				"c": {cellName, "✘", "–", 0},
+				"d": {cellName, "–", "–", 0},
+				"e": {cellName, "-", "–", 0},
+				"f": {cellName, "", "–", 0},
+				"g": {cellName, "", "–", 0},
 			},
 			numCards: 2,
 			err:      nil,
@@ -95,15 +95,15 @@ func TestMapHabits(t *testing.T) {
 			name: "all marked",
 			rows: [][]string{
 				{"", "a", "b", "c"},
-				{"–", "–", "–", "–"},
-				{any, any, any, any},
+				{"", "40", "50", "60"},
 				{any, any, any, any},
 				{any, "✔", "✘", "–"},
+				{any, "✔", "✔", "✘"},
 			},
 			out: map[string]habit{
-				"a": {"Jan 2020!B5", "✔", "–"},
-				"b": {"Jan 2020!C5", "✘", "–"},
-				"c": {"Jan 2020!D5", "–", "–"},
+				"a": {"Jan 2020!B5", "✔", "40", 1},
+				"b": {"Jan 2020!C5", "✔", "50", 0.5},
+				"c": {"Jan 2020!D5", "✘", "60", 0},
 			},
 		},
 		{
@@ -112,13 +112,13 @@ func TestMapHabits(t *testing.T) {
 				{"", "a", "b", "c"},
 				{"–", "–", "–", "–"},
 				{},
-				{},
 				{any, "✔", "✘", "–"},
+				{any, "✔", "✔", "✘"},
 			},
 			out: map[string]habit{
-				"a": {"Jan 2020!B5", "✔", "–"},
-				"b": {"Jan 2020!C5", "✘", "–"},
-				"c": {"Jan 2020!D5", "–", "–"},
+				"a": {"Jan 2020!B5", "✔", "–", 1},
+				"b": {"Jan 2020!C5", "✔", "–", 0.5},
+				"c": {"Jan 2020!D5", "✘", "–", 0},
 			},
 		},
 		{
@@ -127,14 +127,14 @@ func TestMapHabits(t *testing.T) {
 				{"", "a", "b", "c", "d"},
 				{"–", "–", "–", "–", "–"},
 				{any, any, any, any, any},
-				{any, any, any, any, any},
+				{any, "✔", "✘", "", ""},
 				{any, "✔", "✘", "", "–"},
 			},
 			out: map[string]habit{
-				"a": {"Jan 2020!B5", "✔", "–"},
-				"b": {"Jan 2020!C5", "✘", "–"},
-				"c": {"Jan 2020!D5", "", "–"},
-				"d": {"Jan 2020!E5", "–", "–"},
+				"a": {"Jan 2020!B5", "✔", "–", 1},
+				"b": {"Jan 2020!C5", "✘", "–", 0},
+				"c": {"Jan 2020!D5", "", "–", 0},
+				"d": {"Jan 2020!E5", "–", "–", 0},
 			},
 		},
 		{
@@ -143,22 +143,22 @@ func TestMapHabits(t *testing.T) {
 				{any, "a", "b", "c", "d", "e"},
 				{"–", "–", "–", "–", "–", "–"},
 				{any, any, any, any, any, any},
-				{any, any, any, any, any, any},
+				{any, "✔", "✘", ""},
 				{any, "✔", "✘", "–"},
 			},
 			out: map[string]habit{
-				"a": {"Jan 2020!B5", "✔", "–"},
-				"b": {"Jan 2020!C5", "✘", "–"},
-				"c": {"Jan 2020!D5", "–", "–"},
-				"d": {"Jan 2020!E5", "", "–"},
-				"e": {"Jan 2020!F5", "", "–"},
+				"a": {"Jan 2020!B5", "✔", "–", 1},
+				"b": {"Jan 2020!C5", "✘", "–", 0},
+				"c": {"Jan 2020!D5", "–", "–", 0},
+				"d": {"Jan 2020!E5", "", "–", 0},
+				"e": {"Jan 2020!F5", "", "–", 0},
 			},
 		},
 	}
 
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
-			date := time.Date(2020, time.Month(1), 1, 0, 0, 0, 0, time.UTC)
+			date := time.Date(2020, time.Month(1), 2, 0, 0, 0, 0, time.UTC)
 
 			data := make([][]interface{}, 0, len(tc.rows))
 			for r, row := range tc.rows {
