@@ -3,6 +3,7 @@ package habits
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/utkuufuk/entrello/internal/config"
@@ -13,7 +14,8 @@ import (
 const (
 	nameRowIndex     = 0
 	durationRowIndex = 1
-	dataRowOffset    = 4 // number of rows before the first data row starts in the spreadsheet
+	scoreRowIndex    = 2
+	dataRowOffset    = 3 // number of rows before the first data row starts in the spreadsheet
 	dataColumnOffset = 1 // number of columns before the first data column starts in the spreadsheet
 	dueHour          = 23
 )
@@ -29,6 +31,7 @@ type habit struct {
 	CellName string
 	State    string
 	Duration string
+	Score    float64
 }
 
 type cell struct {
@@ -40,9 +43,12 @@ func GetSource(cfg config.Habits) source {
 	return source{cfg.SpreadsheetId, cfg.CredentialsFile, cfg.TokenFile, nil}
 }
 
-func (s source) FetchNewCards(ctx context.Context, cfg config.SourceConfig, now time.Time) ([]trello.Card, error) {
-	err := s.initializeService(ctx)
-	if err != nil {
+func (s source) FetchNewCards(
+	ctx context.Context,
+	cfg config.SourceConfig,
+	now time.Time,
+) ([]trello.Card, error) {
+	if err := s.initializeService(ctx); err != nil {
 		return nil, fmt.Errorf("could not initialize google spreadsheet service: %w", err)
 	}
 
@@ -51,7 +57,37 @@ func (s source) FetchNewCards(ctx context.Context, cfg config.SourceConfig, now 
 		return nil, fmt.Errorf("could not fetch habits: %w", err)
 	}
 
+	if err = s.updateScores(habits, now); err != nil {
+		return nil, err
+	}
+
 	return toCards(habits, cfg.Label, now)
+}
+
+func (s source) updateScores(habits map[string]habit, now time.Time) error {
+	scores := make([]float64, len(habits))
+	var cellNameComponents []string
+	for _, habit := range habits {
+		cellNameComponents = strings.Split(habit.CellName, "!")
+		col := []rune(cellNameComponents[1][0:1])[0]
+		idx := int(col) - int('A') - 1
+		scores[idx] = habit.Score
+	}
+
+	row := scoreRowIndex + 1
+	firstCol := string(rune(int('A') + dataColumnOffset))
+	lastCol := string(rune(int('A') + len(habits)))
+	rangeName, err := getRangeName(now, cell{firstCol, row}, cell{lastCol, row})
+	if err != nil {
+		return fmt.Errorf("could not update habit scores: %w", err)
+	}
+
+	values := make([][]interface{}, 1)
+	values[0] = make([]interface{}, len(scores))
+	for i, score := range scores {
+		values[0][i] = score
+	}
+	return s.writeCells(values, rangeName)
 }
 
 // fetchHabits retrieves the state of today's habits from the spreadsheet
@@ -78,8 +114,25 @@ func (s source) readCells(rangeName string) ([][]interface{}, error) {
 	return resp.Values, nil
 }
 
+// writeCells writes a 2D array of values into a range of cells
+func (s source) writeCells(values [][]interface{}, rangeName string) error {
+	_, err := s.service.
+		Update(s.spreadsheetId, rangeName, &sheets.ValueRange{Values: values}).
+		ValueInputOption("USER_ENTERED").
+		Do()
+
+	if err != nil {
+		return fmt.Errorf("could not write cells: %w", err)
+	}
+	return nil
+}
+
 // toCards returns a slice of trello cards from the given habits which haven't been marked today
-func toCards(habits map[string]habit, label string, now time.Time) (cards []trello.Card, err error) {
+func toCards(
+	habits map[string]habit,
+	label string,
+	now time.Time,
+) (cards []trello.Card, err error) {
 	for name, habit := range habits {
 		if habit.State != "" {
 			continue
@@ -105,10 +158,11 @@ func toCards(habits map[string]habit, label string, now time.Time) (cards []trel
 	return cards, nil
 }
 
-// mapHabits creates a state map for given a date and a spreadsheet row data
+// mapHabits creates a map of habits for given a date and a spreadsheet row data
 func mapHabits(rows [][]interface{}, date time.Time) (map[string]habit, error) {
-	states := make(map[string]habit)
+	habits := make(map[string]habit)
 	for col := dataColumnOffset; col < len(rows[0]); col++ {
+		// evaluate the habit's cell name for today
 		c := cell{string(rune('A' + col)), date.Day() + dataRowOffset}
 		cellName, err := getRangeName(date, c, c)
 		if err != nil {
@@ -121,15 +175,37 @@ func mapHabits(rows [][]interface{}, date time.Time) (map[string]habit, error) {
 			state = fmt.Sprintf("%v", rows[date.Day()+dataRowOffset-1][col])
 		}
 
+		// read habit name
 		name := fmt.Sprintf("%v", rows[nameRowIndex][col])
 		if name == "" {
 			return nil, fmt.Errorf("habit name cannot be blank")
 		}
 
+		// read optional habit duration value
 		duration := fmt.Sprintf("%v", rows[durationRowIndex][col])
-		states[name] = habit{cellName, state, duration}
+
+		// calculate habit score
+		nom := 0
+		denom := date.Day()
+		for row := dataRowOffset; row < date.Day()+dataRowOffset; row++ {
+			if len(rows[row]) < col+1 {
+				continue
+			}
+
+			val := rows[row][col]
+			if val == "✔" {
+				nom++
+			}
+
+			if val == "–" {
+				denom--
+			}
+		}
+		score := (float64(nom) / float64(denom))
+
+		habits[name] = habit{cellName, state, duration, score}
 	}
-	return states, nil
+	return habits, nil
 }
 
 // getRangeName gets the range name given a date and start & end cells
