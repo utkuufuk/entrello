@@ -47,7 +47,7 @@ func (s source) FetchNewCards(ctx context.Context, cfg config.SourceConfig, now 
 // then returns a list of cards containing those
 func toCards(tasks []task, label string, now time.Time) (cards []trello.Card, err error) {
 	cards = make([]trello.Card, 0, len(tasks))
-	soon := now.AddDate(0, 0, 2)
+	soon := now.AddDate(0, 0, 1)
 	for _, t := range tasks {
 		d, ok, err := shouldCreateCard(t, soon)
 		if !ok {
