@@ -15,6 +15,11 @@ func (c Client) DeleteCard(card Card) error {
 
 // CreateCard creates a Trello card using the the Trello API
 func (c Client) CreateCard(card Card, now time.Time) error {
+	if card.Due == nil {
+		card.IDList = c.todoListId
+		return c.api.CreateCard(card, trello.Defaults())
+	}
+
 	dueYear := card.Due.Year()
 	dueMonth := card.Due.Month()
 	dueDay := card.Due.Day()
