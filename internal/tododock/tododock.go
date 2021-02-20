@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/utkuufuk/entrello/internal/config"
-	"github.com/utkuufuk/entrello/internal/trello"
+	"github.com/utkuufuk/entrello/pkg/trello"
 )
 
 const (

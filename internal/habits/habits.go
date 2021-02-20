@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/utkuufuk/entrello/internal/config"
-	"github.com/utkuufuk/entrello/internal/trello"
+	"github.com/utkuufuk/entrello/pkg/trello"
 	"google.golang.org/api/sheets/v4"
 )
 

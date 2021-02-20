@@ -10,7 +10,7 @@ import (
 	"github.com/utkuufuk/entrello/internal/github"
 	"github.com/utkuufuk/entrello/internal/habits"
 	"github.com/utkuufuk/entrello/internal/tododock"
-	"github.com/utkuufuk/entrello/internal/trello"
+	"github.com/utkuufuk/entrello/pkg/trello"
 )
 
 type source struct {

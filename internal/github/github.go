@@ -8,7 +8,7 @@ import (
 
 	"github.com/google/go-github/github"
 	"github.com/utkuufuk/entrello/internal/config"
-	"github.com/utkuufuk/entrello/internal/trello"
+	"github.com/utkuufuk/entrello/pkg/trello"
 	"golang.org/x/oauth2"
 )
 

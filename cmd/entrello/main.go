@@ -8,7 +8,7 @@ import (
 
 	"github.com/utkuufuk/entrello/internal/config"
 	"github.com/utkuufuk/entrello/internal/syslog"
-	"github.com/utkuufuk/entrello/internal/trello"
+	"github.com/utkuufuk/entrello/pkg/trello"
 )
 
 var (
