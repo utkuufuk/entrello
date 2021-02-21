@@ -13,10 +13,6 @@ import (
 	"github.com/utkuufuk/entrello/pkg/trello"
 )
 
-type source struct {
-	cfg config.Source
-}
-
 // getEnabledSources returns a slice of enabled sources & their labels as a separate slice
 func getEnabledSources(cfg config.Sources) (sources []config.Source, labels []string) {
 	arr := []config.Source{
