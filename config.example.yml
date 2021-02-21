@@ -15,37 +15,31 @@ telegram:
 
 sources:
   github_issues:
-    personal_access_token: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    source_config:
-      name: "Github Issues"
-      enabled: true
-      strict: true
-      label_id: xxxxxxxxxxxxxxxxxxxxxxxx
-      period:
-        type: minute
-        interval: 15
+    name: "Github Issues"
+    endpoint: https://<domain>:<port>/entrello
+    enabled: true
+    strict: true
+    label_id: xxxxxxxxxxxxxxxxxxxxxxxx
+    period:
+      type: minute
+      interval: 15
 
   tododock:
-    email: abc@def.com
-    password: xxxxxxxx
-    source_config:
-      name: "TodoDock"
-      enabled: true
-      strict: false
-      label_id: xxxxxxxxxxxxxxxxxxxxxxxx
-      period:
-        type: hour
-        interval: 1
+    name: "TodoDock"
+    endpoint: https://<domain>:<port>/entrello
+    enabled: true
+    strict: false
+    label_id: xxxxxxxxxxxxxxxxxxxxxxxx
+    period:
+      type: hour
+      interval: 1
 
   habits:
-    spreadsheet_id: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    credentials_file: credentials.json
-    token_file: token.json
-    source_config:
-      name: "Google Spreadsheet Habits"
-      enabled: true
-      strict: true
-      label_id: xxxxxxxxxxxxxxxxxxxxxxxx
-      period:
-        type: hour
-        interval: 12
+    name: "Google Spreadsheet Habits"
+    endpoint: https://<domain>:<port>/entrello
+    enabled: true
+    strict: true
+    label_id: xxxxxxxxxxxxxxxxxxxxxxxx
+    period:
+      type: hour
+      interval: 12
