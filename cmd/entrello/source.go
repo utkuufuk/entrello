@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -73,13 +72,7 @@ func shouldQuery(src config.Source, date time.Time) (bool, error) {
 func process(src config.Source, ctx context.Context, client trello.Client, wg *sync.WaitGroup) {
 	defer wg.Done()
 
-	req, err := json.Marshal(map[string]string{"label": src.Label})
-	if err != nil {
-		logger.Errorf("could not create JSON body for source '%s': %v", src.Name, err)
-		return
-	}
-
-	resp, err := http.Post(src.Endpoint, "application/json", bytes.NewBuffer(req))
+	resp, err := http.Get(src.Endpoint)
 	if err != nil {
 		logger.Errorf("could not send POST request to source '%s' endpoint: %v", src.Name, err)
 		return
