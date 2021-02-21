@@ -1,58 +1,51 @@
 package main
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
+	"net/http"
 	"sync"
 	"time"
 
 	"github.com/utkuufuk/entrello/internal/config"
-	"github.com/utkuufuk/entrello/internal/github"
-	"github.com/utkuufuk/entrello/internal/habits"
-	"github.com/utkuufuk/entrello/internal/tododock"
 	"github.com/utkuufuk/entrello/pkg/trello"
 )
 
-type source struct {
-	cfg config.SourceConfig
-	api interface {
-		FetchNewCards(ctx context.Context, cfg config.SourceConfig, now time.Time) ([]trello.Card, error)
-	}
-}
-
 // getEnabledSources returns a slice of enabled sources & their labels as a separate slice
-func getEnabledSources(cfg config.Sources) (sources []source, labels []string) {
-	arr := []source{
-		{cfg: cfg.GithubIssues.SourceConfig, api: github.GetSource(cfg.GithubIssues)},
-		{cfg: cfg.TodoDock.SourceConfig, api: tododock.GetSource(cfg.TodoDock)},
-		{cfg: cfg.Habits.SourceConfig, api: habits.GetSource(cfg.Habits)},
+func getEnabledSources(cfg config.Sources) (sources []config.Source, labels []string) {
+	arr := []config.Source{
+		cfg.GithubIssues,
+		cfg.TodoDock,
+		cfg.Habits,
 	}
 
 	for _, src := range arr {
-		if ok, err := src.shouldQuery(now); !ok {
+		if ok, err := shouldQuery(src, now); !ok {
 			if err != nil {
-				logger.Errorf("could not check if '%s' should be queried or not, skipping", src.cfg.Name)
+				logger.Errorf("could not check if '%s' should be queried or not, skipping", src.Name)
 			}
 			continue
 		}
 		sources = append(sources, src)
-		labels = append(labels, src.cfg.Label)
+		labels = append(labels, src.Label)
 	}
 	return sources, labels
 }
 
 // shouldQuery checks if a the source should be queried at the given time
-func (s source) shouldQuery(date time.Time) (bool, error) {
-	if !s.cfg.Enabled {
+func shouldQuery(src config.Source, date time.Time) (bool, error) {
+	if !src.Enabled {
 		return false, nil
 	}
 
-	interval := s.cfg.Period.Interval
+	interval := src.Period.Interval
 	if interval < 0 {
 		return false, fmt.Errorf("period interval must be a positive integer, got: '%d'", interval)
 	}
 
-	switch s.cfg.Period.Type {
+	switch src.Period.Type {
 	case config.PERIOD_TYPE_DEFAULT:
 		return true, nil
 	case config.PERIOD_TYPE_DAY:
@@ -72,22 +65,34 @@ func (s source) shouldQuery(date time.Time) (bool, error) {
 		return date.Minute()%interval == 0, nil
 	}
 
-	return false, fmt.Errorf("unrecognized source period type: '%s'", s.cfg.Period.Type)
+	return false, fmt.Errorf("unrecognized source period type: '%s'", src.Period.Type)
 }
 
 // process fetches cards from the source and creates the ones that don't already exist,
 // also deletes the stale cards if strict mode is enabled
-func (s source) process(ctx context.Context, client trello.Client, wg *sync.WaitGroup) {
+func process(src config.Source, ctx context.Context, client trello.Client, wg *sync.WaitGroup) {
 	defer wg.Done()
 
-	cards, err := s.api.FetchNewCards(ctx, s.cfg, now)
+	req, err := json.Marshal(map[string]string{"label": src.Label})
 	if err != nil {
-		logger.Errorf("could not fetch cards for source '%s': %v", s.cfg.Name, err)
+		logger.Errorf("could not create JSON body for source '%s': %v", src.Name, err)
 		return
 	}
 
-	new, stale := client.FilterNewAndStale(cards, s.cfg.Label)
+	resp, err := http.Post(src.Endpoint, "application/json", bytes.NewBuffer(req))
+	if err != nil {
+		logger.Errorf("could not send POST request to source '%s' endpoint: %v", src.Name, err)
+		return
+	}
+	defer resp.Body.Close()
 
+	var cards []trello.Card
+	if err = json.NewDecoder(resp.Body).Decode(&cards); err != nil {
+		logger.Errorf("could not decode cards received from source '%s': %v", src.Name, err)
+		return
+	}
+
+	new, stale := client.FilterNewAndStale(cards, src.Label)
 	for _, c := range new {
 		if err := client.CreateCard(c, now); err != nil {
 			logger.Errorf("could not create Trello card: %v", err)
@@ -96,7 +101,7 @@ func (s source) process(ctx context.Context, client trello.Client, wg *sync.Wait
 		logger.Debugf("created new card: %s", c.Name)
 	}
 
-	if !s.cfg.Strict {
+	if !src.Strict {
 		return
 	}
 

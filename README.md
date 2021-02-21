@@ -6,16 +6,7 @@
 
 Run this as a cron job to periodically check custom data sources and automatically create Trello cards based on custom filters.
 
-An example use case (which is already implemented) could be to create a Trello card for each GitHub issue that's been assigned to you.
-
-## Currently Available Sources
-| | |
-|:-|:-|
-| Assigned Github Issues                |   https://github.com/issues/assigned      |
-| TodoDock Tasks                        |   https://tododock.com                    |
-| Daily Habits (Google Spreadsheets)    |   https://www.google.com/sheets/about/    |
-
-Feel free to add new sources or improve the implementations of the existing ones. Contributions are always welcome!
+An example use case could be to create a Trello card for each GitHub issue that's been assigned to you.
 
 ## Configuration
 Copy and rename `config.example.yml` as `config.yml`, then set your own values in `config.yml`. Most of the configuration parameters are self explanatory, so the following only covers some of them:
@@ -36,6 +27,7 @@ You need a Telegram token & a chat ID in order to enable the integration if you 
 ### Data Sources
 Every data source must have the following configuration parameters under the `source_config` key:
 * `name`
+* `endpoint`
 * `enabled`
 * `strict`
 * `label_id`
@@ -95,14 +87,3 @@ Both of the following jobs run every hour and both assume that `config.yml` is l
 # 'config.yml' should be located in '/path/to/binary'
 0 * * * * cd /path/to/binary && ./entrello
 ```
-
-## 3rd Party Dependencies
-| | |
-|:-|:-|
-| [adlio/trello](https://github.com/adlio/trello)           | Trello API Client |
-| [go-telegram-bot-api/telegram-bot-api](https://github.com/go-telegram-bot-api/telegram-bot-api) | Telegram Bot API |
-| [google/go-cmp](https://github.com/google/go-cmp)         | Equality Comparisons in Tests |
-| [go-github/github](https://github.com/google/go-github)   | GitHub API Client |
-| [golang/oauth2](https://github.com/golang/oauth2)         | OAuth 2.0 Client |
-| [googleapis/google-api-go-client](https://github.com/googleapis/google-api-go-client) | Google API Client |
-| [go-yaml/yaml](https://github.com/go-yaml/yaml)           | Decoding YAML Configuration |

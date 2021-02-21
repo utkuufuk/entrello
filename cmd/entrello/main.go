@@ -59,7 +59,7 @@ func main() {
 	var wg sync.WaitGroup
 	wg.Add(len(sources))
 	for _, src := range sources {
-		go src.process(ctx, client, &wg)
+		go process(src, ctx, client, &wg)
 	}
 	wg.Wait()
 }
