@@ -73,9 +73,7 @@ func shouldQuery(src config.Source, date time.Time) (bool, error) {
 func process(src config.Source, ctx context.Context, client trello.Client, wg *sync.WaitGroup) {
 	defer wg.Done()
 
-	req, err := json.Marshal(map[string]string{
-		"label": src.Label,
-	})
+	req, err := json.Marshal(map[string]string{"label": src.Label})
 	if err != nil {
 		logger.Errorf("could not create JSON body for source '%s': %v", src.Name, err)
 		return
@@ -89,14 +87,12 @@ func process(src config.Source, ctx context.Context, client trello.Client, wg *s
 	defer resp.Body.Close()
 
 	var cards []trello.Card
-	json.NewDecoder(resp.Body).Decode(&cards)
-
-	for _, c := range cards {
-		fmt.Println(c.Name)
+	if err = json.NewDecoder(resp.Body).Decode(&cards); err != nil {
+		logger.Errorf("could not decode cards received from source '%s': %v", src.Name, err)
+		return
 	}
 
 	new, stale := client.FilterNewAndStale(cards, src.Label)
-
 	for _, c := range new {
 		if err := client.CreateCard(c, now); err != nil {
 			logger.Errorf("could not create Trello card: %v", err)
