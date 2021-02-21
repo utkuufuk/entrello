@@ -94,7 +94,7 @@ func process(src config.Source, ctx context.Context, client trello.Client, wg *s
 
 	new, stale := client.FilterNewAndStale(cards, src.Label)
 	for _, c := range new {
-		if err := client.CreateCard(c, now); err != nil {
+		if err := client.CreateCard(c, src.Label, now); err != nil {
 			logger.Errorf("could not create Trello card: %v", err)
 			continue
 		}

@@ -11,32 +11,22 @@ import (
 
 func TestNewCard(t *testing.T) {
 	tt := []struct {
-		name   string
-		cName  string
-		cLabel string
-		cDesc  string
-		err    error
+		name  string
+		cName string
+		cDesc string
+		err   error
 	}{
 		{
-			name:   "no errors",
-			cName:  "name",
-			cLabel: "label",
-			cDesc:  "desc",
-			err:    nil,
+			name:  "no errors",
+			cName: "name",
+			cDesc: "desc",
+			err:   nil,
 		},
 		{
-			name:   "missing name",
-			cName:  "",
-			cLabel: "label",
-			cDesc:  "desc",
-			err:    fmt.Errorf("card name cannot be blank"),
-		},
-		{
-			name:   "missing label ID",
-			cName:  "name",
-			cLabel: "",
-			cDesc:  "desc",
-			err:    fmt.Errorf("label ID cannot be blank"),
+			name:  "missing name",
+			cName: "",
+			cDesc: "desc",
+			err:   fmt.Errorf("card name cannot be blank"),
 		},
 	}
 
@@ -47,7 +37,7 @@ func TestNewCard(t *testing.T) {
 				return (x == nil && y == nil) || (x.Error() == y.Error())
 			}))
 
-			_, err := NewCard(tc.cName, tc.cLabel, tc.cDesc, nil)
+			_, err := NewCard(tc.cName, tc.cDesc, nil)
 			if diff := cmp.Diff(err, tc.err, opts...); diff != "" {
 				t.Errorf("errors diff: %s", diff)
 			}

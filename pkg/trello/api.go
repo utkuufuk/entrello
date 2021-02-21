@@ -14,7 +14,9 @@ func (c Client) DeleteCard(card Card) error {
 }
 
 // CreateCard creates a Trello card using the the Trello API
-func (c Client) CreateCard(card Card, now time.Time) error {
+func (c Client) CreateCard(card Card, label string, now time.Time) error {
+	card.IDLabels = []string{label}
+
 	if card.Due == nil {
 		card.IDList = c.todoListId
 		return c.api.CreateCard(card, trello.Defaults())

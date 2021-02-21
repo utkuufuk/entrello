@@ -32,22 +32,17 @@ func NewClient(cfg config.Trello) (client Client, err error) {
 	}, nil
 }
 
-// NewCard creates a new Trello card model with the given mandatory fields name, label, description,
-// and the optional dueDate field
-func NewCard(name, label, description string, dueDate *time.Time) (card Card, err error) {
+// NewCard creates a new Trello card model with the given mandatory fields name,
+// and the optional description and dueDate fields
+func NewCard(name, description string, dueDate *time.Time) (card Card, err error) {
 	if name == "" {
 		return card, fmt.Errorf("card name cannot be blank")
 	}
 
-	if label == "" {
-		return card, fmt.Errorf("label ID cannot be blank")
-	}
-
 	return &trello.Card{
-		Name:     name,
-		Desc:     description,
-		Due:      dueDate,
-		IDLabels: []string{label},
+		Name: name,
+		Desc: description,
+		Due:  dueDate,
 	}, nil
 }
 
