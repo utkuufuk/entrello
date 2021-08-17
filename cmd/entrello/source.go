@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"sync"
 	"time"
@@ -78,6 +79,16 @@ func process(src config.Source, ctx context.Context, client trello.Client, wg *s
 		return
 	}
 	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		body, err := ioutil.ReadAll(resp.Body)
+		msg := string(body)
+		if err != nil {
+			msg = err.Error()
+		}
+		logger.Errorf("could not retrieve cards from source '%s': %v", src.Name, msg)
+		return
+	}
 
 	var cards []trello.Card
 	if err = json.NewDecoder(resp.Body).Decode(&cards); err != nil {
