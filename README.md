@@ -28,13 +28,10 @@ You need a Telegram token & a chat ID in order to enable the integration if you 
 Every data source must have the following configuration parameters under the `source_config` key:
 * `name`
 * `endpoint`
-* `enabled`
 * `strict`
 * `label_id`
+* `list_id`
 * `period`
-
-#### **`enabled`**
-In order to disable a source, just update the `enabled` flag to `false`. There's no need to remove/edit the other parameters for that source.
 
 #### **`strict`**
 Strict mode, which is recommended for most cases, can be enabled for individual data sources by setting the `strict` flag to `true`.
@@ -45,6 +42,9 @@ For instance, strict mode can be used to automatically remove resolved GitHub is
 
 #### **`label_id`**
 Each data source must have a distinct Trello label associated with it.
+
+#### **`list_id`**
+Each data source must have a target Trello list ID associated with it.
 
 #### **`period`**
 You can define a custom query period for each source, by populating the `type` and `interval` fields under the `period` for a source.
