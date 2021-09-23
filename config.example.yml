@@ -5,8 +5,6 @@ trello:
   api_key: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
   api_token: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
   board_id: xxxxxxxxxxxxxxxxxxxxxxxx
-  todo_list_id: xxxxxxxxxxxxxxxxxxxxxxxx
-  today_list_id: xxxxxxxxxxxxxxxxxxxxxxxx
 
 telegram:
   enabled: true
@@ -17,9 +15,9 @@ sources:
   github_issues:
     name: "Github Issues"
     endpoint: https://<domain>:<port>/entrello
-    enabled: true
     strict: true
     label_id: xxxxxxxxxxxxxxxxxxxxxxxx
+    list_id: xxxxxxxxxxxxxxxxxxxxxxxx
     period:
       type: minute
       interval: 15
@@ -27,9 +25,9 @@ sources:
   tododock:
     name: "TodoDock"
     endpoint: https://<domain>:<port>/entrello
-    enabled: true
     strict: false
     label_id: xxxxxxxxxxxxxxxxxxxxxxxx
+    list_id: xxxxxxxxxxxxxxxxxxxxxxxx
     period:
       type: hour
       interval: 1
@@ -37,9 +35,9 @@ sources:
   habits:
     name: "Google Spreadsheet Habits"
     endpoint: https://<domain>:<port>/entrello
-    enabled: true
     strict: true
     label_id: xxxxxxxxxxxxxxxxxxxxxxxx
+    list_id: xxxxxxxxxxxxxxxxxxxxxxxx
     period:
       type: hour
       interval: 12

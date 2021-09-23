@@ -49,67 +49,39 @@ func TestNewClient(t *testing.T) {
 	str := "placeholder"
 
 	tt := []struct {
-		name        string
-		boardId     string
-		todoListId  string
-		todayListId string
-		apiKey      string
-		apiToken    string
-		err         bool
+		name     string
+		boardId  string
+		apiKey   string
+		apiToken string
+		err      bool
 	}{
 		{
-			name:        "no errors",
-			boardId:     str,
-			todoListId:  str,
-			todayListId: str,
-			apiKey:      str,
-			apiToken:    str,
-			err:         false,
+			name:     "no errors",
+			boardId:  str,
+			apiKey:   str,
+			apiToken: str,
+			err:      false,
 		},
 		{
-			name:        "missing board ID",
-			boardId:     "",
-			todoListId:  str,
-			todayListId: str,
-			apiKey:      str,
-			apiToken:    str,
-			err:         true,
+			name:     "missing board ID",
+			boardId:  "",
+			apiKey:   str,
+			apiToken: str,
+			err:      true,
 		},
 		{
-			name:        "missing today list ID",
-			boardId:     str,
-			todoListId:  str,
-			todayListId: "",
-			apiKey:      str,
-			apiToken:    str,
-			err:         true,
+			name:     "missing api key",
+			boardId:  str,
+			apiKey:   "",
+			apiToken: str,
+			err:      true,
 		},
 		{
-			name:        "missing todo list ID",
-			boardId:     str,
-			todoListId:  "",
-			todayListId: str,
-			apiKey:      str,
-			apiToken:    str,
-			err:         true,
-		},
-		{
-			name:        "missing api key",
-			boardId:     str,
-			todoListId:  str,
-			todayListId: str,
-			apiKey:      "",
-			apiToken:    str,
-			err:         true,
-		},
-		{
-			name:        "missing api token",
-			boardId:     str,
-			todoListId:  str,
-			todayListId: str,
-			apiKey:      str,
-			apiToken:    "",
-			err:         true,
+			name:     "missing api token",
+			boardId:  str,
+			apiKey:   str,
+			apiToken: "",
+			err:      true,
 		},
 	}
 
@@ -117,11 +89,9 @@ func TestNewClient(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			cfg := config.Config{
 				Trello: config.Trello{
-					ApiKey:      tc.apiKey,
-					ApiToken:    tc.apiToken,
-					BoardId:     tc.boardId,
-					TodoListId:  tc.todoListId,
-					TodayListId: tc.todayListId,
+					ApiKey:   tc.apiKey,
+					ApiToken: tc.apiToken,
+					BoardId:  tc.boardId,
 				},
 				Sources: config.Sources{},
 			}

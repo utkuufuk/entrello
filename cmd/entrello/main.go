@@ -38,8 +38,8 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
-	// get a list of enabled sources and the corresponding labels for each source
-	sources, labels := getEnabledSources(cfg.Sources)
+	// get a list of sources and the corresponding labels for each source
+	sources, labels := getSources(cfg.Sources)
 	if len(sources) == 0 {
 		return
 	}
