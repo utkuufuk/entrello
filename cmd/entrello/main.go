@@ -18,7 +18,7 @@ var (
 )
 
 func main() {
-	// read configuration file
+	// read configuration file path
 	var configFile string
 	flag.StringVar(&configFile, "c", "config.yml", "config file path")
 	flag.Parse()
