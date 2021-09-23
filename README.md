@@ -9,7 +9,14 @@ Run this as a cron job to periodically check custom data sources and automatical
 An example use case could be to create a Trello card for each GitHub issue that's been assigned to you.
 
 ## Configuration
-Copy and rename `config.example.yml` as `config.yml`, then set your own values in `config.yml`. Most of the configuration parameters are self explanatory, so the following only covers some of them:
+Copy and rename `config.example.yml` as `config.yml` (default), then set your own values in `config.yml`.
+
+You can also use a non-default config file path using the `-c` flag:
+```console
+go run ./cmd/entrello -c /path/to/config/file
+```
+
+Most of the configuration parameters are self explanatory, so the following only covers the important ones:
 
 ### Global Timeout
 You can edit the `timeout_secs` config value in order to update global timeout (in seconds) for a single execution.
@@ -17,9 +24,7 @@ You can edit the `timeout_secs` config value in order to update global timeout (
 The execution will not terminate until the timeout is reached, so it's important that the timeout is shorter than the cron job period.
 
 ### Trello
-You need to set your [Trello API key & token](https://trello.com/app-key) in the configuraiton file, as well as the Trello board & list IDs.
-
-The given list will be the one that new cards is going to be inserted, and it has to be in the given board.
+You need to set your [Trello API key & token](https://trello.com/app-key) in the configuraiton file, as well as the Trello board ID.
 
 ### Telegram
 You need a Telegram token & a chat ID in order to enable the integration if you want to receive messages on card updates & possible errors.
@@ -44,7 +49,7 @@ For instance, strict mode can be used to automatically remove resolved GitHub is
 Each data source must have a distinct Trello label associated with it.
 
 #### **`list_id`**
-Each data source must have a target Trello list ID associated with it.
+Each data source must have a target Trello list ID associated with it. The selected list must be in the same board as configured via the `board_id` parameter.
 
 #### **`period`**
 You can define a custom query period for each source, by populating the `type` and `interval` fields under the `period` for a source.
@@ -79,7 +84,7 @@ Both of the following jobs run every hour and both assume that `config.yml` is l
 ``` sh
 # use "go run"
 # 'config.yml' should be located in '/home/utku/git/entrello'
-# your go executable may or may not be located in the same place (i.e. /usr/local/go/bin/)
+# your go executable may or may not be located in the same location (i.e. /usr/local/go/bin/)
 0 * * * * cd /home/utku/git/entrello && /usr/local/go/bin/go run ./cmd/entrello
 
 # use binary executable

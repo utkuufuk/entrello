@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"flag"
 	"log"
 	"sync"
 	"time"
@@ -17,10 +18,15 @@ var (
 )
 
 func main() {
+	// read configuration file path
+	var configFile string
+	flag.StringVar(&configFile, "c", "config.yml", "config file path")
+	flag.Parse()
+
 	// read config params
-	cfg, err := config.ReadConfig("config.yml")
+	cfg, err := config.ReadConfig(configFile)
 	if err != nil {
-		log.Fatalf("Could not read config variables: %v", err)
+		log.Fatalf("Could not read configuration: %v", err)
 	}
 
 	// get a system logger instance
@@ -29,7 +35,7 @@ func main() {
 	// get current time for the configured location
 	loc, err := time.LoadLocation(cfg.TimezoneLocation)
 	if err != nil {
-		logger.Fatalf("invalid timezone location: %v", loc)
+		logger.Fatalf("Invalid timezone location: %v", loc)
 	}
 	now = time.Now().In(loc)
 
@@ -47,12 +53,12 @@ func main() {
 	// initialize the Trello client
 	client, err := trello.NewClient(cfg.Trello)
 	if err != nil {
-		logger.Fatalf("could not create trello client: %v", err)
+		logger.Fatalf("Could not create trello client: %v", err)
 	}
 
 	// load Trello cards from the board with relevant labels
 	if err := client.LoadBoard(labels); err != nil {
-		logger.Fatalf("could not load existing cards from the board: %v", err)
+		logger.Fatalf("Could not load existing cards from the board: %v", err)
 	}
 
 	// fetch new cards from each source and handle the new & stale ones
