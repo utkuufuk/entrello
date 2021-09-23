@@ -2,7 +2,6 @@ package trello
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/adlio/trello"
 )
@@ -14,33 +13,9 @@ func (c Client) DeleteCard(card Card) error {
 }
 
 // CreateCard creates a Trello card using the the Trello API
-func (c Client) CreateCard(card Card, label string, now time.Time) error {
+func (c Client) CreateCard(card Card, label string, listId string) error {
 	card.IDLabels = []string{label}
-
-	if card.Due == nil {
-		card.IDList = c.todoListId
-		return c.api.CreateCard(card, trello.Defaults())
-	}
-
-	dueYear := card.Due.Year()
-	dueMonth := card.Due.Month()
-	dueDay := card.Due.Day()
-
-	thisYear := now.Year()
-	thisMonth := now.Month()
-	today := now.Day()
-
-	// insert into the todo list, unless the due date is sometime today
-	if dueYear > thisYear {
-		card.IDList = c.todoListId
-	} else if dueYear == thisYear && dueMonth > thisMonth {
-		card.IDList = c.todoListId
-	} else if dueYear == thisYear && dueMonth == thisMonth && dueDay > today {
-		card.IDList = c.todoListId
-	} else {
-		card.IDList = c.todayListId
-	}
-
+	card.IDList = listId
 	return c.api.CreateCard(card, trello.Defaults())
 }
 

@@ -5,94 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/google/go-cmp/cmp"
 	"github.com/utkuufuk/entrello/internal/config"
 )
-
-func TestGetEnabledSources(t *testing.T) {
-	period := config.Period{
-		Type:     config.PERIOD_TYPE_DEFAULT,
-		Interval: 0,
-	}
-
-	tt := []struct {
-		name            string
-		githubIssuesCfg config.Source
-		todoDockCfg     config.Source
-		numResults      int
-		labels          []string
-	}{
-		{
-			name:            "nothing enabled",
-			githubIssuesCfg: config.Source{Enabled: false, Period: period},
-			todoDockCfg:     config.Source{Enabled: false, Period: period},
-			numResults:      0,
-		},
-		{
-			name: "only github issues enabled",
-			githubIssuesCfg: config.Source{
-				Enabled: true,
-				Period:  period,
-				Label:   "github-label",
-			},
-			todoDockCfg: config.Source{Enabled: false, Period: period},
-			numResults:  1,
-			labels:      []string{"github-label"},
-		},
-		{
-			name:            "only tododock enabled",
-			githubIssuesCfg: config.Source{Enabled: false, Period: period},
-			todoDockCfg: config.Source{
-				Enabled: true,
-				Period:  period,
-				Label:   "tododock-label",
-			},
-			numResults: 1,
-			labels:     []string{"tododock-label"},
-		},
-		{
-			name: "all enabled",
-			githubIssuesCfg: config.Source{
-				Enabled: true,
-				Period:  period,
-				Label:   "github-label",
-			},
-			todoDockCfg: config.Source{
-				Enabled: true,
-				Period:  period,
-				Label:   "tododock-label",
-			},
-			numResults: 2,
-			labels:     []string{"github-label", "tododock-label"},
-		},
-	}
-
-	for _, tc := range tt {
-		t.Run(tc.name, func(t *testing.T) {
-			cfg := config.Sources{
-				GithubIssues: tc.githubIssuesCfg,
-				TodoDock:     tc.todoDockCfg,
-			}
-
-			sources, labels := getEnabledSources(cfg)
-			if len(sources) != tc.numResults {
-				t.Errorf("expected %d source(s); got %v", tc.numResults, len(sources))
-			}
-
-			if len(labels) != tc.numResults {
-				t.Errorf("expected %d label(s); got %v", tc.numResults, len(labels))
-			}
-
-			if tc.numResults == 0 {
-				return
-			}
-
-			if diff := cmp.Diff(labels, tc.labels); diff != "" {
-				t.Errorf("labels diff: %s", diff)
-			}
-		})
-	}
-}
 
 func TestShouldQuery(t *testing.T) {
 	tt := []struct {
@@ -228,7 +142,6 @@ func TestShouldQuery(t *testing.T) {
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
 			src := config.Source{
-				Enabled: true,
 				Period: config.Period{
 					Type:     tc.pType,
 					Interval: tc.pInterval,

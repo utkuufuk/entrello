@@ -22,9 +22,9 @@ type Period struct {
 type Source struct {
 	Name     string `yaml:"name"`
 	Endpoint string `yaml:"endpoint"`
-	Enabled  bool   `yaml:"enabled"`
 	Strict   bool   `yaml:"strict"`
 	Label    string `yaml:"label_id"`
+	List     string `yaml:"list_id"`
 	Period   Period `yaml:"period"`
 }
 
@@ -35,11 +35,9 @@ type Sources struct {
 }
 
 type Trello struct {
-	ApiKey      string `yaml:"api_key"`
-	ApiToken    string `yaml:"api_token"`
-	BoardId     string `yaml:"board_id"`
-	TodoListId  string `yaml:"todo_list_id"`
-	TodayListId string `yaml:"today_list_id"`
+	ApiKey   string `yaml:"api_key"`
+	ApiToken string `yaml:"api_token"`
+	BoardId  string `yaml:"board_id"`
 }
 
 type Telegram struct {

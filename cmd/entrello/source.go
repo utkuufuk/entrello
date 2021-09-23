@@ -13,8 +13,8 @@ import (
 	"github.com/utkuufuk/entrello/pkg/trello"
 )
 
-// getEnabledSources returns a slice of enabled sources & their labels as a separate slice
-func getEnabledSources(cfg config.Sources) (sources []config.Source, labels []string) {
+// getSources returns a slice of sources & their labels as a separate slice
+func getSources(cfg config.Sources) (sources []config.Source, labels []string) {
 	arr := []config.Source{
 		cfg.GithubIssues,
 		cfg.TodoDock,
@@ -36,10 +36,6 @@ func getEnabledSources(cfg config.Sources) (sources []config.Source, labels []st
 
 // shouldQuery checks if a the source should be queried at the given time
 func shouldQuery(src config.Source, date time.Time) (bool, error) {
-	if !src.Enabled {
-		return false, nil
-	}
-
 	interval := src.Period.Interval
 	if interval < 0 {
 		return false, fmt.Errorf("period interval must be a positive integer, got: '%d'", interval)
@@ -98,7 +94,7 @@ func process(src config.Source, ctx context.Context, client trello.Client, wg *s
 
 	new, stale := client.FilterNewAndStale(cards, src.Label)
 	for _, c := range new {
-		if err := client.CreateCard(c, src.Label, now); err != nil {
+		if err := client.CreateCard(c, src.Label, src.List); err != nil {
 			logger.Errorf("could not create Trello card: %v", err)
 			continue
 		}
