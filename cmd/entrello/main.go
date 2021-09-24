@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"flag"
 	"log"
 	"sync"
@@ -14,7 +13,6 @@ import (
 
 var (
 	logger syslog.Logger
-	now    time.Time
 )
 
 func main() {
@@ -37,15 +35,9 @@ func main() {
 	if err != nil {
 		logger.Fatalf("Invalid timezone location: %v", loc)
 	}
-	now = time.Now().In(loc)
-
-	// set global timeout
-	timeout := time.Second * time.Duration(cfg.TimeoutSeconds)
-	ctx, cancel := context.WithTimeout(context.Background(), timeout)
-	defer cancel()
 
 	// get a list of sources and the corresponding labels for each source
-	sources, labels := getSources(cfg.Sources)
+	sources, labels := getSources(cfg.Sources, time.Now().In(loc))
 	if len(sources) == 0 {
 		return
 	}
@@ -65,7 +57,7 @@ func main() {
 	var wg sync.WaitGroup
 	wg.Add(len(sources))
 	for _, src := range sources {
-		go process(src, ctx, client, &wg)
+		go process(src, client, &wg)
 	}
 	wg.Wait()
 }

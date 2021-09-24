@@ -18,11 +18,6 @@ go run ./cmd/entrello -c /path/to/config/file
 
 Most of the configuration parameters are self explanatory, so the following only covers the important ones:
 
-### Global Timeout
-You can edit the `timeout_secs` config value in order to update global timeout (in seconds) for a single execution.
-
-The execution will not terminate until the timeout is reached, so it's important that the timeout is shorter than the cron job period.
-
 ### Trello
 You need to set your [Trello API key & token](https://trello.com/app-key) in the configuraiton file, as well as the Trello board ID.
 

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -14,7 +13,7 @@ import (
 )
 
 // getSources returns a slice of sources & their labels as a separate slice
-func getSources(cfg config.Sources) (sources []config.Source, labels []string) {
+func getSources(cfg config.Sources, now time.Time) (sources []config.Source, labels []string) {
 	arr := []config.Source{
 		cfg.GithubIssues,
 		cfg.TodoDock,
@@ -66,12 +65,12 @@ func shouldQuery(src config.Source, date time.Time) (bool, error) {
 
 // process fetches cards from the source and creates the ones that don't already exist,
 // also deletes the stale cards if strict mode is enabled
-func process(src config.Source, ctx context.Context, client trello.Client, wg *sync.WaitGroup) {
+func process(src config.Source, client trello.Client, wg *sync.WaitGroup) {
 	defer wg.Done()
 
 	resp, err := http.Get(src.Endpoint)
 	if err != nil {
-		logger.Errorf("could not send POST request to source '%s' endpoint: %v", src.Name, err)
+		logger.Errorf("could not make GET request to source '%s' endpoint: %v", src.Name, err)
 		return
 	}
 	defer resp.Body.Close()

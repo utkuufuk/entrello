@@ -1,5 +1,4 @@
 timezone_location: Europe/Istanbul
-timeout_secs: 45
 
 trello:
   api_key: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx

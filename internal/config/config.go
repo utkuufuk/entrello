@@ -48,7 +48,6 @@ type Telegram struct {
 
 type Config struct {
 	TimezoneLocation string   `yaml:"timezone_location"`
-	TimeoutSeconds   int      `yaml:"timeout_secs"`
 	Trello           Trello   `yaml:"trello"`
 	Sources          Sources  `yaml:"sources"`
 	Telegram         Telegram `yaml:"telegram"`
