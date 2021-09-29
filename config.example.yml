@@ -11,8 +11,7 @@ telegram:
   chat_id: 1234567890
 
 sources:
-  github_issues:
-    name: "Github Issues"
+  - name: "Github Issues"
     endpoint: https://<domain>:<port>/entrello
     strict: true
     label_id: xxxxxxxxxxxxxxxxxxxxxxxx
@@ -21,8 +20,7 @@ sources:
       type: minute
       interval: 15
 
-  tododock:
-    name: "TodoDock"
+  - name: "TodoDock"
     endpoint: https://<domain>:<port>/entrello
     strict: false
     label_id: xxxxxxxxxxxxxxxxxxxxxxxx
@@ -31,8 +29,7 @@ sources:
       type: hour
       interval: 1
 
-  habits:
-    name: "Google Spreadsheet Habits"
+  - name: "Google Spreadsheet Habits"
     endpoint: https://<domain>:<port>/entrello
     strict: true
     label_id: xxxxxxxxxxxxxxxxxxxxxxxx
