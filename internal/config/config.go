@@ -28,12 +28,6 @@ type Source struct {
 	Period   Period `yaml:"period"`
 }
 
-type Sources struct {
-	GithubIssues Source `yaml:"github_issues"`
-	TodoDock     Source `yaml:"tododock"`
-	Habits       Source `yaml:"habits"`
-}
-
 type Trello struct {
 	ApiKey   string `yaml:"api_key"`
 	ApiToken string `yaml:"api_token"`
@@ -49,7 +43,7 @@ type Telegram struct {
 type Config struct {
 	TimezoneLocation string   `yaml:"timezone_location"`
 	Trello           Trello   `yaml:"trello"`
-	Sources          Sources  `yaml:"sources"`
+	Sources          []Source `yaml:"sources"`
 	Telegram         Telegram `yaml:"telegram"`
 }
 

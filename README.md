@@ -12,7 +12,7 @@ An example use case could be to create a Trello card for each GitHub issue that'
 Copy and rename `config.example.yml` as `config.yml` (default), then set your own values in `config.yml`.
 
 You can also use a non-default config file path using the `-c` flag:
-```console
+```sh
 go run ./cmd/entrello -c /path/to/config/file
 ```
 

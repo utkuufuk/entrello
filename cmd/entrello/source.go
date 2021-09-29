@@ -12,15 +12,9 @@ import (
 	"github.com/utkuufuk/entrello/pkg/trello"
 )
 
-// getSources returns a slice of sources & their labels as a separate slice
-func getSources(cfg config.Sources, now time.Time) (sources []config.Source, labels []string) {
-	arr := []config.Source{
-		cfg.GithubIssues,
-		cfg.TodoDock,
-		cfg.Habits,
-	}
-
-	for _, src := range arr {
+// getSources returns a slice of sources & all source labels as a separate slice
+func getSources(srcArr []config.Source, now time.Time) (sources []config.Source, labels []string) {
+	for _, src := range srcArr {
 		if ok, err := shouldQuery(src, now); !ok {
 			if err != nil {
 				logger.Errorf("could not check if '%s' should be queried or not, skipping", src.Name)

@@ -93,7 +93,7 @@ func TestNewClient(t *testing.T) {
 					ApiToken: tc.apiToken,
 					BoardId:  tc.boardId,
 				},
-				Sources: config.Sources{},
+				Sources: []config.Source{},
 			}
 			_, err := NewClient(cfg.Trello)
 			if (err != nil && !tc.err) || err == nil && tc.err {
