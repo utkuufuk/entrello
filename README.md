@@ -4,52 +4,50 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/utkuufuk/entrello)](https://goreportcard.com/report/github.com/utkuufuk/entrello)
 [![Coverage Status](https://coveralls.io/repos/github/utkuufuk/entrello/badge.svg)](https://coveralls.io/github/utkuufuk/entrello)
 
-Run this as a cron job to periodically check custom data sources and automatically create Trello cards based on custom filters.
+Run this as a cron job to periodically poll your data sources via HTTP and automatically create/update/delete Trello cards based on fresh data.
 
-An example use case could be to create a Trello card for each GitHub issue that's been assigned to you.
+An example use case could be to create a Trello card for each GitHub issue that's assigned to you.
+
+Your data sources must return a JSON array of Trello card objects upon a `GET` request. You can import and use the `NewCard` function from `pkg/trello/trello.go` in order to construct Trello card objects.
 
 ## Configuration
 Copy and rename `config.example.yml` as `config.yml` (default), then set your own values in `config.yml`.
 
-You can also use a non-default config file path using the `-c` flag:
+You can also use a custom config file path using the `-c` flag:
 ```sh
 go run ./cmd/entrello -c /path/to/config/file
 ```
-
-Most of the configuration parameters are self explanatory, so the following only covers the important ones:
 
 ### Trello
 You need to set your [Trello API key & token](https://trello.com/app-key) in the configuraiton file, as well as the Trello board ID.
 
 ### Telegram
-You need a Telegram token & a chat ID in order to enable the integration if you want to receive messages on card updates & possible errors.
+You need a Telegram token & a chat ID in order to receive alerts in case of errors.
 
 ### Data Sources
-Every data source must have the following configuration parameters under the `source_config` key:
-* `name`
-* `endpoint`
-* `strict`
-* `label_id`
-* `list_id`
-* `period`
+Each data source must have the following configuration parameters. Refer to `config.example.yml` for examples.
+
+#### **`name`**
+Data source name.
+
+#### **`endpoint`**
+Data source endpoint. `entrello` will make a `GET` request to this endpoint to fetch fresh cards from the data source. 
 
 #### **`strict`**
-Strict mode, which is recommended for most cases, can be enabled for individual data sources by setting the `strict` flag to `true`.
+When strict mode is enabled, previously auto-generated cards that are no longer present in the fresh data will be deleted.
 
-When strict mode is enabled, all the existing Trello cards in the board with the label for the corresponding data source will be deleted, unless the card also exists in the fresh data.
-
-For instance, strict mode can be used to automatically remove resolved GitHub issues from the board. Every time the source is queried, it will return an up-to-date set of open issues. If the board contains any cards that doesn't exist in that set, they will be automatically deleted.
+For instance, with a GitHub data source, strict mode can be useful for automatically removing previously auto-generated cards for issues/PRs from the board when the corresponding issues/PRs are closed/merged.
 
 #### **`label_id`**
-Each data source must have a distinct Trello label associated with it.
+**Distinct** Trello label ID associated with the data source.
 
 #### **`list_id`**
-Each data source must have a target Trello list ID associated with it. The selected list must be in the same board as configured via the `board_id` parameter.
+Trello list ID for the data source to determine where to insert new cards. The selected list must be in the same board as configured by the `board_id` parameter.
 
 #### **`period`**
-You can define a custom query period for each source, by populating the `type` and `interval` fields under the `period` for a source.
+Polling period for the data source.
 
-Example:
+Example configuration:
 ```yml
 # query at 3rd, 6th, 9th, ... of each month
 period:

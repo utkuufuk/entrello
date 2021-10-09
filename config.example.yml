@@ -12,7 +12,7 @@ telegram:
 
 sources:
   - name: "Github Issues"
-    endpoint: https://<domain>:<port>/entrello
+    endpoint: https://<IP>:<port>/entrello
     strict: true
     label_id: xxxxxxxxxxxxxxxxxxxxxxxx
     list_id: xxxxxxxxxxxxxxxxxxxxxxxx
@@ -21,7 +21,7 @@ sources:
       interval: 15
 
   - name: "TodoDock"
-    endpoint: https://<domain>:<port>/entrello
+    endpoint: https://<IP>:<port>/entrello
     strict: false
     label_id: xxxxxxxxxxxxxxxxxxxxxxxx
     list_id: xxxxxxxxxxxxxxxxxxxxxxxx
@@ -30,7 +30,7 @@ sources:
       interval: 1
 
   - name: "Google Spreadsheet Habits"
-    endpoint: https://<domain>:<port>/entrello
+    endpoint: https://<IP>:<port>/entrello
     strict: true
     label_id: xxxxxxxxxxxxxxxxxxxxxxxx
     list_id: xxxxxxxxxxxxxxxxxxxxxxxx
