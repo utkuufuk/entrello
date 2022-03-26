@@ -25,15 +25,17 @@ func handler(w http.ResponseWriter, req *http.Request) {
 
 	user, pwd, ok := req.BasicAuth()
 	if !ok {
-		fmt.Println("Error parsing basic auth")
+		logger.Warn("Could not parse basic auth.")
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 	if user != os.Getenv("USERNAME") {
+		logger.Warn("Invalid user name: %s", user)
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 	if pwd != os.Getenv("PASSWORD") {
+		logger.Warn("Invalid password: %s", pwd)
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
