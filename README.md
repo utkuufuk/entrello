@@ -21,11 +21,10 @@ go run ./cmd/entrello -c /path/to/config/file
 
 Alternatively, you can store the configuration inside the `ENTRELLO_CONFIG` environment variable as a JSON string.
 
-### Parameters
-#### Trello
+### Trello
 You need to set your [Trello API key & token](https://trello.com/app-key) in the configuraiton file, as well as the Trello board ID.
 
-#### Data Sources
+### Data Sources
 Each data source must have the following configuration parameters. (See `config.example.json`)
 
 #### `name`
