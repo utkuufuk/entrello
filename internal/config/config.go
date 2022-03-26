@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+
+	"github.com/utkuufuk/entrello/internal/logger"
 )
 
 const (
@@ -39,8 +41,19 @@ type Config struct {
 	Sources          []Source `json:"sources"`
 }
 
-// ReadConfig reads the JSON config file & decodes all parameters
 func ReadConfig(fileName string) (cfg Config, err error) {
+	jsonStr := os.Getenv("ENTRELLO_CONFIG")
+	if jsonStr != "" {
+		logger.Info("Attempting to read configuration from environment variable 'ENTRELLO_CONFIG'")
+		err = json.Unmarshal([]byte(jsonStr), &cfg)
+		if err != nil {
+			return cfg, fmt.Errorf("could not parse config stored in the environment variable: %s", err)
+		}
+
+		return cfg, nil
+	}
+
+	logger.Info("Attempting to read configuration from file '%s'", fileName)
 	f, err := os.Open(fileName)
 	if err != nil {
 		return cfg, fmt.Errorf("could not open config file: %v", err)
