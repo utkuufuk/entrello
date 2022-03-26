@@ -19,6 +19,7 @@ func main() {
 
 func handler(w http.ResponseWriter, req *http.Request) {
 	if req.Method != http.MethodPost {
+		logger.Warn("Method %s not allowed", req.Method)
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		return
 	}
@@ -42,12 +43,14 @@ func handler(w http.ResponseWriter, req *http.Request) {
 
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
+		logger.Error("Could not read request body: %v", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	var cfg config.Config
 	if err = json.Unmarshal(body, &cfg); err != nil {
+		logger.Warn("Invalid request body: %v", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}

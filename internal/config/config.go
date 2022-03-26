@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-
-	"github.com/utkuufuk/entrello/internal/logger"
 )
 
 const (
@@ -42,7 +40,6 @@ type Config struct {
 }
 
 func ReadConfig(fileName string) (cfg Config, err error) {
-	logger.Info("Attempting to read configuration from file '%s'", fileName)
 	f, err := os.Open(fileName)
 	if err != nil {
 		return cfg, fmt.Errorf("could not open config file: %v", err)
