@@ -1,0 +1,43 @@
+{
+  "timezone_location": "Europe/Istanbul",
+  "trello": {
+    "api_key": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "api_token": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "board_id": "xxxxxxxxxxxxxxxxxxxxxxxx"
+  },
+  "sources": [
+    {
+      "name": "Github Issues",
+      "endpoint": "http://<github-issues-endpoint>",
+      "strict": true,
+      "label_id": "xxxxxxxxxxxxxxxxxxxxxxxx",
+      "list_id": "xxxxxxxxxxxxxxxxxxxxxxxx",
+      "period": {
+        "type": "minute",
+        "interval": 15
+      }
+    },
+    {
+      "name": "Google Spreadsheet Habits",
+      "endpoint": "http://<habits-endpoint>",
+      "strict": true,
+      "label_id": "xxxxxxxxxxxxxxxxxxxxxxxx",
+      "list_id": "xxxxxxxxxxxxxxxxxxxxxxxx",
+      "period": {
+        "type": "hour",
+        "interval": 1
+      }
+    },
+    {
+      "name": "TodoDock",
+      "endpoint": "http://<tododock-endpoint>",
+      "strict": true,
+      "label_id": "xxxxxxxxxxxxxxxxxxxxxxxx",
+      "list_id": "xxxxxxxxxxxxxxxxxxxxxxxx",
+      "period": {
+        "type": "default",
+        "interval": 0
+      }
+    }
+  ]
+}

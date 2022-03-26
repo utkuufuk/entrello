@@ -1,2 +1,2 @@
-*config.yml
 *.json
+!config.example.json
