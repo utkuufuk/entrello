@@ -23,6 +23,21 @@ func handler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	user, pwd, ok := req.BasicAuth()
+	if !ok {
+		fmt.Println("Error parsing basic auth")
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+	if user != os.Getenv("USERNAME") {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+	if pwd != os.Getenv("PASSWORD") {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
