@@ -13,7 +13,6 @@ func Poll(cfg config.Config) error {
 	loc, err := time.LoadLocation(cfg.TimezoneLocation)
 	if err != nil {
 		return fmt.Errorf("invalid timezone location: %v", loc)
-
 	}
 
 	sources, labels := getSources(cfg.Sources, time.Now().In(loc))
