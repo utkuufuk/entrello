@@ -1,10 +1,9 @@
 package config
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
-
-	"gopkg.in/yaml.v2"
 )
 
 const (
@@ -15,39 +14,32 @@ const (
 )
 
 type Period struct {
-	Type     string `yaml:"type"`
-	Interval int    `yaml:"interval"`
+	Type     string `json:"type"`
+	Interval int    `json:"interval"`
 }
 
 type Source struct {
-	Name     string `yaml:"name"`
-	Endpoint string `yaml:"endpoint"`
-	Strict   bool   `yaml:"strict"`
-	Label    string `yaml:"label_id"`
-	List     string `yaml:"list_id"`
-	Period   Period `yaml:"period"`
+	Name     string `json:"name"`
+	Endpoint string `json:"endpoint"`
+	Strict   bool   `json:"strict"`
+	Label    string `json:"label_id"`
+	List     string `json:"list_id"`
+	Period   Period `json:"period"`
 }
 
 type Trello struct {
-	ApiKey   string `yaml:"api_key"`
-	ApiToken string `yaml:"api_token"`
-	BoardId  string `yaml:"board_id"`
-}
-
-type Telegram struct {
-	Enabled bool   `yaml:"enabled"`
-	Token   string `yaml:"token"`
-	ChatId  int64  `yaml:"chat_id"`
+	ApiKey   string `json:"api_key"`
+	ApiToken string `json:"api_token"`
+	BoardId  string `json:"board_id"`
 }
 
 type Config struct {
-	TimezoneLocation string   `yaml:"timezone_location"`
-	Trello           Trello   `yaml:"trello"`
-	Sources          []Source `yaml:"sources"`
-	Telegram         Telegram `yaml:"telegram"`
+	TimezoneLocation string   `json:"timezone_location"`
+	Trello           Trello   `json:"trello"`
+	Sources          []Source `json:"sources"`
 }
 
-// ReadConfig reads the YAML config file & decodes all parameters
+// ReadConfig reads the JSON config file & decodes all parameters
 func ReadConfig(fileName string) (cfg Config, err error) {
 	f, err := os.Open(fileName)
 	if err != nil {
@@ -55,7 +47,7 @@ func ReadConfig(fileName string) (cfg Config, err error) {
 	}
 	defer f.Close()
 
-	decoder := yaml.NewDecoder(f)
+	decoder := json.NewDecoder(f)
 	err = decoder.Decode(&cfg)
 	return cfg, err
 }

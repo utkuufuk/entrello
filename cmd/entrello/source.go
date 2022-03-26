@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/utkuufuk/entrello/internal/config"
+	"github.com/utkuufuk/entrello/internal/logger"
 	"github.com/utkuufuk/entrello/pkg/trello"
 )
 
@@ -17,7 +18,7 @@ func getSources(srcArr []config.Source, now time.Time) (sources []config.Source,
 	for _, src := range srcArr {
 		if ok, err := shouldQuery(src, now); !ok {
 			if err != nil {
-				logger.Errorf("could not check if '%s' should be queried or not, skipping", src.Name)
+				logger.Error("could not check if '%s' should be queried or not, skipping", src.Name)
 			}
 			continue
 		}
@@ -64,7 +65,7 @@ func process(src config.Source, client trello.Client, wg *sync.WaitGroup) {
 
 	resp, err := http.Get(src.Endpoint)
 	if err != nil {
-		logger.Errorf("could not make GET request to source '%s' endpoint: %v", src.Name, err)
+		logger.Error("could not make GET request to source '%s' endpoint: %v", src.Name, err)
 		return
 	}
 	defer resp.Body.Close()
@@ -75,23 +76,23 @@ func process(src config.Source, client trello.Client, wg *sync.WaitGroup) {
 		if err != nil {
 			msg = err.Error()
 		}
-		logger.Errorf("could not retrieve cards from source '%s': %v", src.Name, msg)
+		logger.Error("could not retrieve cards from source '%s': %v", src.Name, msg)
 		return
 	}
 
 	var cards []trello.Card
 	if err = json.NewDecoder(resp.Body).Decode(&cards); err != nil {
-		logger.Errorf("could not decode cards received from source '%s': %v", src.Name, err)
+		logger.Error("could not decode cards received from source '%s': %v", src.Name, err)
 		return
 	}
 
 	new, stale := client.FilterNewAndStale(cards, src.Label)
 	for _, c := range new {
 		if err := client.CreateCard(c, src.Label, src.List); err != nil {
-			logger.Errorf("could not create Trello card: %v", err)
+			logger.Error("could not create Trello card: %v", err)
 			continue
 		}
-		logger.Debugf("created new card: %s", c.Name)
+		logger.Info("created new card: %s", c.Name)
 	}
 
 	if !src.Strict {
@@ -100,9 +101,9 @@ func process(src config.Source, client trello.Client, wg *sync.WaitGroup) {
 
 	for _, c := range stale {
 		if err := client.DeleteCard(c); err != nil {
-			logger.Errorf("could not delete Trello card: %v", err)
+			logger.Error("could not delete Trello card: %v", err)
 			continue
 		}
-		logger.Debugf("deleted stale card: %s", c.Name)
+		logger.Info("deleted stale card: %s", c.Name)
 	}
 }
