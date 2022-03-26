@@ -1,6 +1,7 @@
 module github.com/utkuufuk/entrello
 
-go 1.13
+// +heroku goVersion go1.16
+go 1.16
 
 require (
 	github.com/adlio/trello v1.8.0

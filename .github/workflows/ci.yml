@@ -22,8 +22,11 @@ jobs:
     - name: Make sure that go.mod has already been tidied
       run: go mod tidy && git diff --no-patch --exit-code
 
-    - name: Build
-      run: go build ./cmd/entrello
+    - name: Build Runner
+      run: go build ./cmd/runner
+
+    - name: Build Server
+      run: go build ./cmd/server
 
     - name: Run tests
       run: go test -covermode=count -coverprofile=profile.cov ./...
