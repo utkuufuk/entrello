@@ -25,54 +25,44 @@ Alternatively, you can store the configuration inside the `ENTRELLO_CONFIG` envi
 You need to set your [Trello API key & token](https://trello.com/app-key) in the configuraiton file, as well as the Trello board ID.
 
 ### Data Sources
-Each data source must have the following configuration parameters. (See `config.example.json`)
+For each data source, the following parameters have to be specified. (See `config.example.json`)
 
-#### `name`
-Data source name.
+- `name` &mdash; Data source name.
 
-#### `endpoint`
-Data source endpoint. `entrello` will make a `GET` request to this endpoint to fetch fresh cards from the data source. 
+- `endpoint` &mdash; Data source endpoint. `entrello` will make a `GET` request to this endpoint to fetch fresh cards from the data source.
 
-#### `strict`
-When strict mode is enabled, previously auto-generated cards that are no longer present in the fresh data will be deleted.
+- `strict` &mdash; When strict mode is enabled, previously auto-generated cards that are no longer present in the fresh data will be deleted. For instance, with a GitHub data source, strict mode can be useful for automatically removing previously auto-generated cards for issues/PRs from the board when the corresponding issues/PRs are closed/merged.
 
-For instance, with a GitHub data source, strict mode can be useful for automatically removing previously auto-generated cards for issues/PRs from the board when the corresponding issues/PRs are closed/merged.
+- `label_id` &mdash; **Distinct** Trello label ID associated with the data source.
 
-#### `label_id`
-**Distinct** Trello label ID associated with the data source.
+- `list_id` &mdash; Trello list ID for the data source to determine where to insert new cards. The selected list must be in the same board as configured by the `board_id` parameter.
 
-#### `list_id`
-Trello list ID for the data source to determine where to insert new cards. The selected list must be in the same board as configured by the `board_id` parameter.
+- `period` &mdash; Polling period for the data source. Some examples:
+    ```json
+    // query at 3rd, 6th, 9th, ... of each month
+    "period": {
+      "type": "day",
+      "interval": 3
+    }
 
-#### `period`
-Polling period for the data source.
+    // query at 00:00, 02:00, 04:00, ... every day
+    "period": {
+      "type": "hour",
+      "interval": 2
+    }
 
-Example periods:
-```json
-// query at 3rd, 6th, 9th, ... of each month
-"period": {
-  "type": "day",
-  "interval": 3
-}
+    // query at XX:00, XX:15, XX:30 and XX:45 every hour
+    "period": {
+      "type": "minute",
+      "interval": 15
+    }
 
-// query at 00:00, 02:00, 04:00, ... every day
-"period": {
-  "type": "hour",
-  "interval": 2
-}
-
-// query at XX:00, XX:15, XX:30 and XX:45 every hour
-"period": {
-  "type": "minute",
-  "interval": 15
-}
-
-// query on each execution
-"period": {
-  "type": "default",
-  "interval": 0
-}
-```
+    // query on each execution
+    "period": {
+      "type": "default",
+      "interval": 0
+    }
+    ```
 
 ## Example Cron Job
 Make sure that the cron job runs frequently enough to keep up with the most frequent custom interval in your configuration.
