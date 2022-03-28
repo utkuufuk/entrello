@@ -38,10 +38,6 @@ func NewCard(name, description string, dueDate *time.Time) (card Card, err error
 	}, nil
 }
 
-func (c Client) GetCard(id string) (Card, error) {
-	return c.api.GetCard(id, trello.Defaults())
-}
-
 // FilterNewAndStale compares the given cards with the existing cards and returns two arrays;
 // one containing new cards and the other containing stale cards.
 func (c Client) FilterNewAndStale(cards []Card, label string) (new, stale []Card) {

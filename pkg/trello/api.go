@@ -6,17 +6,22 @@ import (
 	"github.com/adlio/trello"
 )
 
-// DeleteCard deletes a Trello card using the the Trello API
+// DeleteCard deletes a Trello card
 func (c Client) DeleteCard(card Card) error {
 	path := fmt.Sprintf("cards/%s", card.ID)
 	return c.api.Delete(path, trello.Defaults(), card)
 }
 
-// CreateCard creates a Trello card using the the Trello API
+// CreateCard creates a Trello card
 func (c Client) CreateCard(card Card, label string, listId string) error {
 	card.IDLabels = []string{label}
 	card.IDList = listId
 	return c.api.CreateCard(card, trello.Defaults())
+}
+
+// GetCard fetches a Trello card by its ID
+func (c Client) GetCard(id string) (Card, error) {
+	return c.api.GetCard(id, trello.Defaults())
 }
 
 // LoadBoard retrieves existing cards from the board that have at least one of the given label IDs
