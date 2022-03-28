@@ -13,31 +13,23 @@ import (
 )
 
 func main() {
-	http.HandleFunc("/", controller)
+	http.HandleFunc("/", handlePollRequest)
+	http.HandleFunc("/trello-webhook", handleTrelloWebhookRequest)
 	http.ListenAndServe(fmt.Sprintf(":%s", config.ServerCfg.Port), nil)
 }
 
-func controller(w http.ResponseWriter, req *http.Request) {
-	if req.Method == http.MethodHead {
-		w.WriteHeader(http.StatusOK)
-		return
-	}
-
-	if req.Method == http.MethodGet {
-		handlePollRequest(w, req)
-		return
-	}
-
-	if req.Method == http.MethodPost {
-		handleTrelloWebhookRequest(w, req)
-		return
-	}
-
-	logger.Warn("Method %s not allowed", req.Method)
-	w.WriteHeader(http.StatusMethodNotAllowed)
-}
-
 func handlePollRequest(w http.ResponseWriter, req *http.Request) {
+	if req.Method == http.MethodPost {
+		w.WriteHeader(http.StatusGone)
+		return
+	}
+
+	if req.Method != http.MethodGet {
+		logger.Warn("Method %s not allowed for %s", req.Method, req.URL.Path)
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		return
+	}
+
 	user, pwd, ok := req.BasicAuth()
 	if !ok {
 		logger.Warn("Could not parse basic auth.")
@@ -79,6 +71,17 @@ func handlePollRequest(w http.ResponseWriter, req *http.Request) {
 }
 
 func handleTrelloWebhookRequest(w http.ResponseWriter, req *http.Request) {
+	if req.Method == http.MethodHead {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	if req.Method != http.MethodPost {
+		logger.Warn("Method %s not allowed for %s", req.Method, req.URL.Path)
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		return
+	}
+
 	hash := req.Header.Get("x-trello-webhook")
 	if hash == "" {
 		logger.Warn("Missing 'x-trello-webhook' header")
