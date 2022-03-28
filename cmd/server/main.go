@@ -99,7 +99,7 @@ func handleTrelloWebhookRequest(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if !trello.VerifyTrelloSignature(
+	if !trello.VerifyWebhookSignature(
 		config.ServerCfg.TrelloWebhookCallbackUrl,
 		config.ServerCfg.TrelloSecret,
 		hash,
@@ -123,14 +123,16 @@ func handleTrelloWebhookRequest(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	card, err := client.GetCard(archivedCardId)
+	archivedCard, err := client.GetCard(archivedCardId)
 	if err != nil {
 		logger.Error("Could not fetch archived Trello card: %v", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	logger.Info("Archived card: %v", card)
+	logger.Info("Archived card name: %v", archivedCard.Name)
+	logger.Info("Archived card description: %v", archivedCard.Desc)
+	logger.Info("Archived card labels: %v", archivedCard.Labels)
 
 	w.WriteHeader(http.StatusOK)
 }

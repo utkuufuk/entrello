@@ -36,9 +36,9 @@ func ParseArchivedCardId(body WebhookRequestBody) string {
 	return ""
 }
 
-// VerifyTrelloSignature verifies the given Trello webhook signature (headerHash) by comparing it
+// VerifyWebhookSignature verifies the given Trello webhook signature (headerHash) by comparing it
 // with a newly computed one using the webhook callback URL, Trello secret and the request body.
-func VerifyTrelloSignature(callbackUrl, secret, headerHash string, body []byte) bool {
+func VerifyWebhookSignature(callbackUrl, secret, headerHash string, body []byte) bool {
 	content := append(body, []byte(callbackUrl)...)
 	computedHash := hmacSha1(content, secret)
 	return computedHash == headerHash
