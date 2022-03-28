@@ -27,7 +27,7 @@ func main() {
 }
 
 func handlePollRequest(w http.ResponseWriter, req *http.Request) {
-	if req.Method != http.MethodGet {
+	if req.Method != http.MethodPost {
 		logger.Warn("Method %s not allowed for %s", req.Method, req.URL.Path)
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		return
