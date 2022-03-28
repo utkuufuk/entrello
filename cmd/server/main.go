@@ -104,5 +104,14 @@ func handleTrelloWebhookRequest(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	var wrb trello.WebhookRequestBody
+	if err = json.Unmarshal(body, &wrb); err != nil {
+		logger.Warn("Invalid Trello webhook request body: %v", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	logger.Info("Webhook request body: %v", wrb)
+	logger.Info("Archived card ID: %v", trello.ParseArchivedCardId(wrb))
+
 	w.WriteHeader(http.StatusOK)
 }
