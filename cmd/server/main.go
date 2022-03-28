@@ -93,9 +93,7 @@ func handleTrelloWebhookRequest(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	logger.Info("Callback URL:", config.ServerCfg.TrelloWebhookCallbackUrl)
-	logger.Info("Hash:", hash)
-	logger.Info("Body:", body)
+	logger.Info("Callback URL: %s", config.ServerCfg.TrelloWebhookCallbackUrl)
 	if !trello.VerifyTrelloSignature(
 		config.ServerCfg.TrelloWebhookCallbackUrl,
 		config.ServerCfg.TrelloSecret,
