@@ -4,11 +4,15 @@ import (
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/base64"
+
+	"github.com/utkuufuk/entrello/internal/logger"
 )
 
 func VerifyTrelloSignature(callbackUrl, secret, headerHash string, body []byte) bool {
 	content := append(body, []byte(callbackUrl)...)
 	doubleHash := hmac256(content, secret)
+	logger.Info("Header Hash:", headerHash)
+	logger.Info("Double Hash:", doubleHash)
 	return doubleHash == headerHash
 }
 
