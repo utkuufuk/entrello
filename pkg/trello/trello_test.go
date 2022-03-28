@@ -92,7 +92,7 @@ func TestNewClient(t *testing.T) {
 				ApiToken: tc.apiToken,
 				BoardId:  tc.boardId,
 			}
-			_, err := NewClient(cfg)
+			err := NewClient(cfg)
 			if (err != nil && !tc.err) || err == nil && tc.err {
 				t.Fatalf("did not expect the error outcome to be: '%t'", tc.err)
 			}

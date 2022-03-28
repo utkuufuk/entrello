@@ -12,18 +12,21 @@ import (
 	"github.com/utkuufuk/entrello/pkg/trello"
 )
 
+var client trello.Client
+
 func main() {
+	client = trello.NewClient(config.Trello{
+		ApiKey:   config.ServerCfg.TrelloApiKey,
+		ApiToken: config.ServerCfg.TrelloApiToken,
+		BoardId:  config.ServerCfg.TrelloBoardId,
+	})
+
 	http.HandleFunc("/", handlePollRequest)
 	http.HandleFunc("/trello-webhook", handleTrelloWebhookRequest)
 	http.ListenAndServe(fmt.Sprintf(":%s", config.ServerCfg.Port), nil)
 }
 
 func handlePollRequest(w http.ResponseWriter, req *http.Request) {
-	if req.Method == http.MethodPost {
-		w.WriteHeader(http.StatusGone)
-		return
-	}
-
 	if req.Method != http.MethodGet {
 		logger.Warn("Method %s not allowed for %s", req.Method, req.URL.Path)
 		w.WriteHeader(http.StatusMethodNotAllowed)
@@ -91,7 +94,7 @@ func handleTrelloWebhookRequest(w http.ResponseWriter, req *http.Request) {
 
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
-		logger.Error("Could not read request body: %v", err)
+		logger.Error("Could not read Trello webhook request body: %v", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -113,8 +116,21 @@ func handleTrelloWebhookRequest(w http.ResponseWriter, req *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	logger.Info("Webhook request body: %v", wrb)
-	logger.Info("Archived card ID: %v", trello.ParseArchivedCardId(wrb))
+
+	archivedCardId := trello.ParseArchivedCardId(wrb)
+	if archivedCardId == "" {
+		w.WriteHeader(http.StatusAccepted)
+		return
+	}
+
+	card, err := client.GetCard(archivedCardId)
+	if err != nil {
+		logger.Error("Could not fetch archived Trello card: %v", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	logger.Info("Archived card: %v", card)
 
 	w.WriteHeader(http.StatusOK)
 }

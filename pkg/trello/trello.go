@@ -16,16 +16,12 @@ type Client struct {
 	existingCards map[string][]Card
 }
 
-func NewClient(cfg config.Trello) (client Client, err error) {
-	if cfg.BoardId == "" || cfg.ApiKey == "" || cfg.ApiToken == "" {
-		return client, fmt.Errorf("could not create trello client, missing configuration parameter(s)")
-	}
-
+func NewClient(cfg config.Trello) Client {
 	return Client{
 		api:           trello.NewClient(cfg.ApiKey, cfg.ApiToken),
 		boardId:       cfg.BoardId,
 		existingCards: make(map[string][]Card),
-	}, nil
+	}
 }
 
 // NewCard creates a new Trello card model with the given mandatory fields name,
@@ -40,6 +36,10 @@ func NewCard(name, description string, dueDate *time.Time) (card Card, err error
 		Desc: description,
 		Due:  dueDate,
 	}, nil
+}
+
+func (c Client) GetCard(id string) (Card, error) {
+	return c.api.GetCard(id, trello.Defaults())
 }
 
 // FilterNewAndStale compares the given cards with the existing cards and returns two arrays;

@@ -20,10 +20,7 @@ func Poll(cfg config.RunnerConfig) error {
 		return nil
 	}
 
-	client, err := trello.NewClient(cfg.Trello)
-	if err != nil {
-		return fmt.Errorf("could not create trello client: %v", err)
-	}
+	client := trello.NewClient(cfg.Trello)
 
 	if err := client.LoadBoard(labels); err != nil {
 		return fmt.Errorf("Could not load existing cards from the board: %v", err)

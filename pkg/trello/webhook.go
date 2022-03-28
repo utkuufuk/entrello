@@ -23,8 +23,8 @@ type Action struct {
 
 func VerifyTrelloSignature(callbackUrl, secret, headerHash string, body []byte) bool {
 	content := append(body, []byte(callbackUrl)...)
-	doubleHash := hmac256(content, secret)
-	return doubleHash == headerHash
+	computedHash := hmac256(content, secret)
+	return computedHash == headerHash
 }
 
 func hmac256(content []byte, secret string) string {
