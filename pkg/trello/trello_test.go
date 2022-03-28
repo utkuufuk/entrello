@@ -87,15 +87,12 @@ func TestNewClient(t *testing.T) {
 
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
-			cfg := config.Config{
-				Trello: config.Trello{
-					ApiKey:   tc.apiKey,
-					ApiToken: tc.apiToken,
-					BoardId:  tc.boardId,
-				},
-				Sources: []config.Source{},
+			cfg := config.Trello{
+				ApiKey:   tc.apiKey,
+				ApiToken: tc.apiToken,
+				BoardId:  tc.boardId,
 			}
-			_, err := NewClient(cfg.Trello)
+			_, err := NewClient(cfg)
 			if (err != nil && !tc.err) || err == nil && tc.err {
 				t.Fatalf("did not expect the error outcome to be: '%t'", tc.err)
 			}

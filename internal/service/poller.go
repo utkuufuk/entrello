@@ -9,7 +9,7 @@ import (
 	"github.com/utkuufuk/entrello/pkg/trello"
 )
 
-func Poll(cfg config.Config) error {
+func Poll(cfg config.RunnerConfig) error {
 	loc, err := time.LoadLocation(cfg.TimezoneLocation)
 	if err != nil {
 		return fmt.Errorf("invalid timezone location: %v", loc)

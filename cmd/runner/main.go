@@ -14,7 +14,7 @@ func main() {
 	flag.StringVar(&configFile, "c", "config.json", "config file path")
 	flag.Parse()
 
-	cfg, err := config.ReadConfig(configFile)
+	cfg, err := config.ReadRunnerConfig(configFile)
 	if err != nil {
 		log.Fatalf("Could not read configuration: %v", err)
 	}

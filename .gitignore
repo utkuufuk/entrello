@@ -1,2 +1,3 @@
+webhook.sh
 *.json
 !config.example.json

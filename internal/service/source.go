@@ -36,19 +36,19 @@ func shouldQuery(src config.Source, date time.Time) (bool, error) {
 	}
 
 	switch src.Period.Type {
-	case config.PERIOD_TYPE_DEFAULT:
+	case config.PeriodTypeDefault:
 		return true, nil
-	case config.PERIOD_TYPE_DAY:
+	case config.PeriodTypeDay:
 		if interval > 31 {
 			return false, fmt.Errorf("daily interval cannot be more than 14, got: '%d'", interval)
 		}
 		return date.Day()%interval == 0 && date.Hour() == 0 && date.Minute() == 0, nil
-	case config.PERIOD_TYPE_HOUR:
+	case config.PeriodTypeHour:
 		if interval > 23 {
 			return false, fmt.Errorf("hourly interval cannot be more than 23, got: '%d'", interval)
 		}
 		return date.Hour()%interval == 0 && date.Minute() == 0, nil
-	case config.PERIOD_TYPE_MINUTE:
+	case config.PeriodTypeMinute:
 		if interval > 60 {
 			return false, fmt.Errorf("minute interval cannot be more than 60, got: '%d'", interval)
 		}

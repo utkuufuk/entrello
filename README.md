@@ -4,26 +4,32 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/utkuufuk/entrello)](https://goreportcard.com/report/github.com/utkuufuk/entrello)
 [![Coverage Status](https://coveralls.io/repos/github/utkuufuk/entrello/badge.svg)](https://coveralls.io/github/utkuufuk/entrello)
 
-Polls compatible data sources and keeps your Trello cards synchronized with fresh data.
-
-Let's say you have an HTTP endpoint that returns GitHub issues assigned to you upon a `GET` request.
-You can point `entrello` to that endpoint to keep your GitHub issues synchronized in your Trello board.
-
-Each data source must return a JSON array of Trello card objects upon a `GET` request. You can import and use the `NewCard` function from `pkg/trello/trello.go` in order to construct Trello card objects.
-
-- Can be run as a scheduled job:
+- Polls compatible data sources and keeps your Trello cards synchronized with fresh data.
+- Listens for and filters each event from your Trello board and forwards it to the matching data source.
+- Can be run as a scheduled job, or an HTTP server:
     ```sh
+    # cron job
     go run ./cmd/runner
-    ```
-- Can be run as an HTTP server:
-    ```sh
-    PORT=<port> USERNAME=<user> PASSWORD=<password> go run ./cmd/server
-    ```
 
-    In this case, the runner can be triggered by a `POST` request to the server like this:
-    ```sh
+    # HTTP server
+    PORT=<port> USERNAME=<user> PASSWORD=<password> go run ./cmd/server
+
+    # make a `POST` request to the HTTP server to trigger a poll
     curl -d @config.json <SERVER_URL> -H "Authorization: Basic <base64(<user>:<password>)>"
     ```
+
+## Example Use Case
+Let's say you have an HTTP service that returns GitHub issues that are assigned to you upon a `GET` request.
+Then `entrello` can use it as a data source to keep your GitHub issues synchronized in your Trello board.
+
+Moreover, if you use `entrello` as a server (not as a runner), you can make your GitHub service listen to updates to the events from the Trello board about its own cards and react to them.
+
+For instance, when a Trello card representing a GitHub issue has been archived, your GitHub service could auto-close that issue on GitHub. 
+
+## Data Sources
+Each data source must
+- return a JSON array of Trello card objects upon a `GET` request. See `pkg/trello/trello.go` for reference
+- respond with a 200 status code upon a `POST` request containing information about Trello events on corresponding cards
 
 ## Configuration
 Copy and rename `config.example.json` as `config.json` (default), then set your own values in `config.json`.
@@ -83,3 +89,27 @@ Assuming `config.json` is located in the current working directory:
 ```
 
 Make sure that the cron job runs frequently enough to keep up with the most frequent custom interval in your configuration. For instance, it wouldn't make sense to define a custom period of 15 minutes while the cron job only runs every hour.
+
+## Trello Webhooks
+You can create a Trello webhook using the following command:
+
+```sh
+curl -X POST -H "Content-Type: application/json" \
+https://api.trello.com/1/tokens/<api_token>/webhooks/ \
+-d '{
+  "key": "<api_key>",
+  "callbackURL": "<url>",
+  "idModel": "<id_model>",
+  "description": "<desc>"
+}'
+```
+
+* `api_token` &mdash; Trello API token
+* `api_key` &mdash; Trello API key
+* `url` &mdash; Entrello Server URL
+* `id_model` &mdash; Trello Board ID
+* `desc` &mdash; Arbitrary description string
+
+For more information, see
+* [Trello Webhooks Guide](https://developer.atlassian.com/cloud/trello/guides/rest-api/webhooks/)
+* [Trello Webhooks Reference](https://developer.atlassian.com/cloud/trello/rest/#api-group-Webhooks)
