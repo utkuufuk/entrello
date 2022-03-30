@@ -15,8 +15,8 @@ func Poll(cfg config.RunnerConfig) error {
 		return fmt.Errorf("invalid timezone location: %v", loc)
 	}
 
-	sources, labels := getSources(cfg.Sources, time.Now().In(loc))
-	if len(sources) == 0 {
+	services, labels := getServices(cfg.Services, time.Now().In(loc))
+	if len(services) == 0 {
 		return nil
 	}
 
@@ -27,8 +27,8 @@ func Poll(cfg config.RunnerConfig) error {
 	}
 
 	var wg sync.WaitGroup
-	wg.Add(len(sources))
-	for _, src := range sources {
+	wg.Add(len(services))
+	for _, src := range services {
 		go process(src, client, &wg)
 	}
 	wg.Wait()

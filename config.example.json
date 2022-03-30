@@ -5,7 +5,7 @@
     "api_token": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
     "board_id": "xxxxxxxxxxxxxxxxxxxxxxxx"
   },
-  "sources": [
+  "services": [
     {
       "name": "Github Issues",
       "endpoint": "http://<github-issues-endpoint>",

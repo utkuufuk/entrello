@@ -11,7 +11,7 @@ type Period struct {
 	Interval int    `json:"interval"`
 }
 
-type Source struct {
+type Service struct {
 	Name     string `json:"name"`
 	Endpoint string `json:"endpoint"`
 	Strict   bool   `json:"strict"`
@@ -27,9 +27,9 @@ type Trello struct {
 }
 
 type RunnerConfig struct {
-	TimezoneLocation string   `json:"timezone_location"`
-	Trello           Trello   `json:"trello"`
-	Sources          []Source `json:"sources"`
+	TimezoneLocation string    `json:"timezone_location"`
+	Trello           Trello    `json:"trello"`
+	Services         []Service `json:"services"`
 }
 
 type ServerConfig struct {

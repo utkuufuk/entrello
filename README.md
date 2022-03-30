@@ -4,8 +4,8 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/utkuufuk/entrello)](https://goreportcard.com/report/github.com/utkuufuk/entrello)
 [![Coverage Status](https://coveralls.io/repos/github/utkuufuk/entrello/badge.svg)](https://coveralls.io/github/utkuufuk/entrello)
 
-- Polls compatible data sources and keeps your Trello cards synchronized with fresh data.
-- Listens for and filters each event from your Trello board and forwards it to the matching data source.
+- Polls compatible services and keeps your Trello cards synchronized with fresh data.
+- Listens for and filters each event from your Trello board and forwards it to the matching service.
 - Can be run as a scheduled job, or an HTTP server:
     ```sh
     # cron job
@@ -26,8 +26,8 @@ Moreover, if you use `entrello` as a server (not as a runner), you can make your
 
 For instance, when a Trello card representing a GitHub issue has been archived, your GitHub service could auto-close that issue on GitHub. 
 
-## Data Sources
-Each data source must
+## Services
+Each service must
 - return a JSON array of Trello card objects upon a `GET` request. See `pkg/trello/trello.go` for reference
 - respond with a 200 status code upon a `POST` request containing information about Trello events on corresponding cards
 
@@ -42,20 +42,20 @@ go run ./cmd/runner -c /path/to/config/file
 ### Trello
 You need to set your [Trello API key & token](https://trello.com/app-key) in the configuraiton file, as well as the Trello board ID.
 
-### Data Sources
-For each data source, the following parameters have to be specified. (See `config.example.json`)
+### Services
+For each data service, the following parameters have to be specified. (See `config.example.json`)
 
-- `name` &mdash; Data source name.
+- `name` &mdash; Service name.
 
-- `endpoint` &mdash; Data source endpoint. `entrello` will make a `GET` request to this endpoint to fetch fresh cards from the data source.
+- `endpoint` &mdash; Service endpoint. `entrello` will make a `GET` request to this endpoint to fetch fresh cards from the service.
 
-- `strict` &mdash; When strict mode is enabled, previously auto-generated cards that are no longer present in the fresh data will be deleted. For instance, with a GitHub data source, strict mode can be useful for automatically removing previously auto-generated cards for issues/PRs from the board when the corresponding issues/PRs are closed/merged.
+- `strict` &mdash; When strict mode is enabled, previously auto-generated cards that are no longer present in the fresh data will be deleted. For instance, with a GitHub service, strict mode can be useful for automatically removing previously auto-generated cards for issues/PRs from the board when the corresponding issues/PRs are closed/merged.
 
-- `label_id` &mdash; **Distinct** Trello label ID associated with the data source.
+- `label_id` &mdash; **Distinct** Trello label ID associated with the service.
 
-- `list_id` &mdash; Trello list ID for the data source to determine where to insert new cards. The selected list must be in the same board as configured by the `board_id` parameter.
+- `list_id` &mdash; Trello list ID for the service to determine where to insert new cards. The selected list must be in the same board as configured by the `board_id` parameter.
 
-- `period` &mdash; Polling period for the data source. Some examples:
+- `period` &mdash; Polling period for the service. Some examples:
     ```json
     // query at 3rd, 6th, 9th, ... of each month
     "period": {

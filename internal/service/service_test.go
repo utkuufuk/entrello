@@ -31,7 +31,7 @@ func TestShouldQuery(t *testing.T) {
 			pInterval: 0,
 			date:      time.Now(),
 			ok:        false,
-			err:       fmt.Errorf("unrecognized source period type: 'foo'"),
+			err:       fmt.Errorf("unrecognized service period type: 'foo'"),
 		},
 		{
 			name:      "negative period interval",
@@ -141,7 +141,7 @@ func TestShouldQuery(t *testing.T) {
 
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
-			src := config.Source{
+			src := config.Service{
 				Period: config.Period{
 					Type:     tc.pType,
 					Interval: tc.pInterval,
