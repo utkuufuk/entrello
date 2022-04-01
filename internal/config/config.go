@@ -57,8 +57,16 @@ const (
 var ServerCfg ServerConfig
 
 func init() {
-	godotenv.Load()
+	appEnv := os.Getenv("APP_ENV")
+	if appEnv != "production" {
+		godotenv.Load()
+	}
+
 	serializedServices := strings.Split(os.Getenv("SERVICES"), ",")
+	if appEnv != "production" && os.Getenv("SERVICES") == "" {
+		serializedServices = []string{}
+	}
+
 	services := make([]Service, 0, len(serializedServices))
 
 	for _, service := range serializedServices {
