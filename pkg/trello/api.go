@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/adlio/trello"
+	"golang.org/x/exp/slices"
 )
 
 // DeleteCard deletes a Trello card
@@ -49,24 +50,10 @@ func (c Client) setExistingCards(cards []*trello.Card, labels []string) {
 
 	for _, card := range cards {
 		for _, label := range card.IDLabels {
-			if ok := contains(labels, label); !ok {
+			if ok := slices.Contains(labels, label); !ok {
 				continue
 			}
 			c.existingCards[label] = append(c.existingCards[label], card)
 		}
 	}
-}
-
-// contains returns true if the list of strings contain the given string
-func contains(list []string, item string) bool {
-	if item == "" {
-		return false
-	}
-
-	for _, i := range list {
-		if i == item {
-			return true
-		}
-	}
-	return false
 }
