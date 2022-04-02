@@ -1,4 +1,4 @@
-package service
+package services
 
 import (
 	"encoding/json"
@@ -16,7 +16,7 @@ import (
 // getServices returns a slice of services & all service labels as a separate slice
 func getServices(srcArr []config.Service, now time.Time) (services []config.Service, labels []string) {
 	for _, src := range srcArr {
-		if ok, err := shouldQuery(src, now); !ok {
+		if ok, err := shouldPoll(src, now); !ok {
 			if err != nil {
 				logger.Error("could not check if '%s' should be queried or not, skipping", src.Name)
 			}
@@ -28,8 +28,8 @@ func getServices(srcArr []config.Service, now time.Time) (services []config.Serv
 	return services, labels
 }
 
-// shouldQuery checks if a the service should be queried at the given time
-func shouldQuery(src config.Service, date time.Time) (bool, error) {
+// shouldPoll checks if a the service should be polled at the given time instant
+func shouldPoll(src config.Service, date time.Time) (bool, error) {
 	interval := src.Period.Interval
 	if interval < 0 {
 		return false, fmt.Errorf("period interval must be a positive integer, got: '%d'", interval)
@@ -58,9 +58,9 @@ func shouldQuery(src config.Service, date time.Time) (bool, error) {
 	return false, fmt.Errorf("unrecognized service period type: '%s'", src.Period.Type)
 }
 
-// process fetches cards from the service and creates the ones that don't already exist,
-// also deletes the stale cards if strict mode is enabled
-func process(src config.Service, client trello.Client, wg *sync.WaitGroup) {
+// poll polls the given service and creates Trello cards for each item unless
+// a corresponding card already exists, also deletes the stale cards if strict mode is enabled
+func poll(src config.Service, client trello.Client, wg *sync.WaitGroup) {
 	defer wg.Done()
 
 	resp, err := http.Get(src.Endpoint)

@@ -6,7 +6,7 @@ import (
 
 	"github.com/utkuufuk/entrello/internal/config"
 	"github.com/utkuufuk/entrello/internal/logger"
-	"github.com/utkuufuk/entrello/internal/service"
+	"github.com/utkuufuk/entrello/internal/services"
 )
 
 func main() {
@@ -19,7 +19,7 @@ func main() {
 		log.Fatalf("Could not read configuration: %v", err)
 	}
 
-	if err = service.Poll(cfg); err != nil {
+	if err = services.Poll(cfg); err != nil {
 		logger.Error(err.Error())
 	}
 }

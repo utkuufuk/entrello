@@ -1,4 +1,4 @@
-package service
+package services
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 	"github.com/utkuufuk/entrello/internal/config"
 )
 
-func TestShouldQuery(t *testing.T) {
+func TestShouldPoll(t *testing.T) {
 	tt := []struct {
 		name      string
 		pType     string
@@ -42,7 +42,7 @@ func TestShouldQuery(t *testing.T) {
 			err:       fmt.Errorf("period interval must be a positive integer, got: '-1'"),
 		},
 		{
-			name:      "every 3 days, on 6th at midnight, should query",
+			name:      "every 3 days, on 6th at midnight, should poll",
 			pType:     config.PeriodTypeDay,
 			pInterval: 3,
 			date:      time.Date(1990, time.Month(2), 6, 0, 0, 0, 0, time.UTC),
@@ -50,7 +50,7 @@ func TestShouldQuery(t *testing.T) {
 			err:       nil,
 		},
 		{
-			name:      "every 3 days, on 6th at 01:00, should not query",
+			name:      "every 3 days, on 6th at 01:00, should not poll",
 			pType:     config.PeriodTypeDay,
 			pInterval: 3,
 			date:      time.Date(1990, time.Month(2), 6, 1, 0, 0, 0, time.UTC),
@@ -58,7 +58,7 @@ func TestShouldQuery(t *testing.T) {
 			err:       nil,
 		},
 		{
-			name:      "every 3 days, on 6th at 00:15, should not query",
+			name:      "every 3 days, on 6th at 00:15, should not poll",
 			pType:     config.PeriodTypeDay,
 			pInterval: 3,
 			date:      time.Date(1990, time.Month(2), 6, 0, 15, 0, 0, time.UTC),
@@ -66,7 +66,7 @@ func TestShouldQuery(t *testing.T) {
 			err:       nil,
 		},
 		{
-			name:      "every 3 days, on 4th, should not query",
+			name:      "every 3 days, on 4th, should not poll",
 			pType:     config.PeriodTypeDay,
 			pInterval: 3,
 			date:      time.Date(1990, time.Month(2), 4, 0, 0, 0, 0, time.UTC),
@@ -82,7 +82,7 @@ func TestShouldQuery(t *testing.T) {
 			err:       fmt.Errorf("daily interval cannot be more than 14, got: '40'"),
 		},
 		{
-			name:      "every 5 hours, at 15:00, should query",
+			name:      "every 5 hours, at 15:00, should poll",
 			pType:     config.PeriodTypeHour,
 			pInterval: 5,
 			date:      time.Date(1990, time.Month(2), 1, 15, 0, 0, 0, time.UTC),
@@ -90,7 +90,7 @@ func TestShouldQuery(t *testing.T) {
 			err:       nil,
 		},
 		{
-			name:      "every 4 hours, at 16:33, should not query",
+			name:      "every 4 hours, at 16:33, should not poll",
 			pType:     config.PeriodTypeHour,
 			pInterval: 4,
 			date:      time.Date(1990, time.Month(2), 4, 16, 33, 0, 0, time.UTC),
@@ -98,7 +98,7 @@ func TestShouldQuery(t *testing.T) {
 			err:       nil,
 		},
 		{
-			name:      "every 2 hours, at 21:00, should not query",
+			name:      "every 2 hours, at 21:00, should not poll",
 			pType:     config.PeriodTypeHour,
 			pInterval: 2,
 			date:      time.Date(1990, time.Month(2), 4, 21, 0, 0, 0, time.UTC),
@@ -114,7 +114,7 @@ func TestShouldQuery(t *testing.T) {
 			err:       fmt.Errorf("hourly interval cannot be more than 23, got: '25'"),
 		},
 		{
-			name:      "every 7 minutes, at 14:56, should query",
+			name:      "every 7 minutes, at 14:56, should poll",
 			pType:     config.PeriodTypeMinute,
 			pInterval: 7,
 			date:      time.Date(1990, time.Month(2), 1, 14, 56, 0, 0, time.UTC),
@@ -122,7 +122,7 @@ func TestShouldQuery(t *testing.T) {
 			err:       nil,
 		},
 		{
-			name:      "every 6 minutes, at 02:13, but should not query",
+			name:      "every 6 minutes, at 02:13, but should not poll",
 			pType:     config.PeriodTypeMinute,
 			pInterval: 6,
 			date:      time.Date(1990, time.Month(2), 4, 2, 13, 0, 0, time.UTC),
@@ -147,7 +147,7 @@ func TestShouldQuery(t *testing.T) {
 					Interval: tc.pInterval,
 				},
 			}
-			ok, err := shouldQuery(src, tc.date)
+			ok, err := shouldPoll(src, tc.date)
 
 			if err != nil || tc.err != nil {
 				if err == nil || tc.err == nil || err.Error() != tc.err.Error() {

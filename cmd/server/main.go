@@ -6,11 +6,9 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"golang.org/x/exp/slices"
-
 	"github.com/utkuufuk/entrello/internal/config"
 	"github.com/utkuufuk/entrello/internal/logger"
-	"github.com/utkuufuk/entrello/internal/service"
+	"github.com/utkuufuk/entrello/internal/services"
 	"github.com/utkuufuk/entrello/pkg/trello"
 )
 
@@ -66,7 +64,7 @@ func handlePollRequest(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if err = service.Poll(cfg); err != nil {
+	if err = services.Poll(cfg); err != nil {
 		logger.Error(err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -132,19 +130,10 @@ func handleTrelloWebhookRequest(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	logger.Info("Archived card name: %v", archivedCard.Name)
-	logger.Info("Archived card description: %v", archivedCard.Desc)
-	logger.Info("Archived card labels: %v", archivedCard.Labels)
-
-	labelIds := make([]string, 0)
-	for _, label := range archivedCard.Labels {
-		labelIds = append(labelIds, label.ID)
-	}
-
-	for _, service := range config.ServerCfg.Services {
-		if slices.Contains(labelIds, service.Label) {
-			logger.Info("Archived card matches service %v!!", service)
-		}
+	if err = services.Notify(archivedCard, config.ServerCfg.Services); err != nil {
+		logger.Error("Could not notify service(s) with the archived card data: %v", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 
 	w.WriteHeader(http.StatusOK)
