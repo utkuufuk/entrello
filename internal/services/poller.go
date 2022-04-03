@@ -14,18 +14,18 @@ import (
 )
 
 // getServices returns a slice of services & all service labels as a separate slice
-func getServices(srcArr []config.Service, now time.Time) (services []config.Service, labels []string) {
+func getServices(srcArr []config.Service, now time.Time) (services []config.Service, labels []string, err error) {
 	for _, src := range srcArr {
 		if ok, err := shouldPoll(src, now); !ok {
 			if err != nil {
-				logger.Error("could not check if '%s' should be queried or not, skipping", src.Name)
+				return services, labels, fmt.Errorf("could not check if '%s' should be queried or not: %v", src.Name, err)
 			}
 			continue
 		}
 		services = append(services, src)
 		labels = append(labels, src.Label)
 	}
-	return services, labels
+	return services, labels, nil
 }
 
 // shouldPoll checks if a the service should be polled at the given time instant

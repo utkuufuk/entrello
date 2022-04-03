@@ -20,7 +20,10 @@ func Poll(cfg config.RunnerConfig) error {
 		return fmt.Errorf("invalid timezone location: %v", loc)
 	}
 
-	services, labels := getServices(cfg.Services, time.Now().In(loc))
+	services, labels, err := getServices(cfg.Services, time.Now().In(loc))
+	if err != nil {
+		return fmt.Errorf("failed to get services to poll: %v", err)
+	}
 	if len(services) == 0 {
 		return nil
 	}
