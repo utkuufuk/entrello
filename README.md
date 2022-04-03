@@ -4,34 +4,32 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/utkuufuk/entrello)](https://goreportcard.com/report/github.com/utkuufuk/entrello)
 [![Coverage Status](https://coveralls.io/repos/github/utkuufuk/entrello/badge.svg)](https://coveralls.io/github/utkuufuk/entrello)
 
+Minimum Go version required: `1.18`
+
+## Usage
 - Polls compatible services and keeps your Trello cards synchronized with fresh data.
-- Listens for and filters each event from your Trello board and forwards it to the matching service.
-- Can be run as a scheduled job, or an HTTP server:
+- Listens for events from your Trello board and forwards "archived card" events to the matching service, if any.
+- Can be run as a scheduled job, or as an HTTP server:
     ```sh
-    # cron job
+    # 1. CRON JOB
     go run ./cmd/runner
 
-    # HTTP server
-    PORT=<port> USERNAME=<user> PASSWORD=<password> go run ./cmd/server
 
-    # make a `POST` request to the HTTP server to trigger a poll
+    # 2. HTTP SERVER
+    go run ./cmd/server
+
+    # make a `POST` request to the HTTP server to trigger polling
     curl -d @config.json <SERVER_URL> -H "Authorization: Basic <base64(<user>:<password>)>"
     ```
 
-## Example Use Case
+### Example Use Case
 Let's say you have an HTTP service that returns GitHub issues that are assigned to you upon a `GET` request.
 Then `entrello` can use it as a data source to keep your GitHub issues synchronized in your Trello board.
 
-Moreover, if you use `entrello` as a server (not as a runner), you can make your GitHub service listen to updates to the events from the Trello board about its own cards and react to them.
+Moreover, when you use `entrello` as a server, it can forward "archived card" events to your GitHub service.
+This means that whenever one of your "GitHub" cards is archived, your GitHub service can be notified and take an action of your choosing, e.g. it could close the corresponding GitHub issue. 
 
-For instance, when a Trello card representing a GitHub issue has been archived, your GitHub service could auto-close that issue on GitHub. 
-
-## Services
-Each service must
-- return a JSON array of Trello card objects upon a `GET` request. See `pkg/trello/trello.go` for reference
-- respond with a 200 status code upon a `POST` request containing information about Trello events on corresponding cards
-
-## Configuration
+## Runner Configuration
 Copy and rename `config.example.json` as `config.json` (default), then set your own values in `config.json`.
 
 You can also use a custom config file path using the `-c` flag:
@@ -39,11 +37,8 @@ You can also use a custom config file path using the `-c` flag:
 go run ./cmd/runner -c /path/to/config/file
 ```
 
-### Trello
-You need to set your [Trello API key & token](https://trello.com/app-key) in the configuraiton file, as well as the Trello board ID.
-
-### Services
-For each data service, the following parameters have to be specified. (See `config.example.json`)
+### Configuring Services in Runner Mode
+Each configured service must return a JSON array of Trello card objects upon a `GET` request. See `pkg/trello/trello.go` for reference. For each service, the following configuration parameters have to be specified:
 
 - `name` &mdash; Service name.
 
@@ -82,7 +77,7 @@ For each data service, the following parameters have to be specified. (See `conf
     }
     ```
 
-## Example Cron Job
+### Example Runner Cron Job
 Assuming `config.json` is located in the current working directory:
 ``` sh
 0 * * * * cd /home/you/git/entrello && /usr/local/go/bin/go run ./cmd/runner
@@ -90,7 +85,17 @@ Assuming `config.json` is located in the current working directory:
 
 Make sure that the cron job runs frequently enough to keep up with the most frequent custom interval in your configuration. For instance, it wouldn't make sense to define a custom period of 15 minutes while the cron job only runs every hour.
 
-## Trello Webhooks
+## Server Configuration
+Copy and rename `.env.example` as `.env`, then set your own values in `.env`.
+
+You can trigger the runner by making a `POST` request to the root URL of your server with the runner configuration in the request body:
+```sh
+curl -d @config.json <SERVER_URL> -H "Authorization: Basic <base64(<USERNAME>:<PASSWORD>)>"
+```
+
+You can create a Trello webhook pointed at `<SERVER_URL>/trello-webhook` in order to listen to events from your Trello board.
+
+### Creating Trello Webhooks
 You can create a Trello webhook using the following command:
 
 ```sh
