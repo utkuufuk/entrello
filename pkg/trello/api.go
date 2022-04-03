@@ -4,19 +4,25 @@ import (
 	"fmt"
 
 	"github.com/adlio/trello"
+	"golang.org/x/exp/slices"
 )
 
-// DeleteCard deletes a Trello card using the the Trello API
+// DeleteCard deletes a Trello card
 func (c Client) DeleteCard(card Card) error {
 	path := fmt.Sprintf("cards/%s", card.ID)
 	return c.api.Delete(path, trello.Defaults(), card)
 }
 
-// CreateCard creates a Trello card using the the Trello API
+// CreateCard creates a Trello card
 func (c Client) CreateCard(card Card, label string, listId string) error {
 	card.IDLabels = []string{label}
 	card.IDList = listId
 	return c.api.CreateCard(card, trello.Defaults())
+}
+
+// GetCard fetches a Trello card by its ID
+func (c Client) GetCard(id string) (Card, error) {
+	return c.api.GetCard(id, trello.Defaults())
 }
 
 // LoadBoard retrieves existing cards from the board that have at least one of the given label IDs
@@ -44,24 +50,10 @@ func (c Client) setExistingCards(cards []*trello.Card, labels []string) {
 
 	for _, card := range cards {
 		for _, label := range card.IDLabels {
-			if ok := contains(labels, label); !ok {
+			if ok := slices.Contains(labels, label); !ok {
 				continue
 			}
 			c.existingCards[label] = append(c.existingCards[label], card)
 		}
 	}
-}
-
-// contains returns true if the list of strings contain the given string
-func contains(list []string, item string) bool {
-	if item == "" {
-		return false
-	}
-
-	for _, i := range list {
-		if i == item {
-			return true
-		}
-	}
-	return false
 }

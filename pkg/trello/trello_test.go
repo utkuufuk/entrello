@@ -6,7 +6,6 @@ import (
 
 	"github.com/adlio/trello"
 	"github.com/google/go-cmp/cmp"
-	"github.com/utkuufuk/entrello/internal/config"
 )
 
 func TestNewCard(t *testing.T) {
@@ -40,64 +39,6 @@ func TestNewCard(t *testing.T) {
 			_, err := NewCard(tc.cName, tc.cDesc, nil)
 			if diff := cmp.Diff(err, tc.err, opts...); diff != "" {
 				t.Errorf("errors diff: %s", diff)
-			}
-		})
-	}
-}
-
-func TestNewClient(t *testing.T) {
-	str := "placeholder"
-
-	tt := []struct {
-		name     string
-		boardId  string
-		apiKey   string
-		apiToken string
-		err      bool
-	}{
-		{
-			name:     "no errors",
-			boardId:  str,
-			apiKey:   str,
-			apiToken: str,
-			err:      false,
-		},
-		{
-			name:     "missing board ID",
-			boardId:  "",
-			apiKey:   str,
-			apiToken: str,
-			err:      true,
-		},
-		{
-			name:     "missing api key",
-			boardId:  str,
-			apiKey:   "",
-			apiToken: str,
-			err:      true,
-		},
-		{
-			name:     "missing api token",
-			boardId:  str,
-			apiKey:   str,
-			apiToken: "",
-			err:      true,
-		},
-	}
-
-	for _, tc := range tt {
-		t.Run(tc.name, func(t *testing.T) {
-			cfg := config.Config{
-				Trello: config.Trello{
-					ApiKey:   tc.apiKey,
-					ApiToken: tc.apiToken,
-					BoardId:  tc.boardId,
-				},
-				Sources: []config.Source{},
-			}
-			_, err := NewClient(cfg.Trello)
-			if (err != nil && !tc.err) || err == nil && tc.err {
-				t.Fatalf("did not expect the error outcome to be: '%t'", tc.err)
 			}
 		})
 	}

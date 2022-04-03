@@ -6,7 +6,7 @@ import (
 
 	"github.com/utkuufuk/entrello/internal/config"
 	"github.com/utkuufuk/entrello/internal/logger"
-	"github.com/utkuufuk/entrello/internal/service"
+	"github.com/utkuufuk/entrello/internal/services"
 )
 
 func main() {
@@ -14,12 +14,12 @@ func main() {
 	flag.StringVar(&configFile, "c", "config.json", "config file path")
 	flag.Parse()
 
-	cfg, err := config.ReadConfig(configFile)
+	cfg, err := config.ReadRunnerConfig(configFile)
 	if err != nil {
 		log.Fatalf("Could not read configuration: %v", err)
 	}
 
-	if err = service.Poll(cfg); err != nil {
+	if err = services.Poll(cfg); err != nil {
 		logger.Error(err.Error())
 	}
 }

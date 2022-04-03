@@ -6,19 +6,12 @@ import (
 	"os"
 )
 
-const (
-	PERIOD_TYPE_DEFAULT = "default"
-	PERIOD_TYPE_DAY     = "day"
-	PERIOD_TYPE_HOUR    = "hour"
-	PERIOD_TYPE_MINUTE  = "minute"
-)
-
 type Period struct {
 	Type     string `json:"type"`
 	Interval int    `json:"interval"`
 }
 
-type Source struct {
+type Service struct {
 	Name     string `json:"name"`
 	Endpoint string `json:"endpoint"`
 	Strict   bool   `json:"strict"`
@@ -33,13 +26,34 @@ type Trello struct {
 	BoardId  string `json:"board_id"`
 }
 
-type Config struct {
-	TimezoneLocation string   `json:"timezone_location"`
-	Trello           Trello   `json:"trello"`
-	Sources          []Source `json:"sources"`
+type RunnerConfig struct {
+	TimezoneLocation string    `json:"timezone_location"`
+	Trello           Trello    `json:"trello"`
+	Services         []Service `json:"services"`
 }
 
-func ReadConfig(fileName string) (cfg Config, err error) {
+type ServerConfig struct {
+	Port                     string
+	Username                 string
+	Password                 string
+	Services                 []Service
+	TrelloApiKey             string
+	TrelloApiToken           string
+	TrelloBoardId            string
+	TrelloSecret             string
+	TrelloWebhookCallbackUrl string
+}
+
+const (
+	PeriodTypeDefault = "default"
+	PeriodTypeDay     = "day"
+	PeriodTypeHour    = "hour"
+	PeriodTypeMinute  = "minute"
+)
+
+var ServerCfg ServerConfig
+
+func ReadRunnerConfig(fileName string) (cfg RunnerConfig, err error) {
 	f, err := os.Open(fileName)
 	if err != nil {
 		return cfg, fmt.Errorf("could not open config file: %v", err)
