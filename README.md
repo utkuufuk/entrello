@@ -23,8 +23,8 @@ Minimum Go version required: `1.18`
     ```
 
 ### Example Use Case
-Let's say you have an HTTP service that returns GitHub issues that are assigned to you upon a `GET` request.
-Then `entrello` can use it as a data source to keep your GitHub issues synchronized in your Trello board.
+For instance, [this HTTP service](https://github.com/utkuufuk/github-service) has a few endpoints that return GitHub issues or pull requests upon `GET` requests.
+Then `entrello` can use it as a data source to keep your GitHub issues/PRs synchronized in your Trello board.
 
 Moreover, when you use `entrello` as a server, it can forward "archived card" events to your GitHub service.
 This means that whenever one of your "GitHub" cards is archived, your GitHub service can be notified and take an action of your choosing, e.g. it could close the corresponding GitHub issue. 
