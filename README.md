@@ -117,12 +117,17 @@ A new Docker image will be created upon each release.
 
 *See `.github/workflows/release.yml` for continuous delivery workflow configuration.*
 
-1. Pull the docker image
+1. Login
     ```sh
-    docker pull ghcr.io/utkuufuk/entrello/image:<tag>
+    echo $CR_PAT | docker login ghcr.io -u USERNAME --password-stdin
     ```
 
-2. Spawn a container:
+2. Pull the docker image
+    ```sh
+    docker pull ghcr.io/utkuufuk/entrello/image:latest
+    ```
+
+3. Spawn a container:
     ```sh
     # server mode
     docker run -d \
@@ -130,12 +135,12 @@ A new Docker image will be created upon each release.
         -p <PORT>:<PORT> \
         --restart unless-stopped \
         --name entrello \
-        ghcr.io/utkuufuk/entrello/image:<tag>
+        ghcr.io/utkuufuk/entrello/image:latest
 
     # runner mode
     docker run --rm \
         -v <path/to/config.json>:/bin/config.json \
-        ghcr.io/utkuufuk/entrello/image:<tag> \
+        ghcr.io/utkuufuk/entrello/image:latest \
         ./runner
     ```
 

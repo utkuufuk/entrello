@@ -33,6 +33,14 @@ jobs:
     steps:
       - name: Check out the repo
         uses: actions/checkout@v2
+
+      - name: Prepare tags
+        id: prep
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/}
+          TAGS="${VERSION},latest"
+          echo ::set-output name=tags::${TAGS}
+
       - name: Push to GitHub Packages
         uses: docker/build-push-action@v1
         with:
@@ -40,4 +48,4 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
           registry: docker.pkg.github.com
           repository: utkuufuk/entrello/image
-          tag_with_ref: true
+          tags: ${{ steps.prep.outputs.tags }}
