@@ -10,7 +10,7 @@
 - [Server Mode Configuration](#server-mode-configuration)
 - [Service Configuration](#service-configuration)
 - [Running With Docker](#running-with-docker)
-- [Open Source `entrello` Services](#open-source-entrello-services)
+- [Available `entrello` Services](#available-entrello-services)
 - [Trello Webhooks Reference](#trello-webhooks-reference)
 
 ---
