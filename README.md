@@ -147,25 +147,31 @@ A new Docker image will be created upon each release.
 ---
 
 ## Trello Webhooks Reference
-You can create a Trello webhook using the following command:
-
 ```sh
+# create new webhook
 curl -X POST -H "Content-Type: application/json" \
 https://api.trello.com/1/tokens/<api_token>/webhooks/ \
 -d '{
   "key": "<api_key>",
-  "callbackURL": "<url>",
-  "idModel": "<id_model>",
+  "callbackURL": "<callback_url>",
+  "idModel": "<board_id>",
   "description": "<desc>"
 }'
+
+# list all webhooks
+curl https://api.trello.com/1/members/me/tokens?webhooks=true&key=<api_key>&token=<api_token>
+
+# delete existing webhook
+curl -X DELETE https://api.trello.com/1/webhooks/<webhook_id>?key=<api_key>&token=<api_token>
 ```
 
 * `api_token` &mdash; Trello API token
 * `api_key` &mdash; Trello API key
-* `url` &mdash; Entrello Server URL
-* `id_model` &mdash; Trello Board ID
+* `board_id` &mdash; Trello board ID
+* `callback_url` &mdash; Entrello endpoint to handle webhooks, ending with `/trello-webhook`
 * `desc` &mdash; Arbitrary description string
+* `webhook_id` &mdash; Trello webhook ID
 
-For more information, see
+For more information:
 * [Trello Webhooks Guide](https://developer.atlassian.com/cloud/trello/guides/rest-api/webhooks/)
 * [Trello Webhooks Reference](https://developer.atlassian.com/cloud/trello/rest/#api-group-Webhooks)
