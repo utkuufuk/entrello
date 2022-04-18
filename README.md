@@ -61,11 +61,13 @@ go run ./cmd/server
 You can trigger a synchronization by making a `POST` request to the root URL of your server with the [service configuration](#service-configuration) in the request body:
 ```sh
 # run this as a scheduled (cron) job
-curl -d @<path/to/config.json> <SERVER_URL> -H "Authorization: Basic <base64(<USERNAME>:<PASSWORD>)>"
+curl <SERVER_URL> \
+    -d @<path/to/config.json> \
+    -H "Authorization: Basic <base64(<USERNAME>:<PASSWORD>)>"
 ```
 
 To enable automation for one or more services:
-1. Create a [Trello webhook](#trello-webhooks-reference), where the callback URL must be `<ENTRELLO_SERVER_URL>/trello-webhook`. 
+1. Create a [Trello webhook](#trello-webhooks-reference), where the callback URL is `<ENTRELLO_SERVER_URL>/trello-webhook`.
 2. Set the `SERVICES` environment variable, configuring a 1-on-1 mapping of Trello labels to service endpoints.
 
 ---
@@ -115,11 +117,11 @@ For each service, you must set the following configuration parameters:
 ---
 
 ## Running With Docker
-A new Docker image will be created upon each release.
+A new [Docker image](https://github.com/utkuufuk?tab=packages&repo_name=entrello) will be created upon each [release](https://github.com/utkuufuk/entrello/releases).
 
-1. Authenticate with the GitHub container registry:
+1. Authenticate with the GitHub container registry (only once):
     ```sh
-    echo $CR_PAT | docker login ghcr.io -u USERNAME --password-stdin
+    echo $GITHUB_ACCESS_TOKEN | docker login ghcr.io -u GITHUB_USERNAME --password-stdin
     ```
 
 2. Pull the latest Docker image:
@@ -182,7 +184,7 @@ curl -X DELETE https://api.trello.com/1/webhooks/<WEBHOOK_ID>?key=<API_KEY>&toke
 |`DESCRIPTION`  | Arbitrary description string |
 |`WEBHOOK_ID`   | Trello webhook ID |
 
-For more information:
+For more information on Trello webhooks:
 * [Trello Webhooks Guide](https://developer.atlassian.com/cloud/trello/guides/rest-api/webhooks/)
 * [Trello Webhooks Reference](https://developer.atlassian.com/cloud/trello/rest/#api-group-Webhooks)
 
