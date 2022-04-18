@@ -154,21 +154,21 @@ A new Docker image will be created upon each release.
 ## Open Source `entrello` Services
 You can use these services directly, or as a reference for developing your own:
 - [utkuufuk/github-service](https://github.com/utkuufuk/github-service)
-- _to be continued..._
+- _stay tuned for more_
 
 ---
 
 ## Trello Webhooks Reference
 ```sh
 # create new webhook
-curl -X POST -H "Content-Type: application/json" \
-https://api.trello.com/1/tokens/<api_token>/webhooks/ \
--d '{
+curl -X POST -H "Content-Type: application/json" -d \
+'{
   "key": "<api_key>",
   "callbackURL": "<callback_url>",
   "idModel": "<board_id>",
   "description": "<desc>"
-}'
+}' https://api.trello.com/1/tokens/<api_token>/webhooks/
+
 
 # list all webhooks
 curl https://api.trello.com/1/members/me/tokens?webhooks=true&key=<api_key>&token=<api_token>
