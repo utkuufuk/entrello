@@ -71,8 +71,7 @@ go run ./cmd/runner -c /path/to/config/file
 ---
 
 ## Service Configuration
-Each service must return a JSON array of Trello card objects upon a `GET` request. Here's the JSON structure of a Trello card object:
-https://github.com/utkuufuk/entrello/blob/master/pkg/trello/trello.go#:~:text=func-,NewCard,-(name%2C%20description%20string
+Each service must return a JSON array of [Trello card objects][1] upon a `GET` request.
 
 For each service, you must set the configuration parameters detailed below:
 
@@ -190,3 +189,5 @@ curl -X DELETE https://api.trello.com/1/webhooks/<webhook_id>?key=<api_key>&toke
 For more information:
 * [Trello Webhooks Guide](https://developer.atlassian.com/cloud/trello/guides/rest-api/webhooks/)
 * [Trello Webhooks Reference](https://developer.atlassian.com/cloud/trello/rest/#api-group-Webhooks)
+
+[1]: https://github.com/utkuufuk/entrello/blob/master/pkg/trello/trello.go#:~:text=func-,NewCard,-(name%2C%20description%20string
