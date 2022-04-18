@@ -6,8 +6,8 @@
 
 ## Table of Contents
 - [Features](#features)
-- [Server Mode Configuration](#server-configuration)
-- [Runner Mode Configuration](#runner-configuration)
+- [Server Mode Configuration](#server-mode-configuration)
+- [Runner Mode Configuration](#runner-mode-configuration)
 - [Service Configuration](#service-configuration)
 - [Running With Docker](#running-with-docker)
 - [Trello Webhooks Reference](#trello-webhooks-reference)
@@ -24,14 +24,14 @@ It can be used either as a **server** or a **runner** (e.g. a cronjob).
 1. Polls one or more HTTP services of your own, each of which must return a JSON array of "tasks".
 2. Creates a new card in your Trello board for each new task it has received from your services. Optionally, it can also remove any stale cards.
 
-Synchronization feature is supported by both [runner](#runner-configuration) and [server](#server-configuration) modes.
+Synchronization feature is supported by both [runner](#runner-mode-configuration) and [server](#server-mode-configuration) modes.
 
 ### Automation
 `entrello` can trigger your HTTP services whenever a card is archived via Trello UI:
 1. When a user archives a card via Trello UI, it forwards this event to the matching HTTP service, if any.
 2. The matching HTTP service must handle incoming `POST` requests from `entrello` to react to events.
 
-Automation feature is supported only by the [server](#server-configuration) mode because `entrello` needs to expose a callback URL for Trello webhooks.
+Automation feature is supported only by the [server](#server-mode-configuration) mode because `entrello` needs to expose a callback URL for Trello webhooks.
 
 ---
 
@@ -117,17 +117,12 @@ A new Docker image will be created upon each release.
 
 *See `.github/workflows/release.yml` for continuous delivery workflow configuration.*
 
-1. [Authenticate with GitHub Container Registry](https://docs.github.com/en/free-pro-team@latest/packages/guides/configuring-docker-for-use-with-github-packages#authenticating-to-github-packages) (only once)
+1. Pull the docker image
     ```sh
-    docker login https://docker.pkg.github.com -u <username>
+    docker pull ghcr.io/utkuufuk/entrello:<tag>
     ```
 
-2. Pull the docker image
-    ```sh
-    docker pull docker.pkg.github.com/utkuufuk/entrello/entrello-image:latest
-    ```
-
-3. Run the image:
+2. Spawn a container:
     ```sh
     # server mode
     docker run -d \
