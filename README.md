@@ -129,7 +129,7 @@ A new [Docker image](https://github.com/utkuufuk?tab=packages&repo_name=entrello
     docker pull ghcr.io/utkuufuk/entrello/image:latest
     ```
 
-3. Spawn a container & run:
+3. Spawn & run a container:
     ```sh
     # server
     docker run -d \
