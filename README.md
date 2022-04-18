@@ -6,8 +6,9 @@
 
 ## Table of Contents
 - [Features](#features)
-- [Runner Configuration](#runner-configuration)
-- [Server Configuration](#server-configuration)
+- [Server Mode Configuration](#server-configuration)
+- [Runner Mode Configuration](#runner-configuration)
+- [Service Configuration](#service-configuration)
 - [Running With Docker](#running-with-docker)
 - [Trello Webhooks Reference](#trello-webhooks-reference)
 
@@ -16,7 +17,7 @@
 ## Features
 `entrello` synchronizes all your tasks from various sources in one Trello board. It also lets you build automations that can be triggered via the Trello UI.
 
-It can be used either in **runner** mode (e.g. as a cronjob) or in **server** mode.
+It can be used either as a **server** or a **runner** (e.g. a cronjob).
 
 ### Synchronization
 `entrello` synchronizes your tasks from one or more sources in one Trello board:
@@ -26,26 +27,51 @@ It can be used either in **runner** mode (e.g. as a cronjob) or in **server** mo
 Synchronization feature is supported by both [runner](#runner-configuration) and [server](#server-configuration) modes.
 
 ### Automation
-`entrello` can also trigger your HTTP services whenever a card is archived via Trello UI:
-1. When a user archives a card, it forwards this event to the originating HTTP service, if applicable.
-2. Forwards the archive events from your Trello board and forwards "archived card" events to the matching service, if any.
+`entrello` can trigger your HTTP services whenever a card is archived via Trello UI:
+1. When a user archives a card via Trello UI, it forwards this event to the matching HTTP service, if any.
+2. The matching HTTP service must handle incoming `POST` requests from `entrello` to react to events.
 
 Automation feature is supported only by the [server](#server-configuration) mode because `entrello` needs to expose a callback URL for Trello webhooks.
 
-Here's an example HTTP service that is compatible with `entrello`: https://github.com/utkuufuk/github-service
+---
+
+## Server Mode Configuration
+Copy and rename `.env.example` as `.env`, then set your own values in `.env`.
+
+You can trigger a poll by making a `POST` request to the root URL of your server with the [service configuration](#service-configuration) in the request body:
+
+```sh
+# start the server
+go run ./cmd/server
+
+# make a `POST` request to the HTTP server to trigger polling
+curl -d @<path/to/config.json> <SERVER_URL> -H "Authorization: Basic <base64(<USERNAME>:<PASSWORD>)>"
+```
+
+You can create a [Trello webhook](#trello-webhooks-reference) pointed at `<SERVER_URL>/trello-webhook` in order to listen to events from your Trello board.
 
 ---
 
-## Runner Configuration
-Copy and rename `config.example.json` as `config.json` (default), then set your own values in `config.json`.
+## Runner Mode Configuration
+Create a [service configuration](#service-configuration) file (`config.json` by default), based on `config.example.json`.
 
 You can also use a custom config file path using the `-c` flag:
 ```sh
 go run ./cmd/runner -c /path/to/config/file
+
+# defaults to ./config.json
+go run ./cmd/runner
 ```
 
-### Configuring Services in Runner Mode
-Each configured service must return a JSON array of Trello card objects upon a `GET` request. See `pkg/trello/trello.go` for reference. For each service, the following configuration parameters have to be specified:
+---
+
+## Service Configuration
+Each service must return a JSON array of Trello card objects (see `pkg/trello/trello.go`) upon a `GET` request. 
+
+Here's a list of open-source HTTP services that are compatible with `entrello`:
+- [utkuufuk/github-service](https://github.com/utkuufuk/github-service)
+
+For each service, the following configuration parameters have to be specified:
 
 - `name` &mdash; Service name.
 
@@ -83,23 +109,6 @@ Each configured service must return a JSON array of Trello card objects upon a `
       "interval": 0
     }
     ```
-
----
-
-## Server Configuration
-Copy and rename `.env.example` as `.env`, then set your own values in `.env`.
-
-You can trigger a poll by making a `POST` request to the root URL of your server with the runner configuration in the request body:
-
-```sh
-# start the server
-go run ./cmd/server
-
-# make a `POST` request to the HTTP server to trigger polling
-curl -d @<path/to/config.json> <SERVER_URL> -H "Authorization: Basic <base64(<USERNAME>:<PASSWORD>)>"
-```
-
-You can create a [Trello webhook](#trello-webhooks-reference) pointed at `<SERVER_URL>/trello-webhook` in order to listen to events from your Trello board.
 
 ---
 
