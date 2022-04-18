@@ -6,104 +6,108 @@
 
 ## Table of Contents
 - [Features](#features)
-- [Server Mode Configuration](#server-mode-configuration)
 - [Runner Mode Configuration](#runner-mode-configuration)
+- [Server Mode Configuration](#server-mode-configuration)
 - [Service Configuration](#service-configuration)
 - [Running With Docker](#running-with-docker)
+- [Open Source `entrello` Services](#open-source-entrello-services)
 - [Trello Webhooks Reference](#trello-webhooks-reference)
 
 ---
 
 ## Features
-`entrello` synchronizes all your tasks from various sources in one Trello board. It also lets you build automations that can be triggered via the Trello UI.
+- Synchronizes all your tasks from various sources in one Trello board.
+- Lets you build automations that can be triggered by user actions via Trello UI.
+- Can be used either as a **server** or a **runner** (e.g. a cronjob).
 
-It can be used either as a **server** or a **runner** (e.g. a cronjob).
-
-### Synchronization
+#### Synchronization
 `entrello` synchronizes your tasks from one or more sources in one Trello board:
 1. Polls one or more HTTP services of your own, each of which must return a JSON array of "tasks".
 2. Creates a new card in your Trello board for each new task it has received from your services. Optionally, it can also remove any stale cards.
 
-Synchronization feature is supported by both [runner](#runner-mode-configuration) and [server](#server-mode-configuration) modes.
+Synchronization feature is supported by both the [runner](#runner-mode-configuration) and [server](#server-mode-configuration) modes.
 
-### Automation
+#### Automation
 `entrello` can trigger your HTTP services whenever a card is archived via Trello UI:
 1. When a user archives a card via Trello UI, it forwards this event to the matching HTTP service, if any.
 2. The matching HTTP service must handle incoming `POST` requests from `entrello` to react to events.
 
-Automation feature is supported only by the [server](#server-mode-configuration) mode because `entrello` needs to expose a callback URL for Trello webhooks.
-
----
-
-## Server Mode Configuration
-Copy and rename `.env.example` as `.env`, then set your own values in `.env`.
-
-You can trigger a poll by making a `POST` request to the root URL of your server with the [service configuration](#service-configuration) in the request body:
-
-```sh
-# start the server
-go run ./cmd/server
-
-# make a `POST` request to the HTTP server to trigger polling
-curl -d @<path/to/config.json> <SERVER_URL> -H "Authorization: Basic <base64(<USERNAME>:<PASSWORD>)>"
-```
-
-You can create a [Trello webhook](#trello-webhooks-reference) pointed at `<SERVER_URL>/trello-webhook` in order to listen to events from your Trello board.
+Automation feature is supported only by the [server](#server-mode-configuration) mode, in which a callback URL is exposed for Trello webhooks.
 
 ---
 
 ## Runner Mode Configuration
-Create a [service configuration](#service-configuration) file (`config.json` by default), based on `config.example.json`.
+Create a [service configuration](#service-configuration) file based on `config.example.json`. By default, the runner looks for a file called `config.json` in the current working directory.
 
-You can also use a custom config file path using the `-c` flag:
+You can trigger a synchronization by simply executing the runner:
+```sh
+# run this as a scheduled (cron) job
+go run ./cmd/runner
+```
+
+Alternatively, you can specify a custom config file path using the `-c` flag:
 ```sh
 go run ./cmd/runner -c /path/to/config/file
-
-# defaults to ./config.json
-go run ./cmd/runner
 ```
 
 ---
 
+## Server Mode Configuration
+Put your environment variables in a file called `.env`, based on `.env.example`, and start the server:
+```sh
+go run ./cmd/server
+```
+
+You can trigger a synchronization by making a `POST` request to the root URL of your server with the [service configuration](#service-configuration) in the request body:
+```sh
+# run this as a scheduled (cron) job
+curl <SERVER_URL> \
+    -d @<path/to/config.json> \
+    -H "Authorization: Basic <base64(<USERNAME>:<PASSWORD>)>"
+```
+
+To enable automation for one or more services:
+1. Create a [Trello webhook](#trello-webhooks-reference), where the callback URL is `<ENTRELLO_SERVER_URL>/trello-webhook`.
+2. Set the `SERVICES` environment variable, configuring a 1-on-1 mapping of Trello labels to service endpoints.
+
+---
+
 ## Service Configuration
-Each service must return a JSON array of Trello card objects (see `pkg/trello/trello.go`) upon a `GET` request. 
+Each service must return a JSON array of [Trello card objects][1] upon a `GET` request.
 
-Here's a list of open-source HTTP services that are compatible with `entrello`:
-- [utkuufuk/github-service](https://github.com/utkuufuk/github-service)
-
-For each service, the following configuration parameters have to be specified:
+For each service, you must set the following configuration parameters:
 
 - `name` &mdash; Service name.
 
-- `endpoint` &mdash; Service endpoint. `entrello` will make a `GET` request to this endpoint to fetch fresh cards from the service.
+- `endpoint` &mdash; Service endpoint.
 
-- `strict` &mdash; When strict mode is enabled, previously auto-generated cards that are no longer present in the fresh data will be deleted. For instance, with a GitHub service, strict mode can be useful for automatically removing previously auto-generated cards for issues/PRs from the board when the corresponding issues/PRs are closed/merged.
+- `strict` &mdash; Whether stale cards should be deleted from the board upon synchronization (boolean).
 
-- `label_id` &mdash; **Distinct** Trello label ID associated with the service.
+- `label_id` &mdash; Trello label ID. A label ID must not be associated for more than one service.
 
-- `list_id` &mdash; Trello list ID for the service to determine where to insert new cards. The selected list must be in the same board as configured by the `board_id` parameter.
+- `list_id` &mdash; Trello list ID, specifying where to insert new cards. The list must be in the board specified by the root-level `board_id` config parameter.
 
-- `period` &mdash; Polling period for the service. Some examples:
+- `period` &mdash; Polling period for the service. Determines how often a service should be polled. A few examples:
     ```json
-    // query at 3rd, 6th, 9th, ... of each month
+    // poll on 3rd, 6th, 9th, ... of each month, at 00:00
     "period": {
       "type": "day",
       "interval": 3
     }
 
-    // query at 00:00, 02:00, 04:00, ... every day
+    // poll every day at 00:00, 02:00, 04:00, ...
     "period": {
       "type": "hour",
       "interval": 2
     }
 
-    // query at XX:00, XX:15, XX:30 and XX:45 every hour
+    // poll every hour at XX:00, XX:15, XX:30, XX:45
     "period": {
       "type": "minute",
       "interval": 15
     }
 
-    // query on each execution
+    // poll on each execution
     "period": {
       "type": "default",
       "interval": 0
@@ -113,65 +117,75 @@ For each service, the following configuration parameters have to be specified:
 ---
 
 ## Running With Docker
-A new Docker image will be created upon each release.
+A new [Docker image](https://github.com/utkuufuk?tab=packages&repo_name=entrello) will be created upon each [release](https://github.com/utkuufuk/entrello/releases).
 
-*See `.github/workflows/release.yml` for continuous delivery workflow configuration.*
-
-1. Login
+1. Authenticate with the GitHub container registry (only once):
     ```sh
-    echo $CR_PAT | docker login ghcr.io -u USERNAME --password-stdin
+    echo $GITHUB_ACCESS_TOKEN | docker login ghcr.io -u GITHUB_USERNAME --password-stdin
     ```
 
-2. Pull the docker image
+2. Pull the latest Docker image:
     ```sh
     docker pull ghcr.io/utkuufuk/entrello/image:latest
     ```
 
-3. Spawn a container:
+3. Spawn & run a container:
     ```sh
-    # server mode
+    # server
     docker run -d \
-        --env-file <path/to/.env> \
         -p <PORT>:<PORT> \
+        --env-file </absolute/path/to/.env> \
         --restart unless-stopped \
-        --name entrello \
+        --name entrello-server \
         ghcr.io/utkuufuk/entrello/image:latest
 
-    # runner mode
+    # runner
     docker run --rm \
-        -v <path/to/config.json>:/bin/config.json \
+        -v </absolute/path/to/config.json>:/bin/config.json \
         ghcr.io/utkuufuk/entrello/image:latest \
         ./runner
     ```
 
 ---
 
+## Available `entrello` Services
+You can use these services directly, or as a reference for developing your own:
+- [utkuufuk/github-service](https://github.com/utkuufuk/github-service)
+
+_Stay tuned for more..._
+
+---
+
 ## Trello Webhooks Reference
 ```sh
 # create new webhook
-curl -X POST -H "Content-Type: application/json" \
-https://api.trello.com/1/tokens/<api_token>/webhooks/ \
--d '{
-  "key": "<api_key>",
-  "callbackURL": "<callback_url>",
-  "idModel": "<board_id>",
-  "description": "<desc>"
-}'
+curl -X POST -H "Content-Type: application/json" -d \
+'{
+  "key": "<API_KEY>",
+  "callbackURL": "<CALLBACK_URL>",
+  "idModel": "<BOARD_ID>",
+  "description": "<DESCRIPTION>"
+}' https://api.trello.com/1/tokens/<API_TOKEN>/webhooks/
+
 
 # list all webhooks
-curl https://api.trello.com/1/members/me/tokens?webhooks=true&key=<api_key>&token=<api_token>
+curl https://api.trello.com/1/members/me/tokens?webhooks=true&key=<API_KEY>&token=<API_TOKEN>
 
 # delete existing webhook
-curl -X DELETE https://api.trello.com/1/webhooks/<webhook_id>?key=<api_key>&token=<api_token>
+curl -X DELETE https://api.trello.com/1/webhooks/<WEBHOOK_ID>?key=<API_KEY>&token=<API_TOKEN>
 ```
 
-* `api_token` &mdash; Trello API token
-* `api_key` &mdash; Trello API key
-* `board_id` &mdash; Trello board ID
-* `callback_url` &mdash; Entrello endpoint to handle webhooks, ending with `/trello-webhook`
-* `desc` &mdash; Arbitrary description string
-* `webhook_id` &mdash; Trello webhook ID
+| Placeholder   | Description |
+|:--------------|:------------|
+|`API_TOKEN`    | Trello API token |
+|`API_KEY`      | Trello API key |
+|`BOARD_ID`     | Trello board ID |
+|`CALLBACK_URL` | `entrello` server callback URL (see [server config](#server-mode-configuration)) |
+|`DESCRIPTION`  | Arbitrary description string |
+|`WEBHOOK_ID`   | Trello webhook ID |
 
-For more information:
+For more information on Trello webhooks:
 * [Trello Webhooks Guide](https://developer.atlassian.com/cloud/trello/guides/rest-api/webhooks/)
 * [Trello Webhooks Reference](https://developer.atlassian.com/cloud/trello/rest/#api-group-Webhooks)
+
+[1]: https://github.com/utkuufuk/entrello/blob/master/pkg/trello/trello.go#:~:text=func-,NewCard,-(name%2C%20description%20string
