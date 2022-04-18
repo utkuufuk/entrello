@@ -119,7 +119,7 @@ A new Docker image will be created upon each release.
 
 1. Pull the docker image
     ```sh
-    docker pull ghcr.io/utkuufuk/entrello:<tag>
+    docker pull ghcr.io/utkuufuk/entrello/image:<tag>
     ```
 
 2. Spawn a container:
@@ -130,12 +130,12 @@ A new Docker image will be created upon each release.
         -p <PORT>:<PORT> \
         --restart unless-stopped \
         --name entrello \
-        ghcr.io/utkuufuk/entrello:<tag>
+        ghcr.io/utkuufuk/entrello/image:<tag>
 
     # runner mode
     docker run --rm \
         -v <path/to/config.json>:/bin/config.json \
-        ghcr.io/utkuufuk/entrello:<tag> \
+        ghcr.io/utkuufuk/entrello/image:<tag> \
         ./runner
     ```
 
