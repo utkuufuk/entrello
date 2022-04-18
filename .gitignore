@@ -1,4 +1,4 @@
 .env
 *.json
-webhook.sh
 !config.example.json
+/scripts
