@@ -1,0 +1,11 @@
+.editorconfig
+.env*
+.gitignore
+Dockerfile
+LICENSE
+Procfile
+*.yml
+*.json
+*.md
+/.git
+/.github
