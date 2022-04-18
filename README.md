@@ -130,12 +130,12 @@ A new Docker image will be created upon each release.
         -p <PORT>:<PORT> \
         --restart unless-stopped \
         --name entrello \
-        docker.pkg.github.com/utkuufuk/entrello/entrello-image:latest
+        ghcr.io/utkuufuk/entrello:<tag>
 
     # runner mode
     docker run --rm \
         -v <path/to/config.json>:/bin/config.json \
-        docker.pkg.github.com/utkuufuk/entrello/entrello-image:latest \
+        ghcr.io/utkuufuk/entrello:<tag> \
         ./runner
     ```
 
