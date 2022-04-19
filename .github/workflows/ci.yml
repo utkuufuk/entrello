@@ -1,4 +1,4 @@
-name: entrello
+name: CI
 on:
   push:
 jobs:

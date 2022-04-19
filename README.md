@@ -1,6 +1,6 @@
 # entrello
-![build](https://github.com/utkuufuk/entrello/workflows/entrello/badge.svg?branch=master)
-![Latest GitHub release](https://img.shields.io/github/release/utkuufuk/entrello.svg)
+![CI](https://github.com/utkuufuk/entrello/workflows/CI/badge.svg?branch=master)
+![Latest Release](https://img.shields.io/github/release/utkuufuk/entrello.svg)
 [![Go Report Card](https://goreportcard.com/badge/github.com/utkuufuk/entrello)](https://goreportcard.com/report/github.com/utkuufuk/entrello)
 [![Coverage Status](https://coveralls.io/repos/github/utkuufuk/entrello/badge.svg)](https://coveralls.io/github/utkuufuk/entrello)
 
