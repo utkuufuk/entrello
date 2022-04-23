@@ -49,19 +49,22 @@ func shouldPoll(service config.Service, date time.Time) (bool, error) {
 	switch service.Period.Type {
 	case config.PeriodTypeDefault:
 		return true, nil
+
 	case config.PeriodTypeDay:
 		if interval > 31 {
-			return false, fmt.Errorf("daily interval cannot be more than 14, got: '%d'", interval)
+			return false, fmt.Errorf("day period cannot be more than 31, got %d", interval)
 		}
 		return date.Day()%interval == 0 && date.Hour() == 0 && date.Minute() == 0, nil
+
 	case config.PeriodTypeHour:
 		if interval > 23 {
-			return false, fmt.Errorf("hourly interval cannot be more than 23, got: '%d'", interval)
+			return false, fmt.Errorf("hour period cannot be more than 23, got %d", interval)
 		}
 		return date.Hour()%interval == 0 && date.Minute() == 0, nil
+
 	case config.PeriodTypeMinute:
 		if interval > 60 {
-			return false, fmt.Errorf("minute interval cannot be more than 60, got: '%d'", interval)
+			return false, fmt.Errorf("minute period cannot be more than 60, got %d", interval)
 		}
 		return date.Minute()%interval == 0, nil
 	}

@@ -3,33 +3,17 @@ package config
 import (
 	"fmt"
 	"os"
-	"strings"
 
 	"github.com/joho/godotenv"
 )
 
 func init() {
-	appEnv := os.Getenv("APP_ENV")
-	if appEnv != "production" {
-		godotenv.Load()
-	}
+	godotenv.Load()
 
-	serializedServices := strings.Split(os.Getenv("SERVICES"), ",")
-	if appEnv != "production" && os.Getenv("SERVICES") == "" {
-		serializedServices = []string{}
-	}
-
-	services := make([]Service, 0, len(serializedServices))
-
-	for _, service := range serializedServices {
-		parts := strings.Split(service, "@")
-		if len(parts) != 2 {
-			panic(fmt.Sprintf("invalid service configuration string: %s", service))
-		}
-		services = append(services, Service{
-			Label:    parts[0],
-			Endpoint: parts[1],
-		})
+	services, err := parseServices(os.Getenv("SERVICES"))
+	if err != nil {
+		fmt.Println("Could not parse the environment variable 'SERVICES':", err)
+		os.Exit(1)
 	}
 
 	ServerCfg = ServerConfig{

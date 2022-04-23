@@ -72,13 +72,13 @@ To enable automation for one or more services:
     * A service configuration string must contain the Trello label ID and the service endpoint:
         ```sh
         # trello label ID: 1234
-        # service enpoint URL: localhost:3333/entrello
-        1234@localhost:3333/entrello
+        # service enpoint URL: http://localhost:3333/entrello
+        1234@http://localhost:3333/entrello
         ```
-    * It may additionally contain an API secret for authentication purposes:
+    * It may additionally contain an API secret &ndash; _alphanumeric only_ &ndash; for authentication purposes:
         ```sh
-        # the HTTP header "X-Api-Key" will be set to "secret_password" in each request
-        1234:secret_password@localhost:3333/entrello
+        # the HTTP header "X-Api-Key" will be set to "SuPerSecRetPassW0rd" in each request
+        1234:SuPerSecRetPassW0rd@http://localhost:3333/entrello
         ```
 
 ---
@@ -86,21 +86,17 @@ To enable automation for one or more services:
 ## Service Configuration
 Each service must return a JSON array of [Trello card objects][1] upon a `GET` request.
 
-For each service, you must set the following configuration parameters:
+#### Mandatory configuration parameters
 
 - `name` &mdash; Service name.
 
-- `endpoint` &mdash; Service endpoint.
+- `endpoint` &mdash; Service endpoint URL.
 
-- `secret` &mdash; Optional API secret. If present, `entrello` will put it in the `X-Api-Key` HTTP header.
+- `label_id` &mdash; Trello label ID. A label ID can be associated with no more than one service.
 
-- `strict` &mdash; Whether stale cards should be deleted from the board upon synchronization (boolean).
+- `list_id` &mdash; Trello list ID, i.e. where to insert new cards. The list must be in the board specified by the root-level `board_id` config parameter.
 
-- `label_id` &mdash; Trello label ID. A label ID must not be associated for more than one service.
-
-- `list_id` &mdash; Trello list ID, specifying where to insert new cards. The list must be in the board specified by the root-level `board_id` config parameter.
-
-- `period` &mdash; Polling period for the service. Determines how often a service should be polled. A few examples:
+- `period` &mdash; Polling period. A few examples:
     ```json
     // poll on 3rd, 6th, 9th, ... of each month, at 00:00
     "period": {
@@ -122,10 +118,15 @@ For each service, you must set the following configuration parameters:
 
     // poll on each execution
     "period": {
-      "type": "default",
-      "interval": 0
+      "type": "default"
     }
     ```
+
+#### Optional configuration parameters
+
+- `secret` &mdash; Alphanumeric API secret. If present, `entrello` will put it in the `X-Api-Key` HTTP header.
+
+- `strict` &mdash; Whether stale cards should be deleted from the board upon synchronization. `false` by default.
 
 ---
 
