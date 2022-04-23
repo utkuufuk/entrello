@@ -36,17 +36,17 @@ Automation feature is supported only by the [server](#server-mode-configuration)
 ---
 
 ## Runner Mode Configuration
-Create a [service configuration](#service-configuration) file based on `config.example.json`. By default, the runner looks for a file called `config.json` in the current working directory.
-
-You can trigger a synchronization by simply executing the runner:
+Create a [service configuration](#service-configuration) file based on `config.example.json`. You can trigger a synchronization by simply executing the runner:
 ```sh
 # run this as a scheduled (cron) job
-go run ./cmd/runner
+go run ./cmd/runner -c /path/to/config/file
 ```
 
-Alternatively, you can specify a custom config file path using the `-c` flag:
+If the `-c` flag is omitted, the runner looks for a file called `config.json` in the current working directory:
 ```sh
-go run ./cmd/runner -c /path/to/config/file
+# these two are equivalent:
+go run ./cmd/runner
+go run ./cmd/runner -c ./config.json
 ```
 
 ---
@@ -65,28 +65,38 @@ curl <SERVER_URL> \
     -H "Authorization: Basic <base64(<USERNAME>:<PASSWORD>)>"
 ```
 
+### Automation
 To enable automation for one or more services:
 1. Create a [Trello webhook](#trello-webhooks-reference), where the callback URL is `<ENTRELLO_SERVER_URL>/trello-webhook`.
-2. Set the `SERVICES` environment variable, configuring a 1-on-1 mapping of Trello labels to service endpoints.
+2. Set the `SERVICES` environment variable, a comma-separated list of service configuration strings:
+    * A service configuration string must contain the Trello label ID and the service endpoint:
+        ```sh
+        # trello label ID: 1234
+        # service enpoint URL: http://localhost:3333/entrello
+        1234@http://localhost:3333/entrello
+        ```
+    * It may additionally contain an API secret &ndash; _alphanumeric only_ &ndash; for authentication purposes:
+        ```sh
+        # the HTTP header "X-Api-Key" will be set to "SuPerSecRetPassW0rd" in each request
+        1234:SuPerSecRetPassW0rd@http://localhost:3333/entrello
+        ```
 
 ---
 
 ## Service Configuration
 Each service must return a JSON array of [Trello card objects][1] upon a `GET` request.
 
-For each service, you must set the following configuration parameters:
+#### Mandatory configuration parameters
 
 - `name` &mdash; Service name.
 
-- `endpoint` &mdash; Service endpoint.
+- `endpoint` &mdash; Service endpoint URL.
 
-- `strict` &mdash; Whether stale cards should be deleted from the board upon synchronization (boolean).
+- `label_id` &mdash; Trello label ID. A label ID can be associated with no more than one service.
 
-- `label_id` &mdash; Trello label ID. A label ID must not be associated for more than one service.
+- `list_id` &mdash; Trello list ID, i.e. where to insert new cards. The list must be in the board specified by the root-level `board_id` config parameter.
 
-- `list_id` &mdash; Trello list ID, specifying where to insert new cards. The list must be in the board specified by the root-level `board_id` config parameter.
-
-- `period` &mdash; Polling period for the service. Determines how often a service should be polled. A few examples:
+- `period` &mdash; Polling period. A few examples:
     ```json
     // poll on 3rd, 6th, 9th, ... of each month, at 00:00
     "period": {
@@ -108,10 +118,15 @@ For each service, you must set the following configuration parameters:
 
     // poll on each execution
     "period": {
-      "type": "default",
-      "interval": 0
+      "type": "default"
     }
     ```
+
+#### Optional configuration parameters
+
+- `secret` &mdash; Alphanumeric API secret. If present, `entrello` will put it in the `X-Api-Key` HTTP header.
+
+- `strict` &mdash; Whether stale cards should be deleted from the board upon synchronization. `false` by default.
 
 ---
 

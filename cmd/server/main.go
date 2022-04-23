@@ -23,7 +23,10 @@ func main() {
 
 	http.HandleFunc("/", handlePollRequest)
 	http.HandleFunc("/trello-webhook", handleTrelloWebhookRequest)
-	http.ListenAndServe(fmt.Sprintf(":%s", config.ServerCfg.Port), nil)
+
+	if err := http.ListenAndServe(fmt.Sprintf(":%s", config.ServerCfg.Port), nil); err != nil {
+		logger.Error("Could not start server: %v", err)
+	}
 }
 
 func handlePollRequest(w http.ResponseWriter, req *http.Request) {

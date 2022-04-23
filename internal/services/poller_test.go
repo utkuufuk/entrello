@@ -79,7 +79,7 @@ func TestShouldPoll(t *testing.T) {
 			pInterval: 40,
 			date:      time.Date(1990, time.Month(2), 4, 0, 0, 0, 0, time.UTC),
 			ok:        false,
-			err:       fmt.Errorf("daily interval cannot be more than 14, got: '40'"),
+			err:       fmt.Errorf("day period cannot be more than 31, got 40"),
 		},
 		{
 			name:      "every 5 hours, at 15:00, should poll",
@@ -111,7 +111,7 @@ func TestShouldPoll(t *testing.T) {
 			pInterval: 25,
 			date:      time.Date(1990, time.Month(2), 4, 1, 0, 0, 0, time.UTC),
 			ok:        false,
-			err:       fmt.Errorf("hourly interval cannot be more than 23, got: '25'"),
+			err:       fmt.Errorf("hour period cannot be more than 23, got 25"),
 		},
 		{
 			name:      "every 7 minutes, at 14:56, should poll",
@@ -135,7 +135,7 @@ func TestShouldPoll(t *testing.T) {
 			pInterval: 61,
 			date:      time.Date(1990, time.Month(2), 4, 1, 0, 0, 0, time.UTC),
 			ok:        false,
-			err:       fmt.Errorf("minute interval cannot be more than 60, got: '61'"),
+			err:       fmt.Errorf("minute period cannot be more than 60, got 61"),
 		},
 	}
 
