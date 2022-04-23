@@ -36,17 +36,17 @@ Automation feature is supported only by the [server](#server-mode-configuration)
 ---
 
 ## Runner Mode Configuration
-Create a [service configuration](#service-configuration) file based on `config.example.json`. By default, the runner looks for a file called `config.json` in the current working directory.
-
-You can trigger a synchronization by simply executing the runner:
+Create a [service configuration](#service-configuration) file based on `config.example.json`. You can trigger a synchronization by simply executing the runner:
 ```sh
 # run this as a scheduled (cron) job
-go run ./cmd/runner
+go run ./cmd/runner -c /path/to/config/file
 ```
 
-Alternatively, you can specify a custom config file path using the `-c` flag:
+If the `-c` flag is omitted, the runner looks for a file called `config.json` in the current working directory:
 ```sh
-go run ./cmd/runner -c /path/to/config/file
+# these two are equivalent:
+go run ./cmd/runner
+go run ./cmd/runner -c ./config.json
 ```
 
 ---
@@ -65,9 +65,21 @@ curl <SERVER_URL> \
     -H "Authorization: Basic <base64(<USERNAME>:<PASSWORD>)>"
 ```
 
+### Automation
 To enable automation for one or more services:
 1. Create a [Trello webhook](#trello-webhooks-reference), where the callback URL is `<ENTRELLO_SERVER_URL>/trello-webhook`.
-2. Set the `SERVICES` environment variable, configuring a 1-on-1 mapping of Trello labels to service endpoints.
+2. Set the `SERVICES` environment variable, a comma-separated list of service configuration strings:
+    * A service configuration string must contain the Trello label ID and the service endpoint:
+        ```sh
+        # trello label ID: 1234
+        # service enpoint URL: localhost:3333/entrello
+        1234@localhost:3333/entrello
+        ```
+    * It may additionally contain an API secret for authentication purposes:
+        ```sh
+        # the HTTP header "X-API-Key" will be set to "secret_password" in each request
+        1234:secret_password@localhost:3333/entrello
+        ```
 
 ---
 
@@ -79,6 +91,8 @@ For each service, you must set the following configuration parameters:
 - `name` &mdash; Service name.
 
 - `endpoint` &mdash; Service endpoint.
+
+- `secret` &mdash; Optional API secret. If present, `entrello` will put it in the `X-API-Key` HTTP header.
 
 - `strict` &mdash; Whether stale cards should be deleted from the board upon synchronization (boolean).
 

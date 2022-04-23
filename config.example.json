@@ -9,6 +9,7 @@
     {
       "name": "Github Issues",
       "endpoint": "http://<github-issues-endpoint>",
+      "secret": "youwish",
       "strict": true,
       "label_id": "xxxxxxxxxxxxxxxxxxxxxxxx",
       "list_id": "xxxxxxxxxxxxxxxxxxxxxxxx",

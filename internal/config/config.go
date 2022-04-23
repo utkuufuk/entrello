@@ -14,6 +14,7 @@ type Period struct {
 type Service struct {
 	Name     string `json:"name"`
 	Endpoint string `json:"endpoint"`
+	Secret   string `json:"secret"`
 	Strict   bool   `json:"strict"`
 	Label    string `json:"label_id"`
 	List     string `json:"list_id"`
