@@ -6,6 +6,8 @@ import (
 	"strings"
 )
 
+var alphaNumeric = regexp.MustCompile(`^[a-zA-Z0-9]*$`)
+
 func parseServices(input string) ([]Service, error) {
 	if input == "" {
 		return []Service{}, nil
@@ -13,8 +15,6 @@ func parseServices(input string) ([]Service, error) {
 
 	serializedServices := strings.Split(input, ",")
 	services := make([]Service, 0, len(serializedServices))
-
-	alphaNumeric := regexp.MustCompile(`^[a-zA-Z0-9]*$`)
 
 	for _, service := range serializedServices {
 		majorParts := strings.Split(service, "@")
@@ -45,6 +45,10 @@ func parseServices(input string) ([]Service, error) {
 				return nil, fmt.Errorf("unexpected non-alphanumeric characters in %s", service)
 			}
 			secret = minorParts[1]
+		}
+
+		if !strings.HasPrefix(majorParts[1], "http") {
+			return nil, fmt.Errorf("service endpoint URL does not start with 'http' in %s", service)
 		}
 
 		services = append(services, Service{

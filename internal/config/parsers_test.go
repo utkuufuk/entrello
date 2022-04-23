@@ -15,25 +15,30 @@ func TestParseServices(t *testing.T) {
 	}{
 		{
 			name:     "simple service without secret",
-			input:    "label@endpoint",
+			input:    "label@http://example.com",
 			isValid:  true,
-			services: []Service{{Label: "label", Secret: "", Endpoint: "endpoint"}},
+			services: []Service{{Label: "label", Secret: "", Endpoint: "http://example.com"}},
 		},
 		{
 			name:     "simple service with secret",
-			input:    "label:secret@endpoint",
+			input:    "label:secret@http://example.com",
 			isValid:  true,
-			services: []Service{{Label: "label", Secret: "secret", Endpoint: "endpoint"}},
+			services: []Service{{Label: "label", Secret: "secret", Endpoint: "http://example.com"}},
 		},
 		{
 			name:     "service with secret containing numbers and uppercase letters",
-			input:    "label:aBcD1230XyZ@endpoint",
+			input:    "label:aBcD1230XyZ@http://example.com",
 			isValid:  true,
-			services: []Service{{Label: "label", Secret: "aBcD1230XyZ", Endpoint: "endpoint"}},
+			services: []Service{{Label: "label", Secret: "aBcD1230XyZ", Endpoint: "http://example.com"}},
+		},
+		{
+			name:    "endpoint URL does not start with 'http'",
+			input:   "label@example.com",
+			isValid: false,
 		},
 		{
 			name:    "no '@' delimiter",
-			input:   "label-endpoint",
+			input:   "label-http://example.com",
 			isValid: false,
 		},
 		{
@@ -43,17 +48,17 @@ func TestParseServices(t *testing.T) {
 		},
 		{
 			name:    "multiple ':' delimiters",
-			input:   "label:super:secret:password@endpoint",
+			input:   "label:super:secret:password@http://example.com",
 			isValid: false,
 		},
 		{
 			name:    "non-alphanumeric characters in label",
-			input:   "definitely$$not_*?a+Trello.Label@endpoint",
+			input:   "definitely$$not_*?a+Trello.Label@http://example.com",
 			isValid: false,
 		},
 		{
 			name:    "non-alphanumeric characters in secret",
-			input:   "label:-?_*@endpoint",
+			input:   "label:-?_*@http://example.com",
 			isValid: false,
 		},
 	}
