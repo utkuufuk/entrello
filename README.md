@@ -77,7 +77,7 @@ To enable automation for one or more services:
         ```
     * It may additionally contain an API secret for authentication purposes:
         ```sh
-        # the HTTP header "X-API-Key" will be set to "secret_password" in each request
+        # the HTTP header "X-Api-Key" will be set to "secret_password" in each request
         1234:secret_password@localhost:3333/entrello
         ```
 
@@ -92,7 +92,7 @@ For each service, you must set the following configuration parameters:
 
 - `endpoint` &mdash; Service endpoint.
 
-- `secret` &mdash; Optional API secret. If present, `entrello` will put it in the `X-API-Key` HTTP header.
+- `secret` &mdash; Optional API secret. If present, `entrello` will put it in the `X-Api-Key` HTTP header.
 
 - `strict` &mdash; Whether stale cards should be deleted from the board upon synchronization (boolean).
 

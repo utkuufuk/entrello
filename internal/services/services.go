@@ -20,9 +20,9 @@ func Poll(cfg config.RunnerConfig) error {
 		return fmt.Errorf("invalid timezone location: %v", loc)
 	}
 
-	services, labels, err := getServices(cfg.Services, time.Now().In(loc))
+	services, labels, err := getServicesToPoll(cfg.Services, time.Now().In(loc))
 	if err != nil {
-		return fmt.Errorf("failed to get services to poll: %v", err)
+		return fmt.Errorf("failed to get services to poll: %w", err)
 	}
 	if len(services) == 0 {
 		return nil
@@ -31,7 +31,7 @@ func Poll(cfg config.RunnerConfig) error {
 	client := trello.NewClient(cfg.Trello)
 
 	if err := client.LoadBoard(labels); err != nil {
-		return fmt.Errorf("Could not load existing cards from the board: %v", err)
+		return fmt.Errorf("Could not load existing cards from the board: %w", err)
 	}
 
 	var wg sync.WaitGroup
@@ -56,12 +56,19 @@ func Notify(card trello.Card, services []config.Service) error {
 		if slices.Contains(labelIds, service.Label) {
 			postBody, err := json.Marshal(card)
 			if err != nil {
-				return fmt.Errorf("could not marshal archived card: %v", err)
+				return fmt.Errorf("could not marshal archived card: %w", err)
 			}
 
-			resp, err := http.Post(service.Endpoint, "application/json", bytes.NewBuffer(postBody))
+			req, err := http.NewRequest("POST", service.Endpoint, bytes.NewBuffer(postBody))
 			if err != nil {
-				return fmt.Errorf("could not post archived card data to %s: %v", service.Endpoint, err)
+				return fmt.Errorf("could not create POST request to %s: %w", service.Endpoint, err)
+			}
+			req.Header.Add("Content-Type", "application/json")
+			req.Header.Add("X-Api-Key", service.Secret)
+
+			resp, err := http.DefaultClient.Do(req)
+			if err != nil {
+				return fmt.Errorf("could not post archived card data to %s: %w", service.Endpoint, err)
 			}
 			defer resp.Body.Close()
 		}
