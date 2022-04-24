@@ -175,28 +175,19 @@ _Stay tuned for more..._
 # create new webhook
 curl -X POST -H "Content-Type: application/json" -d \
 '{
-  "key": "<API_KEY>",
-  "callbackURL": "<CALLBACK_URL>",
-  "idModel": "<BOARD_ID>",
+  "key": "<TRELLO_API_KEY>",
+  "callbackURL": "<ENTRELLO_SERVER_CALLBACK_URL>",
+  "idModel": "<TRELLO_BOARD_ID>",
   "description": "<DESCRIPTION>"
-}' https://api.trello.com/1/tokens/<API_TOKEN>/webhooks/
+}' https://api.trello.com/1/tokens/<TRELLO_API_TOKEN>/webhooks/
 
 
 # list all webhooks
-curl https://api.trello.com/1/members/me/tokens?webhooks=true&key=<API_KEY>&token=<API_TOKEN>
+curl https://api.trello.com/1/members/me/tokens?webhooks=true&key=<TRELLO_API_KEY>&token=<TRELLO_API_TOKEN>
 
 # delete existing webhook
-curl -X DELETE https://api.trello.com/1/webhooks/<WEBHOOK_ID>?key=<API_KEY>&token=<API_TOKEN>
+curl -X DELETE https://api.trello.com/1/webhooks/<TRELLO_WEBHOOK_ID>?key=<TRELLO_API_KEY>&token=<TRELLO_API_TOKEN>
 ```
-
-| Placeholder   | Description |
-|:--------------|:------------|
-|`API_TOKEN`    | Trello API token |
-|`API_KEY`      | Trello API key |
-|`BOARD_ID`     | Trello board ID |
-|`CALLBACK_URL` | `entrello` server callback URL (see [server config](#server-mode-configuration)) |
-|`DESCRIPTION`  | Arbitrary description string |
-|`WEBHOOK_ID`   | Trello webhook ID |
 
 For more information on Trello webhooks:
 * [Trello Webhooks Guide](https://developer.atlassian.com/cloud/trello/guides/rest-api/webhooks/)
