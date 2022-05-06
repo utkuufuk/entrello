@@ -165,6 +165,7 @@ A new [Docker image](https://github.com/utkuufuk?tab=packages&repo_name=entrello
 ## Available `entrello` Services
 You can use these services directly, or as a reference for developing your own:
 - [utkuufuk/github-service](https://github.com/utkuufuk/github-service)
+- [utkuufuk/goodreads-service](https://github.com/utkuufuk/goodreads-service)
 
 _Stay tuned for more..._
 
