@@ -8,7 +8,7 @@
   "services": [
     {
       "name": "Github Issues",
-      "endpoint": "http://<github-issues-endpoint>",
+      "endpoint": "https://<github-issues-service-endpoint>",
       "secret": "youwish",
       "strict": true,
       "label_id": "xxxxxxxxxxxxxxxxxxxxxxxx",
@@ -20,7 +20,7 @@
     },
     {
       "name": "Google Spreadsheet Habits",
-      "endpoint": "http://<habits-endpoint>",
+      "endpoint": "https://<habits-service-endpoint>",
       "strict": true,
       "label_id": "xxxxxxxxxxxxxxxxxxxxxxxx",
       "list_id": "xxxxxxxxxxxxxxxxxxxxxxxx",
@@ -31,7 +31,7 @@
     },
     {
       "name": "TodoDock",
-      "endpoint": "http://<tododock-endpoint>",
+      "endpoint": "https://<tododock-service-endpoint>",
       "strict": true,
       "label_id": "xxxxxxxxxxxxxxxxxxxxxxxx",
       "list_id": "xxxxxxxxxxxxxxxxxxxxxxxx",

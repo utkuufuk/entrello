@@ -5,11 +5,11 @@
 
 ## Table of Contents
 - [Features](#features)
-- [Runner Mode Configuration](#runner-mode-configuration)
-- [Server Mode Configuration](#server-mode-configuration)
 - [Service Configuration](#service-configuration)
+- [Runner Mode](#runner-mode)
+- [Server Mode](#server-mode)
 - [Running With Docker](#running-with-docker)
-- [Available `entrello` Services](#available-entrello-services)
+- [Example `entrello` Services](#example-entrello-services)
 - [Trello Webhooks Reference](#trello-webhooks-reference)
 
 ---
@@ -20,74 +20,28 @@
 - Can be used either as a **server** or a **runner** (e.g. a cronjob).
 
 #### Synchronization
-`entrello` synchronizes your tasks from one or more sources in one Trello board:
-1. Polls one or more HTTP services of your own, each of which must return a JSON array of "tasks".
-2. Creates a new card in your Trello board for each new task it has received from your services. Optionally, it can also remove any stale cards.
+`entrello` synchronizes your tasks from one or more sources in one Trello board by:
+1. Polling one or more of your custom HTTP services, each of which must return a JSON array of "tasks".
+2. Creating a new card in your Trello board for each new task it has received from your services.
+3. Optionally deleting any existing stale cards in your Trello board.
 
-Synchronization feature is supported by both the [runner](#runner-mode-configuration) and [server](#server-mode-configuration) modes.
+Synchronization feature is supported by both the [runner](#runner-mode) and [server](#server-mode) modes.
 
 #### Automation
-`entrello` can trigger your HTTP services whenever a card is archived via Trello UI:
-1. When a user archives a card via Trello UI, it forwards this event to the matching HTTP service, if any.
-2. The matching HTTP service must handle incoming `POST` requests from `entrello` to react to events.
+`entrello` lets you build custom automations based on archived card events:
+1. Whenever a Trello card is archived (i.e. done), it `POST`s this event to the matching HTTP service, if any.
+2. Your service may handle this `POST` request and take further actions, e.g. it could update some value in a spreadsheet.
 
-Automation feature is supported only by the [server](#server-mode-configuration) mode, in which a callback URL is exposed for Trello webhooks.
-
----
-
-## Runner Mode Configuration
-Create a [service configuration](#service-configuration) file based on `config.example.json`. You can trigger a synchronization by simply executing the runner:
-```sh
-# run this as a scheduled (cron) job
-go run ./cmd/runner -c /path/to/config/file
-```
-
-If the `-c` flag is omitted, the runner looks for a file called `config.json` in the current working directory:
-```sh
-# these two are equivalent:
-go run ./cmd/runner
-go run ./cmd/runner -c ./config.json
-```
-
----
-
-## Server Mode Configuration
-Put your environment variables in a file called `.env`, based on `.env.example`, and start the server:
-```sh
-go run ./cmd/server
-```
-
-You can trigger a synchronization by making a `POST` request to the root URL of your server with the [service configuration](#service-configuration) in the request body:
-```sh
-# run this as a scheduled (cron) job
-curl <SERVER_URL> \
-    -d @<path/to/config.json> \
-    -H "Authorization: Basic <base64(<USERNAME>:<PASSWORD>)>"
-```
-
-### Automation
-To enable automation for one or more services:
-1. Create a [Trello webhook](#trello-webhooks-reference), where the callback URL is `<ENTRELLO_SERVER_URL>/trello-webhook`.
-2. Set the `SERVICES` environment variable, a comma-separated list of service configuration strings:
-    * A service configuration string must contain the Trello label ID and the service endpoint:
-        ```sh
-        # trello label ID: 1234
-        # service enpoint URL: http://localhost:3333/entrello
-        1234@http://localhost:3333/entrello
-        ```
-    * It may additionally contain an API secret &ndash; _alphanumeric only_ &ndash; for authentication purposes:
-        ```sh
-        # the HTTP header "X-Api-Key" will be set to "SuPerSecRetPassW0rd" in each request
-        1234:SuPerSecRetPassW0rd@http://localhost:3333/entrello
-        ```
+Automation feature is supported only by the [server](#server-mode) mode, which listens for Trello webhooks.
 
 ---
 
 ## Service Configuration
-Each service must return a JSON array of [Trello card objects][1] upon a `GET` request.
+See `config.example.json` for reference.
+
+Your custom HTTP services must each return a JSON array of [Trello card objects](https://github.com/utkuufuk/entrello/blob/master/pkg/trello/trello.go#:~:text=func-,NewCard) upon `GET` requests.
 
 #### Mandatory configuration parameters
-
 - `name` &mdash; Service name.
 
 - `endpoint` &mdash; Service endpoint URL.
@@ -123,10 +77,57 @@ Each service must return a JSON array of [Trello card objects][1] upon a `GET` r
     ```
 
 #### Optional configuration parameters
-
 - `secret` &mdash; Alphanumeric API secret. If present, `entrello` will put it in the `X-Api-Key` HTTP header.
 
 - `strict` &mdash; Whether stale cards should be deleted from the board upon synchronization. `false` by default.
+
+---
+
+
+## Runner Mode
+Create a [service configuration](#service-configuration) file based on `config.example.json`. You can trigger a one-off synchronization by executing the runner:
+```sh
+# run this as a scheduled (cron) job
+go run ./cmd/runner -c /path/to/config/file
+```
+
+If the `-c` flag is omitted, the runner looks for a file called `config.json` in the current working directory:
+```sh
+# these two are equivalent:
+go run ./cmd/runner
+go run ./cmd/runner -c ./config.json
+```
+
+---
+
+## Server Mode
+Put your environment variables in a file called `.env`, based on `.env.example`, and start the server:
+```sh
+go run ./cmd/server
+```
+
+#### Synchronization
+You can trigger a one-off synchronization by making a `POST` request to the server with the [service configuration](#service-configuration) in the request body:
+```sh
+# run this as a scheduled (cron) job
+curl <SERVER_URL> \
+    -d @<path/to/config.json> \
+    -H "Authorization: Basic <base64(<USERNAME>:<PASSWORD>)>"
+```
+
+#### Automation
+To enable automation for one or more services:
+1. Create a [Trello webhook](#trello-webhooks-reference) by setting the callback URL to `<ENTRELLO_SERVER_URL>/trello-webhook`
+2. Set the `SERVICES` environment variable, a comma-separated list of service configuration strings:
+    * A service configuration string must contain the Trello label ID and the service endpoint:
+        ```sh
+        <TRELLO_LABEL_ID>@<SERVICE_ENDPOINT_URL>
+        ```
+    * It may additionally contain an API secret &ndash; _alphanumeric only_ &ndash; for authentication purposes:
+        ```sh
+        # the HTTP header "X-Api-Key" will be set to "SuPerSecRetPassW0rd" in each request
+        <TRELLO_LABEL_ID>:SuPerSecRetPassW0rd@<SERVICE_ENDPOINT_URL>
+        ```
 
 ---
 
@@ -162,12 +163,11 @@ A new [Docker image](https://github.com/utkuufuk?tab=packages&repo_name=entrello
 
 ---
 
-## Available `entrello` Services
-You can use these services directly, or as a reference for developing your own:
+## Example `entrello` Services
+You can use these open-source services as references for developing your own:
 - [utkuufuk/github-service](https://github.com/utkuufuk/github-service)
 - [utkuufuk/goodreads-service](https://github.com/utkuufuk/goodreads-service)
-
-_Stay tuned for more..._
+- _stay tuned for more..._
 
 ---
 
@@ -193,5 +193,3 @@ curl -X DELETE https://api.trello.com/1/webhooks/<TRELLO_WEBHOOK_ID>?key=<TRELLO
 For more information on Trello webhooks:
 * [Trello Webhooks Guide](https://developer.atlassian.com/cloud/trello/guides/rest-api/webhooks/)
 * [Trello Webhooks Reference](https://developer.atlassian.com/cloud/trello/rest/#api-group-Webhooks)
-
-[1]: https://github.com/utkuufuk/entrello/blob/master/pkg/trello/trello.go#:~:text=func-,NewCard,-(name%2C%20description%20string
