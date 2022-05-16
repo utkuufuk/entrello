@@ -165,9 +165,9 @@ A new [Docker image](https://github.com/utkuufuk?tab=packages&repo_name=entrello
 
 ## Example `entrello` Services
 You can use these open-source services as references for developing your own:
+- [utkuufuk/habit-service](https://github.com/utkuufuk/habit-service)
 - [utkuufuk/github-service](https://github.com/utkuufuk/github-service)
 - [utkuufuk/goodreads-service](https://github.com/utkuufuk/goodreads-service)
-- _stay tuned for more..._
 
 ---
 
