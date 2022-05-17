@@ -16,7 +16,7 @@
 
 ## Features
 - Synchronizes all your tasks from various sources in one Trello board.
-- Lets you build automations that can be triggered by user actions via Trello UI.
+- Lets you build automations that can be triggered when a card is archived.
 - Can be used either as a **server** or a **runner** (e.g. a cronjob).
 
 #### Synchronization
@@ -101,7 +101,7 @@ go run ./cmd/runner -c ./config.json
 ---
 
 ## Server Mode
-Put your environment variables in a file called `.env`, based on `.env.example`, and start the server:
+Put your environment variables in a file called `.env` based on `.env.example` and start the server:
 ```sh
 go run ./cmd/server
 ```
@@ -164,7 +164,7 @@ A new [Docker image](https://github.com/utkuufuk?tab=packages&repo_name=entrello
 ---
 
 ## Example `entrello` Services
-You can use these open-source services as references for developing your own:
+You may use these as references for developing your own services:
 - [utkuufuk/habit-service](https://github.com/utkuufuk/habit-service)
 - [utkuufuk/github-service](https://github.com/utkuufuk/github-service)
 - [utkuufuk/goodreads-service](https://github.com/utkuufuk/goodreads-service)
